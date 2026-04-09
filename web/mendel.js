@@ -148,17 +148,24 @@ function updateGenoButtons() {
       btns.forEach(b => b.style.display = 'none');
       if (idx === 0) {
         card.querySelector('.parent-label').textContent = 'Mother (mitochondrial)';
-        // Insert heteroplasmy slider if not already there
         if (!card.querySelector('.mito-slider')) {
           const sl = document.createElement('div');
           sl.className = 'mito-slider';
-          sl.innerHTML = `<label style="font-size:0.7rem;color:var(--text-muted);display:flex;justify-content:space-between;">Heteroplasmy <span class="val" id="hetero-val">${mitoHeteroplasmy}%</span></label>
+          sl.innerHTML = `
+            <select id="mito-disease-select" style="width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:0.2rem 0.4rem;border-radius:4px;font-size:0.72rem;font-family:inherit;margin-bottom:0.3rem;">
+              ${Object.entries(MITO_DISEASES).map(([k, d]) => `<option value="${k}" ${k === mitoDisease ? 'selected' : ''}>${d.name}</option>`).join('')}
+            </select>
+            <label style="font-size:0.7rem;color:var(--text-muted);display:flex;justify-content:space-between;">Heteroplasmy (blood) <span class="val" id="hetero-val">${mitoHeteroplasmy}%</span></label>
             <input type="range" id="hetero-slider" min="0" max="100" step="1" value="${mitoHeteroplasmy}">
-            <div style="display:flex;justify-content:space-between;font-size:0.6rem;color:var(--text-dim);"><span>0% wt</span><span>100% mut</span></div>`;
+            <div style="display:flex;justify-content:space-between;font-size:0.6rem;color:var(--text-dim);"><span>0% wildtype</span><span>100% mutant</span></div>`;
           card.querySelector('.parent-geno').after(sl);
           document.getElementById('hetero-slider').addEventListener('input', (e) => {
             mitoHeteroplasmy = parseInt(e.target.value);
             document.getElementById('hetero-val').textContent = mitoHeteroplasmy + '%';
+            render();
+          });
+          document.getElementById('mito-disease-select').addEventListener('change', (e) => {
+            mitoDisease = e.target.value;
             render();
           });
         }
@@ -271,36 +278,116 @@ function calcXLinked() {
   return { outcomes: result, total, punnett: { g1: motherAlleles, g2: [fatherX, 'Y'] } };
 }
 
+// Mitochondrial disease models
+// Threshold and severity relationship vary greatly between diseases
+const MITO_DISEASES = {
+  general: {
+    name: 'General (no specific disease)',
+    info: 'Threshold and severity vary widely between mt-DNA mutations. No single threshold applies to all mitochondrial diseases.',
+    model: 'none', // no threshold line shown
+  },
+  melas: {
+    name: 'MELAS (m.3243A>G)',
+    info: 'Highly variable expressivity. Symptoms reported at heteroplasmy as low as 10-20%. Severity correlates roughly with heteroplasmy but with wide overlap between affected and unaffected.',
+    model: 'gradual', // gradual increase, no sharp threshold
+    riskAt: [[0, 0], [10, 0.05], [30, 0.3], [50, 0.6], [70, 0.85], [90, 0.95], [100, 1.0]],
+  },
+  narp: {
+    name: 'NARP/Leigh (m.8993T>G)',
+    info: 'Relatively sharp threshold. <70% heteroplasmy usually asymptomatic. 70-90% causes NARP. >90% causes severe Leigh syndrome.',
+    model: 'threshold',
+    riskAt: [[0, 0], [60, 0], [70, 0.2], [80, 0.7], [90, 0.95], [100, 1.0]],
+  },
+  lhon: {
+    name: 'LHON (m.11778G>A)',
+    info: 'Incomplete penetrance even at homoplasmy (100%). ~50% males, ~15% females affected at 100%. Threshold effect above ~70% but highly sex-dependent.',
+    model: 'incomplete',
+    riskAt: [[0, 0], [60, 0], [70, 0.05], [80, 0.15], [90, 0.25], [100, 0.35]], // averaged M+F
+  },
+  merrf: {
+    name: 'MERRF (m.8344A>G)',
+    info: 'Progressive severity with increasing heteroplasmy. Myoclonus and seizures typically above 50-60%, but mild symptoms can appear earlier.',
+    model: 'gradual',
+    riskAt: [[0, 0], [30, 0.05], [50, 0.2], [60, 0.5], [80, 0.8], [100, 1.0]],
+  },
+};
+
+let mitoDisease = 'general';
+
+// ── Mitochondrial Bottleneck Model ──────────────────────────────
+// The mitochondrial genetic bottleneck (~100-200 mt-DNA copies in
+// primordial germ cells) causes massive stochastic redistribution.
+// A mother with 50% heteroplasmy can have children ranging from
+// ~5% to ~95%. This is modeled as a Beta-Binomial distribution.
+//
+// Key parameter: bottleneck size (N). Smaller N = more variance.
+// Empirical estimates: N ~ 100-200 (Cree et al. 2008, Wilson et al. 2016)
+
+function betaBinomialChildDistribution(motherH, bottleneckN) {
+  // Generate probability distribution of child heteroplasmy
+  // given mother's heteroplasmy (h) and bottleneck size (N).
+  //
+  // Child heteroplasmy follows approximately Beta(h*N, (1-h)*N)
+  // which we discretize into bins of 5%.
+  const bins = 21; // 0%, 5%, 10%, ..., 100%
+  const probs = new Array(bins).fill(0);
+
+  if (motherH <= 0) { probs[0] = 1; return probs; }
+  if (motherH >= 1) { probs[bins - 1] = 1; return probs; }
+
+  const alpha = motherH * bottleneckN;
+  const beta = (1 - motherH) * bottleneckN;
+
+  // Compute Beta distribution PDF at each bin center
+  let total = 0;
+  for (let i = 0; i < bins; i++) {
+    const x = i / (bins - 1);
+    // Use log-beta PDF to avoid overflow
+    const lp = (alpha - 1) * Math.log(Math.max(x, 1e-10)) +
+               (beta - 1) * Math.log(Math.max(1 - x, 1e-10));
+    probs[i] = Math.exp(lp);
+    total += probs[i];
+  }
+  // Normalize
+  if (total > 0) for (let i = 0; i < bins; i++) probs[i] /= total;
+  return probs;
+}
+
 function calcMito() {
-  // Mitochondrial: maternal inheritance with heteroplasmy and bottleneck
-  // Mother's heteroplasmy level determines child's range
-  // Bottleneck: children's heteroplasmy varies around mother's level
   const h = mitoHeteroplasmy / 100;
-  const threshold = 0.6; // typical disease threshold ~60%
+  const disease = MITO_DISEASES[mitoDisease];
+  const bottleneckN = 150; // typical estimate
 
-  // Outcome categories based on heteroplasmy distribution after bottleneck
+  // Get child heteroplasmy distribution
+  const childDist = betaBinomialChildDistribution(h, bottleneckN);
+
+  // Summary: probability of child being in different ranges
+  let pLow = 0, pMid = 0, pHigh = 0;
+  // Low: 0-25%, Mid: 25-75%, High: 75-100%
+  for (let i = 0; i < childDist.length; i++) {
+    const pct = i * 5;
+    if (pct <= 25) pLow += childDist[i];
+    else if (pct <= 75) pMid += childDist[i];
+    else pHigh += childDist[i];
+  }
+
   const outcomes = [];
-  if (h === 0) {
-    outcomes.push({ geno: 'wt (0%)', prob: 1.0, status: 'unaffected', count: 1 });
-  } else if (h === 1) {
-    outcomes.push({ geno: 'mut (100%)', prob: 1.0, status: 'affected', count: 1 });
-  } else {
-    // Bottleneck creates variance: approximate with low/mid/high bins
-    // Higher maternal heteroplasmy → more likely children cross threshold
-    const pBelow = Math.max(0, 1 - h * 1.5);  // prob child well below threshold
-    const pAbove = Math.max(0, h * 1.5 - 0.5); // prob child above threshold
-    const pMid = Math.max(0, 1 - pBelow - pAbove);
+  if (pLow > 0.01) outcomes.push({ geno: `low (0-25%)`, prob: pLow, status: 'unaffected', count: 1 });
+  if (pMid > 0.01) outcomes.push({ geno: `mid (25-75%)`, prob: pMid, status: 'carrier', count: 1 });
+  if (pHigh > 0.01) outcomes.push({ geno: `high (75-100%)`, prob: pHigh, status: 'affected', count: 1 });
 
-    if (pBelow > 0.01) outcomes.push({ geno: `low (<${Math.round(threshold*100)}%)`, prob: pBelow, status: 'unaffected', count: 1 });
-    if (pMid > 0.01) outcomes.push({ geno: `variable (~${Math.round(h*100)}%)`, prob: pMid, status: 'carrier', count: 1 });
-    if (pAbove > 0.01) outcomes.push({ geno: `high (>${Math.round(threshold*100)}%)`, prob: pAbove, status: 'affected', count: 1 });
+  // If all zero (edge case), show the main bin
+  if (outcomes.length === 0) {
+    outcomes.push({ geno: `~${Math.round(h * 100)}%`, prob: 1, status: h > 0.5 ? 'affected' : 'unaffected', count: 1 });
   }
 
   return {
     outcomes,
     total: 1,
     punnett: null,
-    mitoInfo: `Mother heteroplasmy: ${mitoHeteroplasmy}%. Disease threshold ~${Math.round(threshold*100)}%. Mitochondrial bottleneck creates variable inheritance.`,
+    mitoInfo: disease.info,
+    mitoDisease: disease,
+    childDist,
   };
 }
 
@@ -327,10 +414,8 @@ function renderPhenotypes() {
 
   if (isMito) {
     const h = mitoHeteroplasmy;
-    const color = h >= 60 ? 'var(--danger)' : h >= 30 ? 'var(--warning)' : 'var(--success)';
-    document.getElementById('p1-pheno').innerHTML = `<span style="color:${color}">${h}% heteroplasmy</span>`;
-    const fColor = mitoFatherHetero >= 60 ? 'var(--danger)' : mitoFatherHetero >= 30 ? 'var(--warning)' : 'var(--success)';
-    document.getElementById('p2-pheno').innerHTML = `<span style="color:${fColor}">${mitoFatherHetero}% heteroplasmy</span><br><span style="color:var(--text-dim);font-size:0.6rem;">not passed to children</span>`;
+    document.getElementById('p1-pheno').innerHTML = `<span style="color:var(--accent)">${h}% heteroplasmy</span><br><span style="color:var(--text-dim);font-size:0.6rem;">measured in blood (varies by tissue)</span>`;
+    document.getElementById('p2-pheno').innerHTML = `<span style="color:var(--text-muted)">${mitoFatherHetero}% heteroplasmy</span><br><span style="color:var(--text-dim);font-size:0.6rem;">not passed to children</span>`;
     return;
   }
 
@@ -355,24 +440,65 @@ function renderPhenotypes() {
 function renderPunnett(cross) {
   const svg = document.getElementById('punnett');
   if (!cross.punnett) {
-    const info = cross.mitoInfo || 'Mitochondrial: maternal inheritance only';
-    // Wrap text manually
-    const words = info.split('. ');
+    const childDist = cross.childDist || [];
+    const w = 460, ht = 220;
     let html = '';
-    words.forEach((w, i) => {
-      html += `<text x="150" y="${50 + i * 18}" fill="#94a3b8" font-size="10" text-anchor="middle">${w}${i < words.length - 1 ? '.' : ''}</text>`;
+
+    // Title
+    html += `<text x="${w/2}" y="14" fill="#94a3b8" font-size="10" text-anchor="middle" font-weight="600">Predicted child heteroplasmy distribution (bottleneck model)</text>`;
+
+    // Histogram of child heteroplasmy
+    const histX = 40, histY = 28, histW = w - 80, histH = 90;
+    const maxP = Math.max(...childDist, 0.01);
+    const barW = histW / childDist.length;
+
+    // Background
+    html += `<rect x="${histX}" y="${histY}" width="${histW}" height="${histH}" fill="#0a0e17" rx="3"/>`;
+
+    // Bars
+    childDist.forEach((p, i) => {
+      const barH = (p / maxP) * histH * 0.9;
+      const x = histX + i * barW;
+      const y = histY + histH - barH;
+      const pct = i * 5;
+      const color = pct <= 25 ? '#10b981' : pct <= 75 ? '#f59e0b' : '#ef4444';
+      if (barH > 0.5) {
+        html += `<rect x="${x + 1}" y="${y}" width="${barW - 2}" height="${barH}" fill="${color}" opacity="0.7" rx="1"/>`;
+      }
     });
-    // Heteroplasmy bar
-    const h = mitoHeteroplasmy / 100;
-    const barW = 200, barH = 16, barX = 50, barY = 120;
-    html += `<rect x="${barX}" y="${barY}" width="${barW}" height="${barH}" fill="#1e293b" rx="3"/>`;
-    html += `<rect x="${barX}" y="${barY}" width="${barW * h}" height="${barH}" fill="${h >= 0.6 ? '#ef4444' : h >= 0.3 ? '#f59e0b' : '#10b981'}" rx="3" opacity="0.7"/>`;
-    html += `<line x1="${barX + barW * 0.6}" y1="${barY - 3}" x2="${barX + barW * 0.6}" y2="${barY + barH + 3}" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,2"/>`;
-    html += `<text x="${barX + barW * 0.6}" y="${barY + barH + 14}" fill="#ef4444" font-size="8" text-anchor="middle">threshold ~60%</text>`;
-    html += `<text x="${barX}" y="${barY + barH + 14}" fill="#64748b" font-size="8">0% wt</text>`;
-    html += `<text x="${barX + barW}" y="${barY + barH + 14}" fill="#64748b" font-size="8" text-anchor="end">100% mut</text>`;
+
+    // X axis labels
+    for (let i = 0; i <= 4; i++) {
+      const pct = i * 25;
+      const x = histX + (pct / 100) * histW;
+      html += `<text x="${x}" y="${histY + histH + 12}" fill="#475569" font-size="8" text-anchor="middle">${pct}%</text>`;
+    }
+    html += `<text x="${histX + histW}" y="${histY + histH + 12}" fill="#475569" font-size="8" text-anchor="middle">100%</text>`;
+
+    // Mother's level indicator
+    const motherX = histX + (mitoHeteroplasmy / 100) * histW;
+    html += `<line x1="${motherX}" y1="${histY - 2}" x2="${motherX}" y2="${histY + histH + 2}" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3,2"/>`;
+    html += `<text x="${motherX}" y="${histY - 5}" fill="var(--accent)" font-size="8" text-anchor="middle">mother ${mitoHeteroplasmy}%</text>`;
+
+    // Info text below histogram
+    const textY = histY + histH + 28;
+    const lines = [
+      'Mitochondrial bottleneck (~100-200 mt-DNA copies) causes',
+      'stochastic redistribution. Child heteroplasmy can differ',
+      'greatly from mother. Each tissue/cell can vary further.',
+    ];
+    lines.forEach((line, i) => {
+      html += `<text x="${w/2}" y="${textY + i * 13}" fill="#475569" font-size="8.5" text-anchor="middle">${line}</text>`;
+    });
+
+    // Disease-specific note
+    if (cross.mitoDisease && cross.mitoDisease.model !== 'none') {
+      const noteY = textY + lines.length * 13 + 5;
+      html += `<text x="${w/2}" y="${noteY}" fill="#94a3b8" font-size="8" text-anchor="middle" font-style="italic">Note: clinical thresholds vary by mutation, tissue, and individual.</text>`;
+    }
+
     svg.innerHTML = html;
-    svg.setAttribute('viewBox', '0 0 300 165');
+    svg.setAttribute('viewBox', `0 0 ${w} ${textY + 50}`);
     return;
   }
 
