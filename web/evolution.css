@@ -2,6 +2,18 @@
 
 .evo-widget { max-width: 580px; }
 
+/* Scientific context */
+.science-banner {
+  padding: 0.5rem 0.8rem;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: var(--text-dim);
+  background: rgba(6, 182, 212, 0.05);
+  border-bottom: 1px solid var(--border);
+}
+.science-banner strong { color: var(--text-muted); }
+.science-banner a { color: var(--accent-dim); font-size: 0.65rem; }
+
 /* Controls grid */
 .controls-grid {
   display: grid;

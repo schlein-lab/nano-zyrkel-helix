@@ -441,6 +441,17 @@ input[type="range"]::-webkit-slider-thumb {
 .back-link:hover { opacity: 1; color: var(--accent); }
 .hwe-header .banner-overlay { flex-direction: row; align-items: center; }
 
+/* Science disclaimer (shared) */
+.science-disclaimer {
+  padding: 0.3rem 0.8rem;
+  font-size: 0.6rem;
+  line-height: 1.35;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.science-disclaimer a { color: var(--accent-dim); }
+
 /* Embed mode */
 body.embed { padding: 0; background: transparent; }
 body.embed .widget { border-radius: 0; border: none; max-width: 100%; }

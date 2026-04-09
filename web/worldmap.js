@@ -27,16 +27,20 @@ const CONTINENTS = [
 ];
 
 // Out-of-Africa migration route nodes (approximate positions on our map)
+// Geographic population nodes — these represent geographic regions
+// where human populations have lived, NOT discrete "races".
+// Human genetic variation is clinal (gradual) and does not cluster
+// into discrete groups. These nodes are a simplification for modeling.
 const OOA_NODES = [
-  { id: 'africa',      x: 250, y: 155, label: 'Africa',        pop: 'AFR' },
-  { id: 'mideast',     x: 285, y: 100, label: 'Middle East',   pop: null },
+  { id: 'africa',      x: 250, y: 155, label: 'E. Africa',     pop: 'AFR' },
+  { id: 'mideast',     x: 285, y: 100, label: 'W. Asia',       pop: null },
   { id: 'europe',      x: 255, y: 72,  label: 'Europe',        pop: 'EUR' },
-  { id: 'central_asia',x: 325, y: 70,  label: 'Central Asia',  pop: null },
-  { id: 'south_asia',  x: 325, y: 115, label: 'South Asia',    pop: 'SAS' },
-  { id: 'east_asia',   x: 380, y: 70,  label: 'East Asia',     pop: 'EAS' },
-  { id: 'se_asia',     x: 375, y: 115, label: 'SE Asia',       pop: null },
+  { id: 'central_asia',x: 325, y: 70,  label: 'C. Asia',       pop: null },
+  { id: 'south_asia',  x: 325, y: 115, label: 'S. Asia',       pop: 'SAS' },
+  { id: 'east_asia',   x: 380, y: 70,  label: 'E. Asia',       pop: 'EAS' },
+  { id: 'se_asia',     x: 375, y: 115, label: 'SE. Asia',      pop: null },
   { id: 'australia',   x: 395, y: 190, label: 'Oceania',       pop: null },
-  { id: 'siberia',     x: 370, y: 45,  label: 'Siberia',       pop: null },
+  { id: 'siberia',     x: 370, y: 45,  label: 'N. Asia',       pop: null },
   { id: 'americas',    x: 90,  y: 80,  label: 'Americas',      pop: 'AMR' },
 ];
 
