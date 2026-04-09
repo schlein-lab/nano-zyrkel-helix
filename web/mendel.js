@@ -42,6 +42,7 @@ let currentMode = 'cross';
 let pedigreeChildren = [];
 let quizIndex = 0;
 let activePreset = null;
+let mitoHeteroplasmy = 50; // 0-100%
 
 // ── Init ────────────────────────────────────────────────────────
 function init() {
@@ -141,7 +142,32 @@ function updateGenoButtons() {
       btns[1].style.display = ''; btns[1].textContent = 'XᴬXᵃ'; btns[1].dataset.g = 'Aa';
       btns[2].textContent = 'XᵃXᵃ'; btns[2].dataset.g = 'aa';
       card.querySelector('.parent-label').textContent = 'Mother';
+    } else if (isMito) {
+      // Mitochondrial: show heteroplasmy slider for mother, nothing for father
+      btns.forEach(b => b.style.display = 'none');
+      if (idx === 0) {
+        card.querySelector('.parent-label').textContent = 'Mother (mitochondrial)';
+        // Insert heteroplasmy slider if not already there
+        if (!card.querySelector('.mito-slider')) {
+          const sl = document.createElement('div');
+          sl.className = 'mito-slider';
+          sl.innerHTML = `<label style="font-size:0.7rem;color:var(--text-muted);display:flex;justify-content:space-between;">Heteroplasmy <span class="val" id="hetero-val">${mitoHeteroplasmy}%</span></label>
+            <input type="range" id="hetero-slider" min="0" max="100" step="1" value="${mitoHeteroplasmy}">
+            <div style="display:flex;justify-content:space-between;font-size:0.6rem;color:var(--text-dim);"><span>0% wt</span><span>100% mut</span></div>`;
+          card.querySelector('.parent-geno').after(sl);
+          document.getElementById('hetero-slider').addEventListener('input', (e) => {
+            mitoHeteroplasmy = parseInt(e.target.value);
+            document.getElementById('hetero-val').textContent = mitoHeteroplasmy + '%';
+            render();
+          });
+        }
+      } else {
+        card.querySelector('.parent-label').textContent = 'Father (no mt contribution)';
+      }
     } else {
+      // Remove mito slider if switching away
+      document.querySelectorAll('.mito-slider').forEach(s => s.remove());
+      btns.forEach(b => b.style.display = '');
       btns[0].textContent = 'AA'; btns[0].dataset.g = 'AA';
       btns[1].style.display = ''; btns[1].textContent = 'Aa'; btns[1].dataset.g = 'Aa';
       btns[2].textContent = 'aa'; btns[2].dataset.g = 'aa';
@@ -232,12 +258,35 @@ function calcXLinked() {
 }
 
 function calcMito() {
-  // Mitochondrial: mother passes to all children
-  const affected = p1geno === 'aa' || p1geno === 'Aa';
+  // Mitochondrial: maternal inheritance with heteroplasmy and bottleneck
+  // Mother's heteroplasmy level determines child's range
+  // Bottleneck: children's heteroplasmy varies around mother's level
+  const h = mitoHeteroplasmy / 100;
+  const threshold = 0.6; // typical disease threshold ~60%
+
+  // Outcome categories based on heteroplasmy distribution after bottleneck
+  const outcomes = [];
+  if (h === 0) {
+    outcomes.push({ geno: 'wt (0%)', prob: 1.0, status: 'unaffected', count: 1 });
+  } else if (h === 1) {
+    outcomes.push({ geno: 'mut (100%)', prob: 1.0, status: 'affected', count: 1 });
+  } else {
+    // Bottleneck creates variance: approximate with low/mid/high bins
+    // Higher maternal heteroplasmy → more likely children cross threshold
+    const pBelow = Math.max(0, 1 - h * 1.5);  // prob child well below threshold
+    const pAbove = Math.max(0, h * 1.5 - 0.5); // prob child above threshold
+    const pMid = Math.max(0, 1 - pBelow - pAbove);
+
+    if (pBelow > 0.01) outcomes.push({ geno: `low (<${Math.round(threshold*100)}%)`, prob: pBelow, status: 'unaffected', count: 1 });
+    if (pMid > 0.01) outcomes.push({ geno: `variable (~${Math.round(h*100)}%)`, prob: pMid, status: 'carrier', count: 1 });
+    if (pAbove > 0.01) outcomes.push({ geno: `high (>${Math.round(threshold*100)}%)`, prob: pAbove, status: 'affected', count: 1 });
+  }
+
   return {
-    outcomes: [{ geno: 'maternal', prob: 1.0, status: affected ? 'affected' : 'unaffected', count: 1 }],
+    outcomes,
     total: 1,
     punnett: null,
+    mitoInfo: `Mother heteroplasmy: ${mitoHeteroplasmy}%. Disease threshold ~${Math.round(threshold*100)}%. Mitochondrial bottleneck creates variable inheritance.`,
   };
 }
 
@@ -260,8 +309,15 @@ function render() {
 
 function renderPhenotypes() {
   const isDom = inheritance === 'ad' || inheritance === 'xd';
-  const preset = activePreset ? DISEASE_PRESETS[activePreset] : null;
-  const label = preset ? preset.name : (isDom ? 'Dominant trait' : 'Recessive trait');
+  const isMito = inheritance === 'mito';
+
+  if (isMito) {
+    const h = mitoHeteroplasmy;
+    const color = h >= 60 ? 'var(--danger)' : h >= 30 ? 'var(--warning)' : 'var(--success)';
+    document.getElementById('p1-pheno').innerHTML = `<span style="color:${color}">${h}% heteroplasmy</span>`;
+    document.getElementById('p2-pheno').innerHTML = `<span style="color:var(--text-dim)">no mt contribution</span>`;
+    return;
+  }
 
   function phenoText(g, isParent2) {
     const isX = inheritance === 'xr' || inheritance === 'xd';
@@ -283,7 +339,27 @@ function renderPhenotypes() {
 
 function renderPunnett(cross) {
   const svg = document.getElementById('punnett');
-  if (!cross.punnett) { svg.innerHTML = '<text x="150" y="100" fill="#475569" font-size="11" text-anchor="middle">Mitochondrial: maternal inheritance only</text>'; return; }
+  if (!cross.punnett) {
+    const info = cross.mitoInfo || 'Mitochondrial: maternal inheritance only';
+    // Wrap text manually
+    const words = info.split('. ');
+    let html = '';
+    words.forEach((w, i) => {
+      html += `<text x="150" y="${50 + i * 18}" fill="#94a3b8" font-size="10" text-anchor="middle">${w}${i < words.length - 1 ? '.' : ''}</text>`;
+    });
+    // Heteroplasmy bar
+    const h = mitoHeteroplasmy / 100;
+    const barW = 200, barH = 16, barX = 50, barY = 120;
+    html += `<rect x="${barX}" y="${barY}" width="${barW}" height="${barH}" fill="#1e293b" rx="3"/>`;
+    html += `<rect x="${barX}" y="${barY}" width="${barW * h}" height="${barH}" fill="${h >= 0.6 ? '#ef4444' : h >= 0.3 ? '#f59e0b' : '#10b981'}" rx="3" opacity="0.7"/>`;
+    html += `<line x1="${barX + barW * 0.6}" y1="${barY - 3}" x2="${barX + barW * 0.6}" y2="${barY + barH + 3}" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,2"/>`;
+    html += `<text x="${barX + barW * 0.6}" y="${barY + barH + 14}" fill="#ef4444" font-size="8" text-anchor="middle">threshold ~60%</text>`;
+    html += `<text x="${barX}" y="${barY + barH + 14}" fill="#64748b" font-size="8">0% wt</text>`;
+    html += `<text x="${barX + barW}" y="${barY + barH + 14}" fill="#64748b" font-size="8" text-anchor="end">100% mut</text>`;
+    svg.innerHTML = html;
+    svg.setAttribute('viewBox', '0 0 300 165');
+    return;
+  }
 
   const { g1, g2 } = cross.punnett;
   const w = 300, h = 200;
