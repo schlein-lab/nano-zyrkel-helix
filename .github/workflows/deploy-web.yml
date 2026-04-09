@@ -43,7 +43,7 @@ jobs:
       - name: Prepare pages
         run: |
           mkdir -p pages
-          cp web/index.html web/app.js web/style.css pages/
+          cp web/*.html web/*.js web/*.css web/*.png pages/ 2>/dev/null || true
           cp -r web/pkg pages/pkg
           if [ -d staging ]; then cp -r staging pages/staging; fi
 
