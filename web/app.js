@@ -353,13 +353,24 @@ async function searchGene(query) {
   try {
     const res = await fetch(`${VUS_API}/data/index.json`);
     const data = await res.json();
-    const genes = data.top_genes || [];
-    const matches = genes.filter(g => g.gene.toLowerCase().includes(query.toLowerCase())).slice(0, 8);
+    // gene_breakdowns has all genes: { "BRCA1": { total: 1234, ... }, ... }
+    const gb = data.gene_breakdowns || {};
+    const genes = Object.entries(gb).map(([gene, info]) => ({ gene, total: info.total }));
+    const q_lower = query.toLowerCase();
+    const matches = genes
+      .filter(g => g.gene.toLowerCase().includes(q_lower))
+      .sort((a, b) => {
+        // Prioritize starts-with, then by total variants
+        const aStarts = a.gene.toLowerCase().startsWith(q_lower) ? 1 : 0;
+        const bStarts = b.gene.toLowerCase().startsWith(q_lower) ? 1 : 0;
+        return bStarts - aStarts || b.total - a.total;
+      })
+      .slice(0, 8);
     if (matches.length === 0) {
       ac.innerHTML = '<div class="ac-item"><span class="gene" style="color:var(--text-dim)">No results</span></div>';
     } else {
       ac.innerHTML = matches.map(g =>
-        `<div class="ac-item" data-gene="${g.gene}"><span class="gene">${g.gene}</span><span class="count">${g.total} variants</span></div>`
+        `<div class="ac-item" data-gene="${g.gene}"><span class="gene">${g.gene}</span><span class="count">${fmtNum(g.total)} variants</span></div>`
       ).join('');
       ac.querySelectorAll('.ac-item[data-gene]').forEach(item => {
         item.addEventListener('mousedown', () => {
