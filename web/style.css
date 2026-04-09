@@ -192,6 +192,101 @@ input[type="range"]::-webkit-slider-thumb {
 .ac-item .gene { font-weight: 600; }
 .ac-item .count { color: var(--text-dim); font-size: 0.7rem; }
 
+/* gnomAD Lookup Panel */
+.gnomad-panel {
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+.gnomad-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+.gnomad-gene { font-weight: 700; color: var(--accent); font-size: 0.85rem; }
+.gnomad-close {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 0.3rem;
+  line-height: 1;
+}
+.gnomad-close:hover { color: var(--text); }
+.gnomad-search {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.4rem 0.8rem;
+}
+.gnomad-search input {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.35rem 0.6rem;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  outline: none;
+}
+.gnomad-search input:focus { border-color: var(--accent-dim); }
+.gnomad-search input::placeholder { color: var(--text-dim); }
+.gnomad-fetch {
+  background: var(--accent-dim);
+  border: none;
+  color: #fff;
+  padding: 0.35rem 0.7rem;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.gnomad-fetch:hover { background: var(--accent); }
+.gnomad-fetch:disabled { opacity: 0.5; cursor: wait; }
+.gnomad-status {
+  padding: 0 0.8rem;
+  font-size: 0.73rem;
+  color: var(--text-dim);
+  min-height: 1.2em;
+}
+.gnomad-status.error { color: var(--danger); }
+.gnomad-status.ok { color: var(--success); }
+.gnomad-results {
+  padding: 0 0.8rem 0.4rem;
+}
+.gnomad-result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0.5rem;
+  margin-top: 0.2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.12s;
+  font-size: 0.78rem;
+}
+.gnomad-result-item:hover { border-color: var(--accent-dim); }
+.gnomad-result-item .rsid { font-weight: 600; color: var(--accent); }
+.gnomad-result-item .consequence { color: var(--text-dim); font-size: 0.7rem; }
+.gnomad-result-item .freq { font-family: monospace; font-size: 0.75rem; }
+.gnomad-result-item .use-btn {
+  background: var(--accent-dim);
+  color: #fff;
+  border: none;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+.gnomad-result-item .use-btn:hover { background: var(--accent); }
+
 /* Variant Detail Panel */
 .variant-detail {
   border-top: 1px solid var(--border);

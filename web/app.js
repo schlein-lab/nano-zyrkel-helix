@@ -388,12 +388,7 @@ async function searchGene(query) {
             document.getElementById('variant-detail').style.display = '';
             render();
           } else {
-            document.getElementById('variant-info').innerHTML =
-              `<span class="var-name">${item.dataset.gene}</span> <span class="var-gene">found in VUS Tracker</span>
-              <div class="var-note">gnomAD frequency data for additional genes coming soon. Try the preset variants above.</div>`;
-            document.getElementById('variant-detail').style.display = '';
-            document.getElementById('pop-tabs').innerHTML = '';
-            document.getElementById('obs-vs-exp').innerHTML = '';
+            openGnomadPanel(item.dataset.gene);
           }
         });
       });
@@ -403,6 +398,272 @@ async function searchGene(query) {
     ac.innerHTML = '<div class="ac-item"><span style="color:var(--text-dim)">Search unavailable</span></div>';
     ac.classList.add('open');
   }
+}
+
+// ── gnomAD Lookup Panel ─────────────────────────────────────────
+const GNOMAD_API = 'https://gnomad.broadinstitute.org/api';
+
+function openGnomadPanel(gene) {
+  const panel = document.getElementById('gnomad-panel');
+  document.getElementById('gnomad-gene').textContent = gene + ' — gnomAD Lookup';
+  document.getElementById('gnomad-input').value = '';
+  document.getElementById('gnomad-status').textContent = 'Enter a variant ID or search by gene to find common variants.';
+  document.getElementById('gnomad-status').className = 'gnomad-status';
+  document.getElementById('gnomad-results').innerHTML = '';
+  document.getElementById('variant-detail').style.display = 'none';
+  panel.style.display = '';
+  panel.dataset.gene = gene;
+
+  // Wire up buttons
+  document.getElementById('gnomad-close').onclick = () => { panel.style.display = 'none'; };
+  document.getElementById('gnomad-fetch').onclick = () => {
+    const q = document.getElementById('gnomad-input').value.trim();
+    if (q) fetchGnomadVariant(q, gene);
+  };
+  document.getElementById('gnomad-input').onkeydown = (e) => {
+    if (e.key === 'Enter') {
+      const q = document.getElementById('gnomad-input').value.trim();
+      if (q) fetchGnomadVariant(q, gene);
+    }
+  };
+
+  // Auto-search for common variants in this gene
+  fetchGnomadGeneVariants(gene);
+}
+
+async function fetchGnomadGeneVariants(gene) {
+  const status = document.getElementById('gnomad-status');
+  const results = document.getElementById('gnomad-results');
+  status.textContent = `Searching gnomAD for common ${gene} variants...`;
+  status.className = 'gnomad-status';
+
+  const query = `{
+    gene(gene_symbol: "${gene}", reference_genome: GRCh38) {
+      variants(dataset: gnomad_r4) {
+        variant_id
+        rsids
+        pos
+        ref
+        alt
+        exome {
+          ac
+          an
+          homozygote_count
+          populations { id ac an homozygote_count }
+        }
+        genome {
+          ac
+          an
+          homozygote_count
+          populations { id ac an homozygote_count }
+        }
+      }
+    }
+  }`;
+
+  try {
+    const res = await fetch(GNOMAD_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    });
+    const data = await res.json();
+    const variants = data?.data?.gene?.variants || [];
+
+    // Pick variants with highest allele frequency that have some homozygotes
+    const scored = variants
+      .map(v => {
+        const d = mergeExomeGenome(v);
+        return { ...v, ...d };
+      })
+      .filter(v => v.an > 0 && v.ac > 0)
+      .sort((a, b) => (b.ac / b.an) - (a.ac / a.an))
+      .slice(0, 6);
+
+    if (scored.length === 0) {
+      status.textContent = `No variants with frequency data found for ${gene}.`;
+      status.className = 'gnomad-status error';
+      return;
+    }
+
+    status.textContent = `Found ${variants.length} variants. Showing ${scored.length} most common:`;
+    status.className = 'gnomad-status ok';
+
+    results.innerHTML = scored.map(v => {
+      const freq = v.an > 0 ? (v.ac / v.an) : 0;
+      const rsid = v.rsids?.[0] || v.variant_id;
+      return `<div class="gnomad-result-item" data-vid="${v.variant_id}">
+        <div>
+          <span class="rsid">${rsid}</span>
+          <span class="consequence">${v.variant_id}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem">
+          <span class="freq">${(freq * 100).toFixed(3)}%</span>
+          <button class="use-btn">Use</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    results.querySelectorAll('.gnomad-result-item').forEach(item => {
+      item.querySelector('.use-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const vid = item.dataset.vid;
+        const v = scored.find(s => s.variant_id === vid);
+        if (v) loadGnomadVariant(v, gene);
+      });
+    });
+  } catch (e) {
+    status.textContent = `gnomAD request failed: ${e.message}`;
+    status.className = 'gnomad-status error';
+  }
+}
+
+async function fetchGnomadVariant(query, gene) {
+  const status = document.getElementById('gnomad-status');
+  const results = document.getElementById('gnomad-results');
+  const btn = document.getElementById('gnomad-fetch');
+  btn.disabled = true;
+  status.textContent = `Fetching ${query} from gnomAD...`;
+  status.className = 'gnomad-status';
+
+  // Determine if rsID or variant_id format
+  let gqlQuery;
+  if (query.startsWith('rs')) {
+    gqlQuery = `{
+      variant(rsid: "${query}", dataset: gnomad_r4) {
+        variant_id
+        rsids
+        pos
+        ref
+        alt
+        exome {
+          ac an homozygote_count
+          populations { id ac an homozygote_count }
+        }
+        genome {
+          ac an homozygote_count
+          populations { id ac an homozygote_count }
+        }
+      }
+    }`;
+  } else {
+    // Expect chr-pos-ref-alt format
+    gqlQuery = `{
+      variant(variantId: "${query}", dataset: gnomad_r4) {
+        variant_id
+        rsids
+        pos
+        ref
+        alt
+        exome {
+          ac an homozygote_count
+          populations { id ac an homozygote_count }
+        }
+        genome {
+          ac an homozygote_count
+          populations { id ac an homozygote_count }
+        }
+      }
+    }`;
+  }
+
+  try {
+    const res = await fetch(GNOMAD_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: gqlQuery }),
+    });
+    const data = await res.json();
+    const v = data?.data?.variant;
+
+    if (!v) {
+      status.textContent = `Variant "${query}" not found in gnomAD.`;
+      status.className = 'gnomad-status error';
+      btn.disabled = false;
+      return;
+    }
+
+    const d = mergeExomeGenome(v);
+    if (d.an === 0) {
+      status.textContent = `Variant found but no allele count data available.`;
+      status.className = 'gnomad-status error';
+      btn.disabled = false;
+      return;
+    }
+
+    const rsid = v.rsids?.[0] || v.variant_id;
+    status.textContent = `Found ${rsid} — loading into HWE calculator...`;
+    status.className = 'gnomad-status ok';
+
+    loadGnomadVariant({ ...v, ...d }, gene);
+  } catch (e) {
+    status.textContent = `gnomAD request failed: ${e.message}`;
+    status.className = 'gnomad-status error';
+  }
+  btn.disabled = false;
+}
+
+function mergeExomeGenome(v) {
+  // Combine exome + genome data
+  const ex = v.exome || { ac: 0, an: 0, homozygote_count: 0, populations: [] };
+  const gn = v.genome || { ac: 0, an: 0, homozygote_count: 0, populations: [] };
+
+  const ac = (ex.ac || 0) + (gn.ac || 0);
+  const an = (ex.an || 0) + (gn.an || 0);
+  const hom = (ex.homozygote_count || 0) + (gn.homozygote_count || 0);
+
+  // Merge populations
+  const popMap = {};
+  const POP_NAMES = {
+    afr: 'African', amr: 'Latino', eas: 'East Asian',
+    nfe: 'European', sas: 'South Asian', fin: 'Finnish',
+    asj: 'Ashkenazi', mid: 'Middle Eastern', ami: 'Amish',
+  };
+
+  [...(ex.populations || []), ...(gn.populations || [])].forEach(p => {
+    const id = p.id.toLowerCase().replace('gnomad_', '');
+    if (!POP_NAMES[id]) return;
+    if (!popMap[id]) popMap[id] = { an: 0, ac: 0, hom: 0 };
+    popMap[id].an += p.an || 0;
+    popMap[id].ac += p.ac || 0;
+    popMap[id].hom += p.homozygote_count || 0;
+  });
+
+  const populations = { Global: [an, ac, hom] };
+  Object.entries(popMap).forEach(([id, d]) => {
+    if (d.an > 0) populations[POP_NAMES[id]] = [d.an, d.ac, d.hom];
+  });
+
+  return { ac, an, hom, populations };
+}
+
+function loadGnomadVariant(v, gene) {
+  const rsid = v.rsids?.[0] || v.variant_id;
+  const vid = v.variant_id || '';
+
+  // Create a dynamic variant entry
+  const key = '_gnomad_' + rsid;
+  VARIANTS[key] = {
+    name: rsid,
+    gene: gene,
+    hgvs: vid,
+    note: `Live data from gnomAD v4. ${fmtNum(v.an)} alleles, ${fmtNum(v.ac)} alternate, ${v.hom} homozygotes globally.`,
+    populations: v.populations,
+  };
+
+  // Activate it
+  activeVariant = key;
+  activePop = 'Global';
+  document.querySelectorAll('.preset').forEach(b => b.classList.remove('active'));
+
+  const [AN, AC] = v.populations['Global'];
+  manualP = AC / AN;
+  document.getElementById('p-slider').value = manualP;
+  document.getElementById('p-val').textContent = manualP.toFixed(3);
+
+  document.getElementById('gnomad-panel').style.display = 'none';
+  document.getElementById('variant-detail').style.display = '';
+  render();
 }
 
 // ── Helpers ─────────────────────────────────────────────────────
