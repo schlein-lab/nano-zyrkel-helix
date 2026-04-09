@@ -42,7 +42,8 @@ let currentMode = 'cross';
 let pedigreeChildren = [];
 let quizIndex = 0;
 let activePreset = null;
-let mitoHeteroplasmy = 50; // 0-100%
+let mitoHeteroplasmy = 50; // 0-100% mother
+let mitoFatherHetero = 30; // 0-100% father (irrelevant, educational)
 
 // ── Init ────────────────────────────────────────────────────────
 function init() {
@@ -162,7 +163,20 @@ function updateGenoButtons() {
           });
         }
       } else {
-        card.querySelector('.parent-label').textContent = 'Father (no mt contribution)';
+        card.querySelector('.parent-label').textContent = 'Father (mitochondrial)';
+        if (!card.querySelector('.mito-slider')) {
+          const sl = document.createElement('div');
+          sl.className = 'mito-slider';
+          sl.innerHTML = `<label style="font-size:0.7rem;color:var(--text-muted);display:flex;justify-content:space-between;">Heteroplasmy <span class="val" id="hetero-father-val">${mitoFatherHetero}%</span></label>
+            <input type="range" id="hetero-father-slider" min="0" max="100" step="1" value="${mitoFatherHetero}">
+            <div style="font-size:0.6rem;color:var(--text-dim);font-style:italic;margin-top:0.15rem;">&#9432; Father's mt-DNA is not inherited by children</div>`;
+          card.querySelector('.parent-geno').after(sl);
+          document.getElementById('hetero-father-slider').addEventListener('input', (e) => {
+            mitoFatherHetero = parseInt(e.target.value);
+            document.getElementById('hetero-father-val').textContent = mitoFatherHetero + '%';
+            render(); // re-render but outcome won't change — that's the point
+          });
+        }
       }
     } else {
       // Remove mito slider if switching away
@@ -315,7 +329,8 @@ function renderPhenotypes() {
     const h = mitoHeteroplasmy;
     const color = h >= 60 ? 'var(--danger)' : h >= 30 ? 'var(--warning)' : 'var(--success)';
     document.getElementById('p1-pheno').innerHTML = `<span style="color:${color}">${h}% heteroplasmy</span>`;
-    document.getElementById('p2-pheno').innerHTML = `<span style="color:var(--text-dim)">no mt contribution</span>`;
+    const fColor = mitoFatherHetero >= 60 ? 'var(--danger)' : mitoFatherHetero >= 30 ? 'var(--warning)' : 'var(--success)';
+    document.getElementById('p2-pheno').innerHTML = `<span style="color:${fColor}">${mitoFatherHetero}% heteroplasmy</span><br><span style="color:var(--text-dim);font-size:0.6rem;">not passed to children</span>`;
     return;
   }
 
