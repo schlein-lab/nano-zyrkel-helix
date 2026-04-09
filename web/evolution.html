@@ -125,15 +125,22 @@
     </div>
 
     <!-- World Map -->
-    <div class="chart-area">
+    <div class="chart-area map-area">
       <svg id="mig-map" viewBox="0 0 500 280" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
 
-    <!-- Time slider -->
-    <div class="time-row">
-      <button class="play-btn" id="mig-play">&#9654;</button>
-      <input type="range" id="mig-time" min="0" max="100" step="1" value="100" class="time-slider">
-      <span class="val" id="v-time">final</span>
+    <!-- Playback controls — prominent -->
+    <div class="playback">
+      <button class="pb-btn" id="mig-play" title="Play/Pause">&#9654;</button>
+      <input type="range" id="mig-time" min="0" max="100" step="1" value="0" class="time-slider">
+      <span class="time-label" id="v-time">gen 0</span>
+      <div class="speed-controls">
+        <label class="speed-label">Speed</label>
+        <button class="speed-btn" data-speed="0.2">0.2x</button>
+        <button class="speed-btn active" data-speed="1">1x</button>
+        <button class="speed-btn" data-speed="3">3x</button>
+        <button class="speed-btn" data-speed="10">10x</button>
+      </div>
     </div>
 
     <!-- Line chart below map -->
@@ -168,6 +175,7 @@
   </div>
 </div>
 
+<script src="landpaths.js"></script>
 <script src="worldmap.js"></script>
 <script src="evolution.js"></script>
 </body>

@@ -257,6 +257,7 @@ function renderTrajStats() {
 
 let migAnimFrame = null;
 let migPlaying = false;
+let migSpeed = 1;
 
 function initMigration() {
   const migSliders = {
@@ -287,10 +288,23 @@ function initMigration() {
   // Play button
   document.getElementById('mig-play').addEventListener('click', toggleMigPlay);
 
-  document.getElementById('btn-run-mig').addEventListener('click', runMigration);
+  // Speed buttons
+  document.querySelectorAll('.speed-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      migSpeed = parseFloat(btn.dataset.speed);
+    });
+  });
+
+  document.getElementById('btn-run-mig').addEventListener('click', () => {
+    runMigration();
+    // Auto-play after simulation
+    setTimeout(() => { if (migData && !migPlaying) toggleMigPlay(); }, 100);
+  });
 
   // Render empty map
-  renderWorldMap('mig-map', {}, { title: 'Out-of-Africa Migration Model' });
+  renderWorldMap('mig-map', {}, { title: 'Click "Simulate spread" to start' });
 }
 
 function runMigration() {
@@ -365,23 +379,37 @@ function toggleMigPlay() {
 
   migPlaying = true;
   btn.classList.add('playing');
-  btn.innerHTML = '&#9646;&#9646;';
-  let currentPct = 0;
+  btn.innerHTML = '&#10074;&#10074;';
 
-  function step() {
+  // Start from current position or beginning
+  let currentPct = parseFloat(slider.value);
+  if (currentPct >= 99) currentPct = 0;
+
+  let lastTime = null;
+  function step(timestamp) {
     if (!migPlaying) return;
-    currentPct += 0.5;
+    if (!lastTime) lastTime = timestamp;
+    const dt = timestamp - lastTime;
+    lastTime = timestamp;
+
+    // Speed: at 1x, full animation takes ~5 seconds
+    currentPct += (dt / 50) * migSpeed;
+
     if (currentPct > 100) {
+      currentPct = 100;
       migPlaying = false;
       btn.classList.remove('playing');
       btn.innerHTML = '&#9654;';
-      return;
     }
+
     slider.value = currentPct;
     const gen = Math.round((currentPct / 100) * maxGen);
     document.getElementById('v-time').textContent = `gen ${fmtNum(gen)}`;
     updateMigMap(gen);
-    migAnimFrame = requestAnimationFrame(step);
+
+    if (migPlaying) {
+      migAnimFrame = requestAnimationFrame(step);
+    }
   }
   migAnimFrame = requestAnimationFrame(step);
 }
