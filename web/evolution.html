@@ -85,10 +85,6 @@
 
     <div class="controls-grid">
       <div class="slider-group">
-        <label>Populations <span class="val" id="v-npop">5</span></label>
-        <input type="range" id="s-npop" min="2" max="200" step="1" value="5">
-      </div>
-      <div class="slider-group">
         <label>Population size (each) <span class="val" id="v-n-mig">1000</span></label>
         <input type="range" id="s-n-mig" min="1" max="5" step="0.01" value="3">
       </div>
@@ -122,11 +118,21 @@
       <button class="run-btn" id="btn-run-mig">&#9654; Simulate spread</button>
     </div>
 
-    <!-- Population wave visualization (dynamic) -->
-    <div class="pop-wave" id="pop-wave"></div>
-
+    <!-- World Map -->
     <div class="chart-area">
-      <svg id="mig-chart" viewBox="0 0 500 220" preserveAspectRatio="xMidYMid meet"></svg>
+      <svg id="mig-map" viewBox="0 0 500 280" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <!-- Time slider -->
+    <div class="time-row">
+      <button class="play-btn" id="mig-play">&#9654;</button>
+      <input type="range" id="mig-time" min="0" max="100" step="1" value="100" class="time-slider">
+      <span class="val" id="v-time">final</span>
+    </div>
+
+    <!-- Line chart below map -->
+    <div class="chart-area">
+      <svg id="mig-chart" viewBox="0 0 500 180" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
 
     <div class="mig-note" id="mig-note"></div>
@@ -154,6 +160,7 @@
   </div>
 </div>
 
+<script src="worldmap.js"></script>
 <script src="evolution.js"></script>
 </body>
 </html>

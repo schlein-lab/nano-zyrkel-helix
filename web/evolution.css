@@ -102,6 +102,33 @@
 .pop-freq { font-size: 0.7rem; font-family: monospace; color: var(--accent); margin-top: 0.15rem; }
 .pop-arrow { color: var(--text-dim); font-size: 0.8rem; flex-shrink: 0; }
 
+/* Time controls */
+.time-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.8rem;
+}
+.play-btn {
+  background: var(--accent-dim);
+  border: none;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.play-btn:hover { background: var(--accent); }
+.play-btn.playing { background: var(--warning); }
+.time-slider { flex: 1; }
+
+/* Map */
+#mig-map { border-radius: 8px; border: 1px solid var(--border); }
+
 /* Migration note */
 .mig-note {
   padding: 0.3rem 0.8rem;

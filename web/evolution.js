@@ -250,9 +250,11 @@ function renderTrajStats() {
 // MIGRATION MODE
 // ═══════════════════════════════════════════════════════════════
 
+let migAnimFrame = null;
+let migPlaying = false;
+
 function initMigration() {
   const migSliders = {
-    npop:     { el: 's-npop',     vEl: 'v-npop',     fmt: v => v },
     nMig:     { el: 's-n-mig',    vEl: 'v-n-mig',    fmt: () => fmtNum(logVal(document.getElementById('s-n-mig'))) },
     genMig:   { el: 's-gen-mig',  vEl: 'v-gen-mig',  fmt: () => fmtNum(logVal(document.getElementById('s-gen-mig'))) },
     origin:   { el: 's-origin',   vEl: 'v-origin',   fmt: v => parseFloat(v).toFixed(3) },
@@ -268,11 +270,26 @@ function initMigration() {
     });
   });
 
+  // Time slider
+  document.getElementById('mig-time').addEventListener('input', (e) => {
+    if (!migData) return;
+    const maxGen = migData[0].length - 1;
+    const gen = Math.round((parseInt(e.target.value) / 100) * maxGen);
+    document.getElementById('v-time').textContent = `gen ${fmtNum(gen)}`;
+    updateMigMap(gen);
+  });
+
+  // Play button
+  document.getElementById('mig-play').addEventListener('click', toggleMigPlay);
+
   document.getElementById('btn-run-mig').addEventListener('click', runMigration);
+
+  // Render empty map
+  renderWorldMap('mig-map', {}, { title: 'Out-of-Africa Migration Model' });
 }
 
 function runMigration() {
-  const nPop = parseInt(document.getElementById('s-npop').value);
+  const nPop = 10; // Fixed: 10 OOA nodes
   const N = logVal(document.getElementById('s-n-mig'));
   const gen = logVal(document.getElementById('s-gen-mig'));
   const originFreq = parseFloat(document.getElementById('s-origin').value);
@@ -282,9 +299,8 @@ function runMigration() {
   const h = parseFloat(document.getElementById('s-h-mig').value);
   const seed = Math.floor(Math.random() * 1e9);
 
-  // Initial freqs: origin has frequency, rest start at 0
+  // 10 populations: africa, mideast, europe, central_asia, south_asia, east_asia, se_asia, australia, siberia, americas
   const initFreqs = [originFreq, ...Array(nPop - 1).fill(0.0)];
-  // Selection: origin has sOrigin, rest have sOther
   const selection = [sOrigin, ...Array(nPop - 1).fill(sOther)];
 
   if (wasm) {
@@ -299,51 +315,65 @@ function runMigration() {
     migData = jsFallbackMigration(nPop, N, initFreqs, m, gen, seed);
   }
 
-  renderMigrationBars();
+  // Set time slider to end
+  document.getElementById('mig-time').max = 100;
+  document.getElementById('mig-time').value = 100;
+  document.getElementById('v-time').textContent = `gen ${fmtNum(gen)}`;
+
+  updateMigMap(migData[0].length - 1);
   renderMigrationChart();
   renderMigrationNote(nPop, N, gen, m);
 }
 
-function renderMigrationBars() {
+function updateMigMap(genIndex) {
   if (!migData) return;
-  const container = document.getElementById('pop-wave');
-  const nPop = migData.length;
+  const m = parseFloat(document.getElementById('s-mig').value);
+  const freqs = simToNodeFreqs(migData, genIndex);
+  const gen = genIndex;
+  const maxGen = migData[0].length - 1;
+  renderWorldMap('mig-map', freqs, {
+    showEdges: true,
+    animate: gen === maxGen,
+    migrationRate: m,
+    title: `Generation ${fmtNum(gen)} / ${fmtNum(maxGen)}`,
+  });
+}
 
-  // Final frequencies
-  const finals = migData.map(traj => traj[traj.length - 1]);
-  const maxF = Math.max(...finals, 0.01);
+function toggleMigPlay() {
+  if (!migData) return;
+  const btn = document.getElementById('mig-play');
+  const slider = document.getElementById('mig-time');
+  const maxGen = migData[0].length - 1;
 
-  // For many populations (>20): render as a heatmap strip
-  if (nPop > 20) {
-    const barH = 30;
-    const w = container.clientWidth || 480;
-    const cellW = w / nPop;
-    let html = `<svg width="100%" viewBox="0 0 ${w} ${barH + 20}" style="display:block;">`;
-    finals.forEach((f, i) => {
-      const r = Math.round(Math.min(255, f * 4 * 255));
-      const g = Math.round(Math.max(0, 200 - f * 4 * 200));
-      html += `<rect x="${i * cellW}" y="0" width="${cellW + 0.5}" height="${barH}" fill="rgb(${r > 200 ? 200 : r}, ${g}, ${Math.round(100 + f * 155)})" opacity="0.8"/>`;
-    });
-    html += `<text x="0" y="${barH + 14}" fill="#475569" font-size="8">Pop 1 (origin)</text>`;
-    html += `<text x="${w}" y="${barH + 14}" fill="#475569" font-size="8" text-anchor="end">Pop ${nPop}</text>`;
-    html += `</svg>`;
-    container.innerHTML = html;
-  } else {
-    // Individual bars
-    let html = '<div class="pop-bar-row" style="flex-wrap:wrap;gap:2px;">';
-    finals.forEach((f, i) => {
-      const pct = (f * 100).toFixed(1);
-      const label = i === 0 ? 'Origin' : `Pop ${i + 1}`;
-      html += `<div class="pop-col" style="min-width:40px;">
-        <div class="pop-label">${label}</div>
-        <div class="pop-bar"><div class="pop-fill" style="height:${f / Math.max(maxF, 0.01) * 100}%"></div></div>
-        <div class="pop-freq">${pct}%</div>
-      </div>`;
-      if (i < finals.length - 1 && nPop <= 10) html += '<div class="pop-arrow">→</div>';
-    });
-    html += '</div>';
-    container.innerHTML = html;
+  if (migPlaying) {
+    migPlaying = false;
+    btn.classList.remove('playing');
+    btn.innerHTML = '&#9654;';
+    if (migAnimFrame) cancelAnimationFrame(migAnimFrame);
+    return;
   }
+
+  migPlaying = true;
+  btn.classList.add('playing');
+  btn.innerHTML = '&#9646;&#9646;';
+  let currentPct = 0;
+
+  function step() {
+    if (!migPlaying) return;
+    currentPct += 0.5;
+    if (currentPct > 100) {
+      migPlaying = false;
+      btn.classList.remove('playing');
+      btn.innerHTML = '&#9654;';
+      return;
+    }
+    slider.value = currentPct;
+    const gen = Math.round((currentPct / 100) * maxGen);
+    document.getElementById('v-time').textContent = `gen ${fmtNum(gen)}`;
+    updateMigMap(gen);
+    migAnimFrame = requestAnimationFrame(step);
+  }
+  migAnimFrame = requestAnimationFrame(step);
 }
 
 function renderMigrationChart() {
@@ -364,14 +394,12 @@ function renderMigrationChart() {
     html += `<text x="${padL - 5}" y="${y + 3}" fill="#475569" font-size="8" text-anchor="end">${i * 25}%</text>`;
   }
 
-  // Color scale: origin = bright cyan, farthest = dim
+  const popNames = ['Africa', 'MidEast', 'Europe', 'C.Asia', 'S.Asia', 'E.Asia', 'SE.Asia', 'Oceania', 'Siberia', 'Americas'];
+  const popColors = ['#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6', '#10b981', '#ef4444', '#f97316', '#06b6d4', '#64748b', '#8b5cf6'];
+
   migData.forEach((traj, popIdx) => {
-    const t = popIdx / Math.max(nPop - 1, 1);
-    const r = Math.round(6 + t * 230);
-    const g = Math.round(182 - t * 130);
-    const b = Math.round(212 - t * 100);
-    const color = `rgb(${r},${g},${b})`;
-    const opacity = nPop > 50 ? 0.15 : nPop > 20 ? 0.25 : 0.5;
+    const color = popColors[popIdx % popColors.length];
+    const opacity = 0.6;
 
     const step = Math.max(1, Math.floor(maxGen / 500)); // subsample for performance
     const points = [];
