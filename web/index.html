@@ -20,10 +20,32 @@
     </div>
   </div>
 
-  <!-- Variant Selector -->
-  <div class="variant-bar">
+  <!-- Manual Controls -->
+  <div class="manual-controls">
+    <div class="slider-group">
+      <label>Allele frequency (p) <span class="val" id="p-val">0.500</span></label>
+      <input type="range" id="p-slider" min="0.001" max="0.999" step="0.001" value="0.5">
+    </div>
+    <div class="slider-group">
+      <label>Inbreeding (F) <span class="val" id="f-val">0.000</span></label>
+      <input type="range" id="f-slider" min="0" max="0.5" step="0.005" value="0">
+    </div>
+    <div class="formula" id="formula"></div>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-area">
+    <svg id="hwe-chart" viewBox="0 0 500 200" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row" id="stats-row"></div>
+
+  <!-- Real Variants Section -->
+  <div class="variants-section">
+    <div class="section-label">Compare with real variants <span class="hint">(click to load gnomAD data)</span></div>
     <div class="preset-row">
-      <button class="preset active" data-variant="rs334">HBB rs334 <small>Sickle Cell</small></button>
+      <button class="preset" data-variant="rs334">HBB rs334 <small>Sickle Cell</small></button>
       <button class="preset" data-variant="rs1801133">MTHFR C677T</button>
       <button class="preset" data-variant="rs6025">Factor V Leiden</button>
       <button class="preset" data-variant="rs75961395">CFTR F508del</button>
@@ -35,26 +57,11 @@
     </div>
   </div>
 
-  <!-- Variant Info -->
-  <div class="variant-info" id="variant-info"></div>
-
-  <!-- Population Tabs -->
-  <div class="pop-tabs" id="pop-tabs"></div>
-
-  <!-- Chart: Expected vs Observed -->
-  <div class="chart-area">
-    <svg id="hwe-chart" viewBox="0 0 500 200" preserveAspectRatio="xMidYMid meet"></svg>
-  </div>
-
-  <!-- Stats -->
-  <div class="stats-row" id="stats-row"></div>
-
-  <!-- Inbreeding Slider -->
-  <div class="slider-row">
-    <label>Inbreeding (F)
-      <span class="val" id="f-val">0.00</span>
-    </label>
-    <input type="range" id="f-slider" min="0" max="0.5" step="0.005" value="0">
+  <!-- Variant Detail (hidden until variant selected) -->
+  <div class="variant-detail" id="variant-detail" style="display:none">
+    <div class="variant-info" id="variant-info"></div>
+    <div class="pop-tabs" id="pop-tabs"></div>
+    <div class="obs-vs-exp" id="obs-vs-exp"></div>
   </div>
 
   <!-- Footer -->

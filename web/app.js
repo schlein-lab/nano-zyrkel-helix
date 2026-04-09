@@ -1,97 +1,58 @@
 // ── Variant Database (gnomAD v4 data) ───────────────────────────
-// Each variant has real population-level genotype data from gnomAD.
-// Format per population: [total_alleles, alt_allele_count, homozygote_count]
-// From these: p = AC/AN, het = AC - 2*hom, ref_hom = (AN/2) - het - hom
-
+// [total_alleles, alt_allele_count, homozygote_count]
 const VARIANTS = {
   rs334: {
-    name: 'rs334',
-    gene: 'HBB',
-    hgvs: 'c.20A>T (p.Glu7Val)',
-    note: 'Sickle cell trait — heterozygote advantage against malaria. Fewer homozygotes than expected in African populations due to severe disease.',
+    name: 'rs334', gene: 'HBB', hgvs: 'c.20A>T (p.Glu7Val)',
+    note: 'Sickle cell trait — heterozygote advantage against malaria. Fewer homozygotes than HWE predicts in African populations due to severe disease in homozygous state.',
     populations: {
-      'Global':  [152312, 1098, 18],
-      'African': [41378, 946, 16],
-      'European': [64090, 28, 0],
-      'South Asian': [30596, 104, 2],
-      'East Asian': [19468, 2, 0],
-      'Latino': [17480, 18, 0],
+      'Global':  [152312, 1098, 18], 'African': [41378, 946, 16],
+      'European': [64090, 28, 0], 'South Asian': [30596, 104, 2],
+      'East Asian': [19468, 2, 0], 'Latino': [17480, 18, 0],
     }
   },
   rs1801133: {
-    name: 'rs1801133',
-    gene: 'MTHFR',
-    hgvs: 'c.665C>T (p.Ala222Val)',
-    note: 'Common thermolabile variant. Homozygotes have reduced enzyme activity. Generally in HWE — a good "normal" example.',
+    name: 'rs1801133', gene: 'MTHFR', hgvs: 'c.665C>T (p.Ala222Val)',
+    note: 'Common thermolabile variant. Homozygotes have reduced enzyme activity but generally tolerable. A good example where HWE holds well.',
     populations: {
-      'Global':  [152166, 49608, 8470],
-      'European': [63996, 22720, 4082],
-      'East Asian': [19434, 5640, 832],
-      'South Asian': [30560, 7632, 1040],
-      'African': [20764, 5196, 354],
-      'Latino': [17412, 8420, 2162],
+      'Global':  [152166, 49608, 8470], 'European': [63996, 22720, 4082],
+      'East Asian': [19434, 5640, 832], 'South Asian': [30560, 7632, 1040],
+      'African': [20764, 5196, 354], 'Latino': [17412, 8420, 2162],
     }
   },
   rs6025: {
-    name: 'rs6025',
-    gene: 'F5',
-    hgvs: 'c.1601G>A (p.Arg534Gln)',
-    note: 'Factor V Leiden — most common inherited thrombophilia. ~5% carrier rate in Europeans. In HWE despite pathogenicity.',
+    name: 'rs6025', gene: 'F5', hgvs: 'c.1601G>A (p.Arg534Gln)',
+    note: 'Factor V Leiden — most common inherited thrombophilia. ~5% carriers in Europeans. In HWE despite causing disease — incomplete penetrance.',
     populations: {
-      'Global':  [151704, 3680, 46],
-      'European': [64012, 3258, 42],
-      'South Asian': [30548, 296, 2],
-      'African': [20780, 34, 0],
-      'East Asian': [19452, 4, 0],
-      'Latino': [16912, 88, 2],
+      'Global':  [151704, 3680, 46], 'European': [64012, 3258, 42],
+      'South Asian': [30548, 296, 2], 'African': [20780, 34, 0],
+      'East Asian': [19452, 4, 0], 'Latino': [16912, 88, 2],
     }
   },
   rs75961395: {
-    name: 'rs75961395',
-    gene: 'CFTR',
-    hgvs: 'c.1521_1523del (p.Phe508del)',
-    note: 'Most common CF mutation. ~1:25 carrier rate in Europeans. Homozygotes have CF — expect deviation from HWE due to reduced fitness.',
+    name: 'rs75961395', gene: 'CFTR', hgvs: 'c.1521_1523del (p.Phe508del)',
+    note: 'Most common CF mutation. ~1:25 carrier rate in Europeans. Homozygotes have cystic fibrosis — expect fewer homozygotes than HWE predicts.',
     populations: {
-      'Global':  [140628, 2842, 6],
-      'European': [63748, 2318, 5],
-      'South Asian': [30312, 142, 0],
-      'African': [19632, 102, 0],
-      'East Asian': [9860, 4, 0],
-      'Latino': [17076, 276, 1],
+      'Global':  [140628, 2842, 6], 'European': [63748, 2318, 5],
+      'South Asian': [30312, 142, 0], 'African': [19632, 102, 0],
+      'East Asian': [9860, 4, 0], 'Latino': [17076, 276, 1],
     }
   },
   rs80357906: {
-    name: 'rs80357906',
-    gene: 'BRCA1',
-    hgvs: 'c.5266dupC (5382insC)',
-    note: 'Ashkenazi Jewish founder mutation. ~1% carrier rate in that population. Pathogenic but rare enough to be near HWE.',
+    name: 'rs80357906', gene: 'BRCA1', hgvs: 'c.5266dupC (5382insC)',
+    note: 'Ashkenazi Jewish founder mutation for breast/ovarian cancer. ~1% carriers in that population. Too rare for HWE deviation to be detectable.',
     populations: {
-      'Global':  [151832, 182, 0],
-      'European': [63938, 136, 0],
-      'South Asian': [30522, 8, 0],
-      'African': [20716, 4, 0],
-      'East Asian': [19436, 2, 0],
-      'Latino': [17220, 32, 0],
+      'Global':  [151832, 182, 0], 'European': [63938, 136, 0],
+      'South Asian': [30522, 8, 0], 'African': [20716, 4, 0],
+      'East Asian': [19436, 2, 0], 'Latino': [17220, 32, 0],
     }
   },
 };
 
 // ── State ───────────────────────────────────────────────────────
-let currentVariant = 'rs334';
-let currentPop = 'Global';
+let manualP = 0.5;
 let inbreedingF = 0;
-let wasm = null;
-
-// ── WASM ────────────────────────────────────────────────────────
-async function loadWasm() {
-  try {
-    const mod = await import('./pkg/helix.js');
-    await mod.default();
-    wasm = mod;
-  } catch (e) {
-    console.warn('WASM not loaded, using JS fallback:', e.message);
-  }
-}
+let activeVariant = null; // null = manual mode
+let activePop = 'Global';
 
 // ── Init ────────────────────────────────────────────────────────
 function init() {
@@ -99,51 +60,292 @@ function init() {
     document.body.classList.add('embed');
   }
 
-  // Preset buttons
+  const pSlider = document.getElementById('p-slider');
+  const fSlider = document.getElementById('f-slider');
+
+  pSlider.addEventListener('input', () => {
+    manualP = parseFloat(pSlider.value);
+    document.getElementById('p-val').textContent = manualP.toFixed(3);
+    render();
+  });
+
+  fSlider.addEventListener('input', () => {
+    inbreedingF = parseFloat(fSlider.value);
+    document.getElementById('f-val').textContent = inbreedingF.toFixed(3);
+    render();
+  });
+
   document.querySelectorAll('.preset').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.preset').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentVariant = btn.dataset.variant;
-      currentPop = 'Global';
+      const vid = btn.dataset.variant;
+      if (activeVariant === vid) {
+        // Deselect — back to manual
+        activeVariant = null;
+        btn.classList.remove('active');
+        document.getElementById('variant-detail').style.display = 'none';
+      } else {
+        activeVariant = vid;
+        activePop = 'Global';
+        document.querySelectorAll('.preset').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Set sliders to match variant's global frequency
+        const v = VARIANTS[vid];
+        const [AN, AC] = v.populations['Global'];
+        manualP = AC / AN;
+        pSlider.value = manualP;
+        document.getElementById('p-val').textContent = manualP.toFixed(3);
+
+        document.getElementById('variant-detail').style.display = '';
+      }
       render();
     });
   });
 
-  // Inbreeding slider
-  const fSlider = document.getElementById('f-slider');
-  fSlider.addEventListener('input', () => {
-    inbreedingF = parseFloat(fSlider.value);
-    document.getElementById('f-val').textContent = inbreedingF.toFixed(3);
-    renderChart();
-    renderStats();
-  });
-
-  // Search
   initSearch();
-
   render();
-  loadWasm();
 }
 
-// ── Search via VUS Tracker ──────────────────────────────────────
+// ── HWE Math ────────────────────────────────────────────────────
+function hweCalc(p, F) {
+  const q = 1 - p;
+  return {
+    p, q,
+    aa: q * q + F * p * q,        // ref homozygote
+    ab: 2 * p * q * (1 - F),      // heterozygote
+    bb: p * p + F * p * q,         // alt homozygote
+  };
+}
+
+// ── Render ──────────────────────────────────────────────────────
+function render() {
+  renderFormula();
+  renderChart();
+  renderStats();
+  if (activeVariant) renderVariantDetail();
+}
+
+function renderFormula() {
+  const h = hweCalc(manualP, inbreedingF);
+  const el = document.getElementById('formula');
+  if (inbreedingF === 0) {
+    el.textContent =
+      `p=${h.p.toFixed(4)}  q=${h.q.toFixed(4)}\n` +
+      `AA = p²   = ${(h.aa * 100).toFixed(2)}%\n` +
+      `Aa = 2pq  = ${(h.ab * 100).toFixed(2)}%\n` +
+      `aa = q²   = ${(h.bb * 100).toFixed(2)}%`;
+  } else {
+    el.textContent =
+      `p=${h.p.toFixed(4)}  q=${h.q.toFixed(4)}  F=${inbreedingF.toFixed(3)}\n` +
+      `AA = p²+Fpq   = ${(h.aa * 100).toFixed(2)}%\n` +
+      `Aa = 2pq(1-F) = ${(h.ab * 100).toFixed(2)}%\n` +
+      `aa = q²+Fpq   = ${(h.bb * 100).toFixed(2)}%`;
+  }
+}
+
+function renderChart() {
+  const h = hweCalc(manualP, inbreedingF);
+  const svg = document.getElementById('hwe-chart');
+  const w = 500, ht = 190, padL = 10, padR = 10, padT = 8, padB = 28;
+  const chartW = w - padL - padR;
+  const chartH = ht - padT - padB;
+
+  // Stacked bar style — one bar for expected proportions
+  const groups = [
+    { label: 'AA', frac: h.aa, color: '#3b82f6' },
+    { label: 'Aa', frac: h.ab, color: '#8b5cf6' },
+    { label: 'aa', frac: h.bb, color: '#f59e0b' },
+  ];
+
+  let html = '';
+  const barY = padT;
+  const barH = 40;
+  let x = padL;
+
+  // Expected bar
+  html += `<text x="${padL}" y="${barY - 1}" fill="#475569" font-size="9">Expected (HWE)</text>`;
+  groups.forEach(g => {
+    const segW = g.frac * chartW;
+    if (segW > 1) {
+      html += `<rect x="${x}" y="${barY}" width="${segW}" height="${barH}" fill="${g.color}" opacity="0.6"/>`;
+      if (segW > 30) {
+        html += `<text x="${x + segW/2}" y="${barY + barH/2 + 4}" fill="#fff" font-size="10" text-anchor="middle" font-weight="600">${g.label} ${(g.frac*100).toFixed(1)}%</text>`;
+      }
+    }
+    x += segW;
+  });
+
+  // If variant active: observed bar below
+  if (activeVariant) {
+    const v = VARIANTS[activeVariant];
+    const [AN, AC, hom] = v.populations[activePop];
+    const n = AN / 2;
+    const obsAb = AC - 2 * hom;
+    const obsAa = n - obsAb - hom;
+
+    const obsGroups = [
+      { label: 'AA', count: obsAa, frac: obsAa / n, color: '#3b82f6' },
+      { label: 'Aa', count: obsAb, frac: obsAb / n, color: '#8b5cf6' },
+      { label: 'aa', count: hom, frac: hom / n, color: '#f59e0b' },
+    ];
+
+    const bar2Y = barY + barH + 18;
+    html += `<text x="${padL}" y="${bar2Y - 1}" fill="#475569" font-size="9">Observed (gnomAD — ${activePop})</text>`;
+    let x2 = padL;
+    obsGroups.forEach(g => {
+      const segW = g.frac * chartW;
+      if (segW > 0.5) {
+        html += `<rect x="${x2}" y="${bar2Y}" width="${segW}" height="${barH}" fill="${g.color}" opacity="0.9"/>`;
+        if (segW > 30) {
+          html += `<text x="${x2 + segW/2}" y="${bar2Y + barH/2 + 4}" fill="#fff" font-size="10" text-anchor="middle" font-weight="600">${g.label} ${(g.frac*100).toFixed(1)}%</text>`;
+        }
+      }
+      x2 += segW;
+    });
+
+    // Deviation arrows between bars
+    const midY = barY + barH + 9;
+    const expH = hweCalc(AC / AN, inbreedingF);
+    [
+      { label: 'AA', exp: expH.aa, obs: obsAa/n, expX: expH.aa/2 },
+      { label: 'Aa', exp: expH.ab, obs: obsAb/n, expX: expH.aa + expH.ab/2 },
+      { label: 'aa', exp: expH.bb, obs: hom/n, expX: expH.aa + expH.ab + expH.bb/2 },
+    ].forEach(g => {
+      if (g.exp > 0.005) {
+        const dev = ((g.obs - g.exp) / g.exp * 100);
+        if (Math.abs(dev) > 3) {
+          const cx = padL + g.expX * chartW;
+          const color = dev < 0 ? '#ef4444' : '#10b981';
+          html += `<text x="${cx}" y="${midY + 3}" fill="${color}" font-size="8" text-anchor="middle" font-weight="700">${dev > 0 ? '+' : ''}${dev.toFixed(1)}%</text>`;
+        }
+      }
+    });
+  } else {
+    // Manual-only: show percentage breakdown larger
+    const bar2Y = barY + barH + 24;
+    html += `<text x="${w/2}" y="${bar2Y + 10}" fill="#475569" font-size="10" text-anchor="middle">Click a variant below to compare with real population data</text>`;
+  }
+
+  svg.innerHTML = html;
+}
+
+function renderStats() {
+  const h = hweCalc(manualP, inbreedingF);
+  const row = document.getElementById('stats-row');
+
+  if (!activeVariant) {
+    row.innerHTML = `
+      <div class="stat"><div class="stat-value">${(h.aa * 100).toFixed(1)}%</div><div class="stat-label">AA (p²)</div></div>
+      <div class="stat"><div class="stat-value">${(h.ab * 100).toFixed(1)}%</div><div class="stat-label">Aa (2pq)</div></div>
+      <div class="stat"><div class="stat-value">${(h.bb * 100).toFixed(1)}%</div><div class="stat-label">aa (q²)</div></div>
+    `;
+    return;
+  }
+
+  const v = VARIANTS[activeVariant];
+  const [AN, AC, hom] = v.populations[activePop];
+  const n = AN / 2;
+  const p = AC / AN;
+  const obsAb = AC - 2 * hom;
+  const obsAa = n - obsAb - hom;
+  const expH = hweCalc(p, inbreedingF);
+
+  const chi2 =
+    (expH.aa * n > 0 ? (obsAa - expH.aa * n) ** 2 / (expH.aa * n) : 0) +
+    (expH.ab * n > 0 ? (obsAb - expH.ab * n) ** 2 / (expH.ab * n) : 0) +
+    (expH.bb * n > 0 ? (hom - expH.bb * n) ** 2 / (expH.bb * n) : 0);
+  const inHWE = chi2 < 3.841;
+  const hetDev = expH.ab * n > 5 ? ((obsAb - expH.ab * n) / (expH.ab * n) * 100) : 0;
+
+  row.innerHTML = `
+    <div class="stat ${inHWE ? 'ok' : 'deviation'}">
+      <div class="stat-value">${chi2.toFixed(2)}</div>
+      <div class="stat-label">chi2 ${inHWE ? '(HWE)' : '(not HWE)'}</div>
+    </div>
+    <div class="stat ${Math.abs(hetDev) > 10 ? 'deviation' : 'ok'}">
+      <div class="stat-value">${hetDev > 0 ? '+' : ''}${hetDev.toFixed(1)}%</div>
+      <div class="stat-label">Het deviation</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">${(p * 100).toFixed(2)}%</div>
+      <div class="stat-label">Allele freq (${activePop})</div>
+    </div>
+  `;
+}
+
+function renderVariantDetail() {
+  const v = VARIANTS[activeVariant];
+
+  // Info
+  document.getElementById('variant-info').innerHTML = `
+    <span class="var-name">${v.name}</span>
+    <span class="var-gene">${v.gene} — ${v.hgvs}</span>
+    <div class="var-note">${v.note}</div>
+  `;
+
+  // Pop tabs
+  const tabs = document.getElementById('pop-tabs');
+  tabs.innerHTML = Object.keys(v.populations).map(pop =>
+    `<button class="pop-tab ${pop === activePop ? 'active' : ''}" data-pop="${pop}">${pop}</button>`
+  ).join('');
+  tabs.querySelectorAll('.pop-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      activePop = tab.dataset.pop;
+      // Update p slider to this population
+      const [AN, AC] = v.populations[activePop];
+      manualP = AC / AN;
+      document.getElementById('p-slider').value = manualP;
+      document.getElementById('p-val').textContent = manualP.toFixed(3);
+      render();
+    });
+  });
+
+  // Obs vs Exp table
+  const [AN, AC, hom] = v.populations[activePop];
+  const n = AN / 2;
+  const p = AC / AN;
+  const obsAb = AC - 2 * hom;
+  const obsAa = n - obsAb - hom;
+  const exp = hweCalc(p, inbreedingF);
+
+  function devCell(obs, exp) {
+    if (exp < 1) return '<td>-</td>';
+    const d = ((obs - exp) / exp * 100);
+    const cls = d < -5 ? 'dev-neg' : d > 5 ? 'dev-pos' : '';
+    return `<td class="${cls}">${d > 0 ? '+' : ''}${d.toFixed(1)}%</td>`;
+  }
+
+  const chi2 =
+    (exp.aa * n > 0 ? (obsAa - exp.aa * n) ** 2 / (exp.aa * n) : 0) +
+    (exp.ab * n > 0 ? (obsAb - exp.ab * n) ** 2 / (exp.ab * n) : 0) +
+    (exp.bb * n > 0 ? (hom - exp.bb * n) ** 2 / (exp.bb * n) : 0);
+
+  document.getElementById('obs-vs-exp').innerHTML = `
+    <table class="obs-table">
+      <tr><th></th><th>Observed</th><th>Expected</th><th>Dev</th></tr>
+      <tr><td>AA</td><td>${Math.round(obsAa)}</td><td>${Math.round(exp.aa * n)}</td>${devCell(obsAa, exp.aa * n)}</tr>
+      <tr><td>Aa</td><td>${Math.round(obsAb)}</td><td>${Math.round(exp.ab * n)}</td>${devCell(obsAb, exp.ab * n)}</tr>
+      <tr><td>aa</td><td>${Math.round(hom)}</td><td>${Math.round(exp.bb * n)}</td>${devCell(hom, exp.bb * n)}</tr>
+      <tr class="chi-row"><td>chi2</td><td colspan="2">${chi2.toFixed(4)}</td><td>${chi2 < 3.841 ? '<span class="dev-pos">HWE</span>' : '<span class="dev-neg">not HWE</span>'}</td></tr>
+    </table>
+    <div style="font-size:0.65rem;color:var(--text-dim);margin-top:0.3rem;">n=${fmtNum(Math.round(n))} individuals | AN=${fmtNum(AN)} alleles | Source: gnomAD v4</div>
+  `;
+}
+
+// ── Search ──────────────────────────────────────────────────────
 let searchTimeout = null;
 const VUS_API = 'https://schlein-lab.github.io/nano-zyrkel-vusTracker';
 
 function initSearch() {
   const input = document.getElementById('gene-search');
   const ac = document.getElementById('autocomplete');
-
   input.addEventListener('input', () => {
     clearTimeout(searchTimeout);
     const q = input.value.trim();
     if (q.length < 2) { ac.classList.remove('open'); return; }
     searchTimeout = setTimeout(() => searchGene(q), 300);
   });
-
-  input.addEventListener('blur', () => {
-    setTimeout(() => ac.classList.remove('open'), 200);
-  });
+  input.addEventListener('blur', () => setTimeout(() => ac.classList.remove('open'), 200));
 }
 
 async function searchGene(query) {
@@ -152,208 +354,49 @@ async function searchGene(query) {
     const res = await fetch(`${VUS_API}/data/index.json`);
     const data = await res.json();
     const genes = data.top_genes || [];
-    const matches = genes
-      .filter(g => g.gene.toLowerCase().includes(query.toLowerCase()))
-      .slice(0, 8);
-
+    const matches = genes.filter(g => g.gene.toLowerCase().includes(query.toLowerCase())).slice(0, 8);
     if (matches.length === 0) {
       ac.innerHTML = '<div class="ac-item"><span class="gene" style="color:var(--text-dim)">No results</span></div>';
     } else {
       ac.innerHTML = matches.map(g =>
-        `<div class="ac-item" data-gene="${g.gene}">
-          <span class="gene">${g.gene}</span>
-          <span class="count">${g.total} variants</span>
-        </div>`
+        `<div class="ac-item" data-gene="${g.gene}"><span class="gene">${g.gene}</span><span class="count">${g.total} variants</span></div>`
       ).join('');
-
       ac.querySelectorAll('.ac-item[data-gene]').forEach(item => {
         item.addEventListener('mousedown', () => {
           document.getElementById('gene-search').value = item.dataset.gene;
           ac.classList.remove('open');
-          // For now show a note — full gnomAD integration in next phase
-          showGeneInfo(item.dataset.gene);
+          const match = Object.values(VARIANTS).find(v => v.gene === item.dataset.gene);
+          if (match) {
+            activeVariant = match.name;
+            activePop = 'Global';
+            document.querySelectorAll('.preset').forEach(b => b.classList.toggle('active', b.dataset.variant === match.name));
+            const [AN, AC] = match.populations['Global'];
+            manualP = AC / AN;
+            document.getElementById('p-slider').value = manualP;
+            document.getElementById('p-val').textContent = manualP.toFixed(3);
+            document.getElementById('variant-detail').style.display = '';
+            render();
+          } else {
+            document.getElementById('variant-info').innerHTML =
+              `<span class="var-name">${item.dataset.gene}</span> <span class="var-gene">found in VUS Tracker</span>
+              <div class="var-note">gnomAD frequency data for additional genes coming soon. Try the preset variants above.</div>`;
+            document.getElementById('variant-detail').style.display = '';
+            document.getElementById('pop-tabs').innerHTML = '';
+            document.getElementById('obs-vs-exp').innerHTML = '';
+          }
         });
       });
     }
     ac.classList.add('open');
   } catch (e) {
-    ac.innerHTML = '<div class="ac-item"><span class="gene" style="color:var(--text-dim)">Search unavailable</span></div>';
+    ac.innerHTML = '<div class="ac-item"><span style="color:var(--text-dim)">Search unavailable</span></div>';
     ac.classList.add('open');
   }
 }
 
-function showGeneInfo(gene) {
-  // Check if we have this gene in our presets
-  const match = Object.values(VARIANTS).find(v => v.gene === gene);
-  if (match) {
-    currentVariant = match.name;
-    document.querySelectorAll('.preset').forEach(b => {
-      b.classList.toggle('active', b.dataset.variant === match.name);
-    });
-    currentPop = 'Global';
-    render();
-  } else {
-    const info = document.getElementById('variant-info');
-    info.innerHTML = `<span class="var-name">${gene}</span> <span class="var-gene">— found in VUS Tracker</span>
-      <div class="var-note">gnomAD frequency data for this gene will be available soon. Try one of the preset variants above.</div>`;
-  }
-}
-
-// ── Render ──────────────────────────────────────────────────────
-function render() {
-  renderVariantInfo();
-  renderPopTabs();
-  renderChart();
-  renderStats();
-}
-
-function renderVariantInfo() {
-  const v = VARIANTS[currentVariant];
-  const info = document.getElementById('variant-info');
-  info.innerHTML = `
-    <span class="var-name">${v.name}</span>
-    <span class="var-gene">${v.gene} — ${v.hgvs}</span>
-    <div class="var-note">${v.note}</div>
-  `;
-}
-
-function renderPopTabs() {
-  const v = VARIANTS[currentVariant];
-  const tabs = document.getElementById('pop-tabs');
-  tabs.innerHTML = Object.keys(v.populations).map(pop =>
-    `<button class="pop-tab ${pop === currentPop ? 'active' : ''}" data-pop="${pop}">${pop}</button>`
-  ).join('');
-
-  tabs.querySelectorAll('.pop-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      currentPop = tab.dataset.pop;
-      tabs.querySelectorAll('.pop-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      renderChart();
-      renderStats();
-    });
-  });
-}
-
-function getGenotypeData(variant, pop) {
-  const v = VARIANTS[variant];
-  const [AN, AC, hom] = v.populations[pop];
-
-  const n = AN / 2; // number of individuals
-  const p = AC / AN; // alt allele frequency
-  const q = 1 - p;
-
-  // Observed genotype counts
-  const obs_bb = hom; // alt homozygotes
-  const obs_ab = AC - 2 * hom; // heterozygotes
-  const obs_aa = n - obs_ab - obs_bb; // ref homozygotes
-
-  // Expected under HWE (with optional inbreeding)
-  const F = inbreedingF;
-  const exp_aa = (q * q + F * p * q) * n;
-  const exp_ab = (2 * p * q * (1 - F)) * n;
-  const exp_bb = (p * p + F * p * q) * n;
-
-  // Chi-squared
-  const chi2 = (exp_aa > 0 ? (obs_aa - exp_aa) ** 2 / exp_aa : 0)
-    + (exp_ab > 0 ? (obs_ab - exp_ab) ** 2 / exp_ab : 0)
-    + (exp_bb > 0 ? (obs_bb - exp_bb) ** 2 / exp_bb : 0);
-
-  return { p, q, n, obs_aa, obs_ab, obs_bb, exp_aa, exp_ab, exp_bb, chi2, inHWE: chi2 < 3.841 };
-}
-
-function renderChart() {
-  const d = getGenotypeData(currentVariant, currentPop);
-  const svg = document.getElementById('hwe-chart');
-  const w = 500, h = 200, padL = 45, padR = 10, padT = 25, padB = 35;
-  const chartW = w - padL - padR;
-  const chartH = h - padT - padB;
-
-  const groups = [
-    { label: d.q > d.p ? 'AA (common)' : 'AA (ref)', obs: d.obs_aa, exp: d.exp_aa },
-    { label: 'Aa (het)', obs: d.obs_ab, exp: d.exp_ab },
-    { label: d.p > d.q ? 'aa (common)' : 'aa (alt)', obs: d.obs_bb, exp: d.exp_bb },
-  ];
-
-  const maxVal = Math.max(...groups.map(g => Math.max(g.obs, g.exp)), 1);
-  const groupW = chartW / 3;
-  const barW = groupW * 0.3;
-
-  let html = '';
-
-  // Y axis lines
-  for (let i = 0; i <= 4; i++) {
-    const y = padT + chartH - (i / 4) * chartH;
-    const val = Math.round(maxVal * i / 4);
-    html += `<line x1="${padL}" y1="${y}" x2="${w - padR}" y2="${y}" stroke="#1e293b" stroke-width="0.5"/>`;
-    html += `<text x="${padL - 5}" y="${y + 3}" fill="#475569" font-size="9" text-anchor="end">${fmtNum(val)}</text>`;
-  }
-
-  groups.forEach((g, i) => {
-    const cx = padL + groupW * i + groupW / 2;
-    const expH = (g.exp / maxVal) * chartH;
-    const obsH = (g.obs / maxVal) * chartH;
-
-    // Expected bar (dimmer, behind)
-    html += `<rect x="${cx - barW - 2}" y="${padT + chartH - expH}" width="${barW}" height="${expH}" fill="#3b82f6" opacity="0.3" rx="2"/>`;
-    // Observed bar
-    html += `<rect x="${cx + 2}" y="${padT + chartH - obsH}" width="${barW}" height="${obsH}" fill="#06b6d4" opacity="0.85" rx="2"/>`;
-
-    // Values on top
-    if (g.exp >= 1) html += `<text x="${cx - barW/2 - 2}" y="${padT + chartH - expH - 3}" fill="#3b82f6" font-size="8" text-anchor="middle" opacity="0.7">${Math.round(g.exp)}</text>`;
-    html += `<text x="${cx + barW/2 + 2}" y="${padT + chartH - obsH - 3}" fill="#06b6d4" font-size="8" text-anchor="middle">${Math.round(g.obs)}</text>`;
-
-    // Label
-    html += `<text x="${cx}" y="${padT + chartH + 14}" fill="#94a3b8" font-size="9.5" text-anchor="middle">${g.label}</text>`;
-
-    // Deviation indicator
-    if (g.exp > 5) {
-      const dev = ((g.obs - g.exp) / g.exp * 100);
-      if (Math.abs(dev) > 5) {
-        const color = dev < 0 ? '#ef4444' : '#10b981';
-        html += `<text x="${cx}" y="${padT + chartH + 26}" fill="${color}" font-size="8" text-anchor="middle" font-weight="600">${dev > 0 ? '+' : ''}${dev.toFixed(1)}%</text>`;
-      }
-    }
-  });
-
-  // Legend
-  html += `<rect x="${padL}" y="4" width="8" height="8" fill="#3b82f6" opacity="0.4" rx="1"/>`;
-  html += `<text x="${padL + 12}" y="11" fill="#64748b" font-size="9">Expected (HWE)</text>`;
-  html += `<rect x="${padL + 100}" y="4" width="8" height="8" fill="#06b6d4" opacity="0.85" rx="1"/>`;
-  html += `<text x="${padL + 112}" y="11" fill="#64748b" font-size="9">Observed (gnomAD)</text>`;
-
-  // p/q info
-  html += `<text x="${w - padR}" y="11" fill="#475569" font-size="9" text-anchor="end">p=${d.p.toFixed(4)} q=${d.q.toFixed(4)} n=${fmtNum(Math.round(d.n))}</text>`;
-
-  svg.innerHTML = html;
-}
-
-function renderStats() {
-  const d = getGenotypeData(currentVariant, currentPop);
-  const row = document.getElementById('stats-row');
-
-  const chi2Class = d.inHWE ? 'ok' : 'deviation';
-  const hetDev = d.exp_ab > 5 ? ((d.obs_ab - d.exp_ab) / d.exp_ab * 100) : 0;
-  const hetClass = Math.abs(hetDev) > 10 ? 'deviation' : 'ok';
-
-  row.innerHTML = `
-    <div class="stat ${chi2Class}">
-      <div class="stat-value">${d.chi2.toFixed(2)}</div>
-      <div class="stat-label">χ² ${d.inHWE ? '(in HWE)' : '(NOT HWE)'}</div>
-    </div>
-    <div class="stat ${hetClass}">
-      <div class="stat-value">${hetDev > 0 ? '+' : ''}${hetDev.toFixed(1)}%</div>
-      <div class="stat-label">Het deviation</div>
-    </div>
-    <div class="stat">
-      <div class="stat-value">${(d.p * 100).toFixed(2)}%</div>
-      <div class="stat-label">Allele freq</div>
-    </div>
-  `;
-}
-
 // ── Helpers ─────────────────────────────────────────────────────
 function fmtNum(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
   if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'k';
   return n.toString();
 }
