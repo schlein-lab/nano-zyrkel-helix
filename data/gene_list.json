@@ -1,0 +1,26 @@
+{
+  "description": "Curated gene list for Helix teaching modules",
+  "version": "0.1.0",
+  "genes": [
+    {"symbol": "TP53", "ensembl_id": "ENSG00000141510", "category": "tumor_suppressor"},
+    {"symbol": "BRCA1", "ensembl_id": "ENSG00000012048", "category": "tumor_suppressor"},
+    {"symbol": "BRCA2", "ensembl_id": "ENSG00000139618", "category": "tumor_suppressor"},
+    {"symbol": "HBB", "ensembl_id": "ENSG00000244734", "category": "hemoglobin"},
+    {"symbol": "CFTR", "ensembl_id": "ENSG00000001626", "category": "ion_channel"},
+    {"symbol": "KRAS", "ensembl_id": "ENSG00000133703", "category": "oncogene"},
+    {"symbol": "APC", "ensembl_id": "ENSG00000134982", "category": "tumor_suppressor"},
+    {"symbol": "MLH1", "ensembl_id": "ENSG00000076242", "category": "dna_repair"},
+    {"symbol": "MSH2", "ensembl_id": "ENSG00000095002", "category": "dna_repair"},
+    {"symbol": "RB1", "ensembl_id": "ENSG00000139687", "category": "tumor_suppressor"},
+    {"symbol": "CYP2D6", "ensembl_id": "ENSG00000100197", "category": "pharmacogenetics"},
+    {"symbol": "CYP2C19", "ensembl_id": "ENSG00000165841", "category": "pharmacogenetics"},
+    {"symbol": "DPYD", "ensembl_id": "ENSG00000188641", "category": "pharmacogenetics"},
+    {"symbol": "LCT", "ensembl_id": "ENSG00000115850", "category": "evolution"},
+    {"symbol": "SLC24A5", "ensembl_id": "ENSG00000188467", "category": "evolution"},
+    {"symbol": "ALDH2", "ensembl_id": "ENSG00000111275", "category": "evolution"},
+    {"symbol": "EPAS1", "ensembl_id": "ENSG00000116016", "category": "evolution"},
+    {"symbol": "MYC", "ensembl_id": "ENSG00000136997", "category": "oncogene"},
+    {"symbol": "TERT", "ensembl_id": "ENSG00000164362", "category": "telomere"},
+    {"symbol": "BAX", "ensembl_id": "ENSG00000087088", "category": "apoptosis"}
+  ]
+}

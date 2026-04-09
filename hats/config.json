@@ -1,0 +1,19 @@
+{
+  "id": "nano-zyrkel-helix",
+  "description": "Interactive Human Genetics Teaching Suite",
+  "type": "web_app",
+  "url": "https://schlein-lab.github.io/nano-zyrkel-helix/",
+  "lang": "en",
+  "modules": [
+    "hardy-weinberg",
+    "mutations",
+    "mendel",
+    "evolution",
+    "meiosis",
+    "karyotype",
+    "tumor",
+    "pharmacogenetics",
+    "population-map",
+    "epigenetics"
+  ]
+}

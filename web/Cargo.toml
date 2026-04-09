@@ -1,0 +1,49 @@
+[package]
+name = "helix"
+version = "0.1.0"
+edition = "2021"
+authors = ["Christian Schlein"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+leptos = { version = "0.8", features = ["csr"] }
+leptos_router = "0.8"
+leptos_meta = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = [
+    "Window",
+    "Document",
+    "HtmlElement",
+    "HtmlCanvasElement",
+    "CanvasRenderingContext2d",
+    "DragEvent",
+    "DataTransfer",
+    "Storage",
+    "Url",
+    "UrlSearchParams",
+    "Performance",
+    "Headers",
+    "Request",
+    "Response",
+    "RequestInit",
+    "RequestMode",
+    "Location",
+    "Navigator",
+] }
+js-sys = "0.3"
+gloo-net = { version = "0.6", features = ["http"] }
+gloo-timers = "0.3"
+gloo-storage = "0.3"
+rand = { version = "0.8", features = ["small_rng"] }
+getrandom = { version = "0.2", features = ["js"] }
+console_error_panic_hook = "0.1"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+opt-level = "s"

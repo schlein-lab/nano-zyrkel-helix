@@ -1,0 +1,68 @@
+name: "Deploy Web"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - 'staging/**'
+  workflow_dispatch:
+
+permissions:
+  pages: write
+  id-token: write
+  contents: read
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust + wasm target
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry
+            ~/.cargo/git
+            web/target
+          key: ${{ runner.os }}-cargo-wasm-${{ hashFiles('web/Cargo.lock') }}
+
+      - name: Install trunk
+        run: cargo install trunk --locked || true
+
+      - name: Build WASM
+        working-directory: web
+        run: trunk build --release --public-url /nano-zyrkel-helix/
+
+      - name: Copy staging data
+        run: |
+          if [ -d staging ]; then
+            cp -r staging web/dist/staging
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
