@@ -33,23 +33,24 @@ jobs:
             web/target
           key: ${{ runner.os }}-cargo-wasm-${{ hashFiles('web/Cargo.lock') }}
 
-      - name: Install trunk
-        run: cargo install trunk --locked || true
+      - name: Install wasm-pack
+        run: cargo install wasm-pack --locked || true
 
       - name: Build WASM
         working-directory: web
-        run: trunk build --release --public-url /nano-zyrkel-helix/
+        run: wasm-pack build --target web --out-dir pkg --features wasm --no-default-features
 
-      - name: Copy staging data
+      - name: Prepare pages
         run: |
-          if [ -d staging ]; then
-            cp -r staging web/dist/staging
-          fi
+          mkdir -p pages
+          cp web/index.html web/app.js web/style.css pages/
+          cp -r web/pkg pages/pkg
+          if [ -d staging ]; then cp -r staging pages/staging; fi
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: web/dist
+          path: pages
 
   deploy:
     needs: build
