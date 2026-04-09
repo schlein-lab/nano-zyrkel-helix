@@ -1,48 +1,79 @@
 # nano-zyrkel-helix
 
-Interactive Human Genetics Teaching Suite — WASM-powered, real data, embeddable.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://schlein-lab.github.io/nano-zyrkel-helix/)
+[![Build](https://img.shields.io/github/actions/workflow/status/schlein-lab/nano-zyrkel-helix/deploy.yml?label=build)](https://github.com/schlein-lab/nano-zyrkel-helix/actions)
+
+**Interactive Human Genetics Teaching Suite** — 10 WASM-powered modules that teach genetics concepts with real genomic data.
+
+<!-- ![Helix Modules](docs/screenshot.png) -->
+
+---
 
 ## Modules
 
-| Module | Description |
-|--------|-------------|
-| Hardy-Weinberg | Allele frequency calculator with real gnomAD data |
-| Mutations | DNA mutation simulator with protein impact prediction |
-| Mendel Lab | Multi-variant family builder with pedigree analysis |
-| Evolution | Population genetics sandbox with Out-of-Africa simulation |
-| Meiosis | Animated meiosis with crossing-over and LOD scores |
-| Karyotype | Drag & drop chromosome sorting workbench |
-| Tumor Genetics | Multi-hit cancer model with COSMIC data |
-| Pharmacogenetics | Drug metabolism simulator with CYP variants |
-| Population Map | Global variant frequency comparator |
-| Epigenetics | Methylation and imprinting sandbox |
+| # | Module | What Students Learn | Data Source |
+|---|---|---|---|
+| 1 | **Hardy-Weinberg** | Equilibrium testing with real allele frequencies | gnomAD |
+| 2 | **Mutations** | Protein impact prediction — missense, nonsense, frameshift | ClinVar |
+| 3 | **Mendel Lab** | Pedigree construction and inheritance pattern analysis | Simulated + textbook cases |
+| 4 | **Evolution** | Out-of-Africa migration and genetic drift visualization | gnomAD populations |
+| 5 | **Meiosis** | Crossing-over mechanics and LOD score calculation | Simulated recombination |
+| 6 | **Karyotype** | Interactive chromosome sorting and banding patterns | Ensembl ideograms |
+| 7 | **Tumor Genetics** | Somatic mutation landscapes and driver gene identification | COSMIC |
+| 8 | **Pharmacogenetics** | CYP variant phenotypes and drug metabolism prediction | PharmGKB |
+| 9 | **Population Map** | Global allele frequency distributions across populations | gnomAD |
+| 10 | **Epigenetics** | CpG methylation patterns and genomic imprinting | Ensembl Regulatory |
 
-## Data Sources
+**Try it now** &rarr; [schlein-lab.github.io/nano-zyrkel-helix](https://schlein-lab.github.io/nano-zyrkel-helix/)
 
-All data is pre-cached from public databases:
-- [gnomAD](https://gnomad.broadinstitute.org/) — Population frequencies
-- [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) — Variant classifications
-- [COSMIC](https://cancer.sanger.ac.uk/cosmic) — Tumor mutation profiles
-- [PharmGKB](https://www.pharmgkb.org/) — Pharmacogenetics
-- [Ensembl](https://rest.ensembl.org/) — Gene structure
+## How It Works
+
+Each module is a self-contained Rust application compiled to WebAssembly via [Trunk](https://trunkrs.dev/). Modules run entirely in the browser — no server required after initial load. Real genomic datasets are bundled or fetched client-side from public APIs.
+
+## Embed in Your Course
+
+Individual modules can be embedded as iframes in any LMS (Moodle, Canvas, etc.):
+
+```html
+<!-- Example: Hardy-Weinberg module -->
+<iframe
+  src="https://schlein-lab.github.io/nano-zyrkel-helix/hardy-weinberg/"
+  width="100%" height="600" frameborder="0">
+</iframe>
+```
 
 ## Build
 
+Requires [Rust](https://rustup.rs/) and [Trunk](https://trunkrs.dev/):
+
 ```bash
-cd web
-trunk serve        # Dev server
-trunk build --release  # Production build
+# Install trunk
+cargo install trunk
+
+# Development server
+trunk serve
+
+# Production build
+trunk build --release
 ```
 
-## Embed
+Output is static HTML/JS/WASM in `dist/` — deploy anywhere.
 
-Every module is embeddable as an iframe:
+## Data Sources & Credits
 
-```html
-<iframe src="https://schlein-lab.github.io/nano-zyrkel-helix/hardy-weinberg?variant=rs334&pop=AFR&embed=true"
-        width="800" height="500" frameborder="0"></iframe>
-```
+| Source | Used By | License |
+|---|---|---|
+| [gnomAD](https://gnomad.broadinstitute.org/) | Hardy-Weinberg, Evolution, Population Map | ODbL |
+| [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/) | Mutations | Public Domain |
+| [COSMIC](https://cancer.sanger.ac.uk/cosmic) | Tumor Genetics | Academic use |
+| [PharmGKB](https://www.pharmgkb.org/) | Pharmacogenetics | CC BY-SA 4.0 |
+| [Ensembl](https://www.ensembl.org/) | Karyotype, Epigenetics | Apache 2.0 |
 
-## Powered by
+## License
 
-[nano-zyrkel](https://github.com/christian-schlein/nano-zyrkel) — autonomous GitHub-native agents by [zyrkel.com](https://zyrkel.com)
+MIT
+
+---
+
+<sub>Part of the [nano-zyrkel](https://github.com/schlein-lab) ecosystem — autonomous agents for computational biology. Built by [Schlein Lab](https://zyrkel.com).</sub>
