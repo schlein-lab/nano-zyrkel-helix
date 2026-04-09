@@ -1,11 +1,7 @@
 name: CI
 
 on:
-  pull_request:
-    paths: ['web/**']
-  push:
-    branches: [main]
-    paths: ['web/**']
+  workflow_dispatch:
 
 jobs:
   check:

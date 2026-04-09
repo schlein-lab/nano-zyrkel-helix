@@ -1,11 +1,6 @@
 name: "Deploy Web"
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'web/**'
-      - 'staging/**'
   workflow_dispatch:
 
 permissions:
