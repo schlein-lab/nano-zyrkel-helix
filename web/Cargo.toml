@@ -29,4 +29,4 @@ strip = "symbols"
 opt-level = "s"
 
 [package.metadata.wasm-pack.profile.release]
-wasm-opt = true
+wasm-opt = false
