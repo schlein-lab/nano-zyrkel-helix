@@ -126,22 +126,27 @@ function runTrajectory() {
   const bnEnabled = document.getElementById('bn-enable').checked;
   const seed = Math.floor(Math.random() * 1e9);
 
-  if (wasm && !bnEnabled) {
-    const json = wasm.evo_simulate_batch(p0, N, s, h, gen, runs, seed);
-    trajData = JSON.parse(json);
-  } else if (wasm && bnEnabled) {
-    // Run individual bottleneck sims
-    const bnAt = parseInt(document.getElementById('bn-at').value);
-    const bnSize = parseInt(document.getElementById('bn-size').value);
-    const bnDur = parseInt(document.getElementById('bn-dur').value);
-    trajData = [];
-    for (let i = 0; i < runs; i++) {
-      const json = wasm.evo_simulate_bottleneck(p0, N, s, h, gen, bnAt, bnSize, bnDur, seed + i * 7919);
-      trajData.push(JSON.parse(json));
+  try {
+    if (wasm && !bnEnabled) {
+      const json = wasm.evo_simulate_batch(p0, N, s, h, gen, runs, seed);
+      trajData = JSON.parse(json);
+    } else if (wasm && bnEnabled) {
+      const bnAt = parseInt(document.getElementById('bn-at').value);
+      const bnSize = parseInt(document.getElementById('bn-size').value);
+      const bnDur = parseInt(document.getElementById('bn-dur').value);
+      trajData = [];
+      for (let i = 0; i < runs; i++) {
+        const json = wasm.evo_simulate_bottleneck(p0, N, s, h, gen, bnAt, bnSize, bnDur, seed + i * 7919);
+        trajData.push(JSON.parse(json));
+      }
+    } else {
+      // JS fallback — cap N to avoid browser hang
+      const cappedN = Math.min(N, 500);
+      trajData = jsFallbackBatch(p0, cappedN, s, gen, runs, seed);
     }
-  } else {
-    // JS fallback (simple, no dominance)
-    trajData = jsFallbackBatch(p0, N, s, gen, runs, seed);
+  } catch (e) {
+    console.error('Simulation error:', e);
+    trajData = jsFallbackBatch(p0, Math.min(N, 200), s, gen, runs, seed);
   }
 
   renderTrajectory();
@@ -303,16 +308,21 @@ function runMigration() {
   const initFreqs = [originFreq, ...Array(nPop - 1).fill(0.0)];
   const selection = [sOrigin, ...Array(nPop - 1).fill(sOther)];
 
-  if (wasm) {
-    const json = wasm.evo_simulate_migration(
-      nPop, N,
-      JSON.stringify(initFreqs),
-      JSON.stringify(selection),
-      h, m, gen, seed
-    );
-    migData = JSON.parse(json);
-  } else {
-    migData = jsFallbackMigration(nPop, N, initFreqs, m, gen, seed);
+  try {
+    if (wasm) {
+      const json = wasm.evo_simulate_migration(
+        nPop, N,
+        JSON.stringify(initFreqs),
+        JSON.stringify(selection),
+        h, m, gen, seed
+      );
+      migData = JSON.parse(json);
+    } else {
+      migData = jsFallbackMigration(nPop, Math.min(N, 200), initFreqs, m, gen, seed);
+    }
+  } catch (e) {
+    console.error('Migration sim error:', e);
+    migData = jsFallbackMigration(nPop, Math.min(N, 100), initFreqs, m, gen, seed);
   }
 
   // Set time slider to end
