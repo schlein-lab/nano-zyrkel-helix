@@ -89,3 +89,70 @@ pub fn simulate_population(
 pub fn fixation_prob(pop_size: u64, selection: f64, initial_freq: f64) -> f64 {
     population::fixation_probability(pop_size, selection, initial_freq)
 }
+
+// ── Evolution Sandbox ───────────────────────────────────────────
+
+#[wasm_bindgen]
+pub fn evo_simulate_batch(
+    initial_freq: f64,
+    pop_size: u64,
+    selection: f64,
+    dominance: f64,
+    generations: u64,
+    num_runs: u32,
+    base_seed: u64,
+) -> String {
+    let batch = population::simulate_batch(
+        initial_freq, pop_size, selection, dominance, generations, num_runs, base_seed,
+    );
+    serde_json::to_string(&batch).unwrap()
+}
+
+#[wasm_bindgen]
+pub fn evo_simulate_bottleneck(
+    initial_freq: f64,
+    pop_size: u64,
+    selection: f64,
+    dominance: f64,
+    generations: u64,
+    bottleneck_at: u64,
+    bottleneck_size: u64,
+    bottleneck_duration: u64,
+    seed: u64,
+) -> String {
+    let history = population::simulate_with_bottleneck(
+        initial_freq, pop_size, selection, dominance, generations,
+        bottleneck_at, bottleneck_size, bottleneck_duration, seed,
+    );
+    serde_json::to_string(&history).unwrap()
+}
+
+#[wasm_bindgen]
+pub fn evo_simulate_migration(
+    num_pops: usize,
+    pop_size: u64,
+    initial_freqs_json: &str,
+    selection_json: &str,
+    dominance: f64,
+    migration_rate: f64,
+    generations: u64,
+    seed: u64,
+) -> String {
+    let initial_freqs: Vec<f64> = serde_json::from_str(initial_freqs_json).unwrap_or_default();
+    let selection: Vec<f64> = serde_json::from_str(selection_json).unwrap_or_default();
+    let histories = population::simulate_migration(
+        num_pops, pop_size, &initial_freqs, &selection,
+        dominance, migration_rate, generations, seed,
+    );
+    serde_json::to_string(&histories).unwrap()
+}
+
+#[wasm_bindgen]
+pub fn evo_fixation_stats(batch_json: &str) -> String {
+    let batch: Vec<Vec<f64>> = serde_json::from_str(batch_json).unwrap_or_default();
+    let (fixed, lost, poly) = population::batch_fixation_stats(&batch);
+    serde_json::to_string(&serde_json::json!({
+        "fixed": fixed, "lost": lost, "polymorphic": poly,
+        "total": fixed + lost + poly,
+    })).unwrap()
+}

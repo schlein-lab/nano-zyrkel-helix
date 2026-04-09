@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helix — Evolution Sandbox</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="evolution.css">
+</head>
+<body>
+<div class="widget evo-widget">
+
+  <div class="header-banner">
+    <img src="helix-banner.png" alt="" class="banner-img">
+    <div class="banner-overlay">
+      <a href="index.html" class="back-link">&larr;</a>
+      <div>
+        <h1>Evolution Sandbox <span class="badge live">live</span></h1>
+        <p class="banner-sub">Drift, Selection, Migration — simulated in real time</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mode Tabs -->
+  <div class="mode-bar">
+    <button class="mode-tab active" data-mode="trajectory">Trajectory</button>
+    <button class="mode-tab" data-mode="migration">Migration</button>
+    <button class="mode-tab" data-mode="scenarios">Scenarios</button>
+  </div>
+
+  <!-- ═══ TRAJECTORY MODE ═══ -->
+  <div id="mode-trajectory" class="mode-panel active">
+    <div class="controls-grid">
+      <div class="slider-group">
+        <label>Start frequency (p₀) <span class="val" id="v-p0">0.500</span></label>
+        <input type="range" id="s-p0" min="0.01" max="0.99" step="0.01" value="0.5">
+      </div>
+      <div class="slider-group">
+        <label>Population size (N) <span class="val" id="v-n">500</span></label>
+        <input type="range" id="s-n" min="1" max="5" step="0.01" value="2.7">
+      </div>
+      <div class="slider-group">
+        <label>Selection (s) <span class="val" id="v-s">0.000</span></label>
+        <input type="range" id="s-s" min="-0.1" max="0.1" step="0.001" value="0">
+      </div>
+      <div class="slider-group">
+        <label>Dominance (h) <span class="val" id="v-h">0.50</span></label>
+        <input type="range" id="s-h" min="0" max="1" step="0.01" value="0.5">
+      </div>
+      <div class="slider-group">
+        <label>Generations <span class="val" id="v-gen">200</span></label>
+        <input type="range" id="s-gen" min="1" max="4" step="0.01" value="2.3">
+      </div>
+      <div class="slider-group">
+        <label>Parallel runs <span class="val" id="v-runs">10</span></label>
+        <input type="range" id="s-runs" min="1" max="50" step="1" value="10">
+      </div>
+    </div>
+
+    <!-- Bottleneck -->
+    <div class="bottleneck-row">
+      <label><input type="checkbox" id="bn-enable"> Bottleneck</label>
+      <span class="bn-params" id="bn-params" style="display:none">
+        at gen <input type="number" id="bn-at" value="50" min="1" max="9999" class="mini-input">
+        size <input type="number" id="bn-size" value="10" min="2" max="9999" class="mini-input">
+        for <input type="number" id="bn-dur" value="5" min="1" max="999" class="mini-input"> gen
+      </span>
+    </div>
+
+    <div class="btn-row">
+      <button class="run-btn" id="btn-run">&#9654; Run</button>
+      <button class="reset-btn" id="btn-reset">Reset</button>
+    </div>
+
+    <div class="chart-area">
+      <svg id="traj-chart" viewBox="0 0 500 250" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <div class="stats-row" id="traj-stats"></div>
+  </div>
+
+  <!-- ═══ MIGRATION MODE ═══ -->
+  <div id="mode-migration" class="mode-panel">
+    <div class="mig-info">A variant emerges in one population and spreads via migration. WASM-powered — scales to thousands of populations.</div>
+
+    <div class="controls-grid">
+      <div class="slider-group">
+        <label>Populations <span class="val" id="v-npop">5</span></label>
+        <input type="range" id="s-npop" min="2" max="200" step="1" value="5">
+      </div>
+      <div class="slider-group">
+        <label>Population size (each) <span class="val" id="v-n-mig">1000</span></label>
+        <input type="range" id="s-n-mig" min="1" max="5" step="0.01" value="3">
+      </div>
+      <div class="slider-group">
+        <label>Generations <span class="val" id="v-gen-mig">200</span></label>
+        <input type="range" id="s-gen-mig" min="1" max="4" step="0.01" value="2.3">
+      </div>
+      <div class="slider-group">
+        <label>Origin frequency <span class="val" id="v-origin">0.300</span></label>
+        <input type="range" id="s-origin" min="0.001" max="0.99" step="0.001" value="0.3">
+      </div>
+      <div class="slider-group">
+        <label>Migration rate (m) <span class="val" id="v-mig">0.010</span></label>
+        <input type="range" id="s-mig" min="0" max="0.1" step="0.001" value="0.01">
+      </div>
+      <div class="slider-group">
+        <label>Selection in origin <span class="val" id="v-s-origin">0.000</span></label>
+        <input type="range" id="s-s-origin" min="-0.1" max="0.1" step="0.001" value="0">
+      </div>
+      <div class="slider-group">
+        <label>Selection elsewhere <span class="val" id="v-s-other">0.000</span></label>
+        <input type="range" id="s-s-other" min="-0.1" max="0.1" step="0.001" value="0">
+      </div>
+      <div class="slider-group">
+        <label>Dominance (h) <span class="val" id="v-h-mig">0.50</span></label>
+        <input type="range" id="s-h-mig" min="0" max="1" step="0.01" value="0.5">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="run-btn" id="btn-run-mig">&#9654; Simulate spread</button>
+    </div>
+
+    <!-- Population wave visualization (dynamic) -->
+    <div class="pop-wave" id="pop-wave"></div>
+
+    <div class="chart-area">
+      <svg id="mig-chart" viewBox="0 0 500 220" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <div class="mig-note" id="mig-note"></div>
+  </div>
+
+  <!-- ═══ SCENARIO MODE ═══ -->
+  <div id="mode-scenarios" class="mode-panel">
+    <div class="preset-row">
+      <button class="preset" data-sc="sickle">HBB Sickle Cell <small>balanced selection</small></button>
+      <button class="preset" data-sc="lactose">LCT Lactose <small>positive selection</small></button>
+      <button class="preset" data-sc="skin">SLC24A5 Skin <small>UV selection</small></button>
+      <button class="preset" data-sc="aldh2">ALDH2 Flush <small>drift vs selection?</small></button>
+      <button class="preset" data-sc="founder">BRCA1 Founder <small>bottleneck</small></button>
+    </div>
+
+    <div class="scenario-detail" id="scenario-detail"></div>
+    <div class="chart-area">
+      <svg id="sc-chart" viewBox="0 0 500 250" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="index.html">&larr; All modules</a>
+    <span>powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
+  </div>
+</div>
+
+<script src="evolution.js"></script>
+</body>
+</html>
