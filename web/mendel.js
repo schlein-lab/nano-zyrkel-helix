@@ -366,16 +366,8 @@ function calcMito() {
   let pZero = childDist[0] || 0; // prob child gets 0% (only if mother ~0%)
   let pAny = 1 - pZero; // prob child has ANY mutant load
 
-  // We do NOT calculate disease risk — it depends on tissue distribution,
-  // nuclear modifiers, age, environment, and more. Only the heteroplasmy
-  // transmission can be modeled genetically.
-  const outcomes = [];
-  if (pZero > 0.01) outcomes.push({ geno: 'homoplasmic wt', prob: pZero, status: 'unaffected', count: 1 });
-  if (pAny > 0.01) outcomes.push({ geno: 'carries mutant mt-DNA', prob: pAny, status: 'carrier', count: 1 });
-
-  if (outcomes.length === 0) {
-    outcomes.push({ geno: `~${Math.round(h * 100)}%`, prob: 1, status: h > 0 ? 'carrier' : 'unaffected', count: 1 });
-  }
+  // Qualitative only — smooth gradient, no hard cutoffs, no numbers
+  const outcomes = [{ geno: 'mito', prob: 1, status: h === 0 ? 'unaffected' : 'carrier', count: 1, mitoH: h }];
 
   return {
     outcomes,
@@ -582,35 +574,48 @@ function renderOffspring(cross) {
 
   const preset = activePreset ? DISEASE_PRESETS[activePreset] : null;
 
-  let html = cross.outcomes.map(o => {
-    const pct = (o.prob * 100).toFixed(0);
-    // For non-mito: show penetrance-adjusted phenotype
-    let phenoLabel = o.status;
-    if (!isMito && o.status === 'affected' && pen < 1) {
-      phenoLabel = `affected (${penetrance}% pen.)`;
-    }
-    return `<div class="offspring-card ${o.status}">
-      <div class="o-geno">${o.geno}</div>
-      <div class="o-prob">${pct}%</div>
-      <div class="o-pheno">${phenoLabel}</div>
-    </div>`;
-  }).join('');
+  let html = '';
+  if (!isMito) {
+    html = cross.outcomes.map(o => {
+      const pct = (o.prob * 100).toFixed(0);
+      let phenoLabel = o.status;
+      if (o.status === 'affected' && pen < 1) {
+        phenoLabel = `affected (${penetrance}% pen.)`;
+      }
+      return `<div class="offspring-card ${o.status}">
+        <div class="o-geno">${o.geno}</div>
+        <div class="o-prob">${pct}%</div>
+        <div class="o-pheno">${phenoLabel}</div>
+      </div>`;
+    }).join('');
+  }
+  // For mito: no offspring cards with numbers — the gradient bar below says it all
 
   html += `<div class="risk-summary" style="width:100%;margin-top:0.3rem;">`;
 
   if (isMito) {
-    // Mitochondrial: show transmission probability, NOT disease risk
-    const mutCarrierProb = atRiskTotal;
-    html += `<span class="risk-value" style="color:var(--accent);">${(mutCarrierProb * 100).toFixed(0)}%</span>`;
-    html += `<div class="risk-label">probability child carries mutant mt-DNA</div>`;
-    html += `<div class="risk-label" style="margin-top:0.2rem;color:var(--text-dim);font-size:0.63rem;line-height:1.35;">
-      Heteroplasmy level in child varies due to bottleneck (see distribution above).
-      Disease risk cannot be calculated from heteroplasmy alone — it depends on
-      tissue distribution, mutation type, nuclear modifiers, age, and environment.
+    const h = mitoHeteroplasmy / 100;
+
+    // Binary poles with smooth gradient between them
+    html += `
+    <div style="width:100%;margin-top:0.2rem;">
+      <div style="display:flex;justify-content:space-between;font-size:0.7rem;margin-bottom:0.25rem;">
+        <span style="color:#10b981;">unlikely</span>
+        <span style="color:#ef4444;">very likely</span>
+      </div>
+      <div style="width:100%;height:12px;border-radius:6px;background:linear-gradient(to right, #10b981, #22c55e, #84cc16, #eab308, #f97316, #ef4444);position:relative;">
+        <div style="position:absolute;left:${h * 100}%;top:-3px;width:4px;height:18px;background:#fff;border-radius:3px;transform:translateX(-50%);box-shadow:0 0 4px rgba(0,0,0,0.5);"></div>
+      </div>
+      <div style="text-align:center;font-size:0.7rem;color:var(--text-muted);margin-top:0.3rem;">transmission of mutant mt-DNA to child</div>
+    </div>`;
+    html += `<div class="risk-label" style="margin-top:0.3rem;color:var(--text-dim);font-size:0.62rem;line-height:1.35;">
+      The mitochondrial bottleneck causes stochastic redistribution —
+      child heteroplasmy can differ greatly from mother.
+      Disease risk depends on tissue distribution, mutation, nuclear modifiers, and more.
     </div>`;
     const disease = MITO_DISEASES[mitoDisease];
     if (disease && disease.model !== 'none') {
-      html += `<div class="risk-label" style="margin-top:0.15rem;color:var(--text-muted);font-size:0.63rem;">${disease.info}</div>`;
+      html += `<div class="risk-label" style="margin-top:0.15rem;color:var(--text-muted);font-size:0.62rem;">${disease.info}</div>`;
     }
   } else {
     const riskClass = effectiveRisk >= 0.25 ? 'high' : effectiveRisk >= 0.05 ? 'medium' : 'low';
