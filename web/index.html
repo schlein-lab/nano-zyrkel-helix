@@ -3,114 +3,67 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Helix — Interactive Human Genetics</title>
-<meta name="description" content="Interactive Human Genetics Teaching Suite — real data, embeddable, powered by nano-zyrkel">
+<title>Helix — Hardy-Weinberg Explorer</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="widget" id="widget">
 
-<div class="app">
-  <!-- Nav -->
-  <nav id="nav">
-    <a class="brand" href="./">Helix</a>
-    <div class="tabs">
-      <button class="tab active" data-module="home">Home</button>
-      <button class="tab" data-module="hwe">Hardy-Weinberg</button>
-      <button class="tab" data-module="mutations">Mutations</button>
-      <button class="tab" data-module="mendel">Mendel</button>
-      <button class="tab" data-module="evolution">Evolution</button>
-      <button class="tab" data-module="meiosis">Meiosis</button>
-      <button class="tab" data-module="karyotype">Karyotype</button>
-      <button class="tab" data-module="tumor">Tumor</button>
-      <button class="tab" data-module="pharma">Pharma</button>
-      <button class="tab" data-module="population">Population</button>
-      <button class="tab" data-module="epigenetics">Epigenetics</button>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>Hardy-Weinberg Explorer</h1>
+      <span class="badge live">live</span>
     </div>
-    <button class="lang-toggle" id="lang-toggle">DE</button>
-  </nav>
-
-  <!-- Modules -->
-  <div id="module-home" class="module active">
-    <div class="hero">
-      <h1>Helix</h1>
-      <p class="subtitle">Interactive Human Genetics — real data, real science</p>
-      <p class="powered">powered by <a href="https://github.com/christian-schlein/nano-zyrkel">nano-zyrkel</a></p>
-    </div>
-    <div class="module-grid" id="module-grid"></div>
-  </div>
-
-  <div id="module-hwe" class="module">
-    <h2>Hardy-Weinberg Calculator</h2>
-    <div class="hwe-layout">
-      <div class="controls">
-        <div class="control-group">
-          <label>Allele frequency (p)
-            <span class="val" id="hwe-p-val">0.50</span>
-          </label>
-          <input type="range" id="hwe-p" min="0" max="1" step="0.001" value="0.5">
-        </div>
-        <div class="control-group">
-          <label>Inbreeding coefficient (F)
-            <span class="val" id="hwe-f-val">0.00</span>
-          </label>
-          <input type="range" id="hwe-f" min="0" max="1" step="0.01" value="0">
-        </div>
-        <div class="formula" id="hwe-formula"></div>
-        <div class="chi-section">
-          <h3>Chi-squared test</h3>
-          <div class="chi-inputs">
-            <label>Obs AA <input type="number" id="chi-aa" value="25" min="0"></label>
-            <label>Obs Aa <input type="number" id="chi-ab" value="50" min="0"></label>
-            <label>Obs aa <input type="number" id="chi-bb" value="25" min="0"></label>
-          </div>
-          <div id="chi-result" class="chi-result"></div>
-        </div>
-      </div>
-      <div class="visualization">
-        <svg id="hwe-chart" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid meet"></svg>
-        <div class="pop-comparison" id="hwe-populations"></div>
-      </div>
+    <div class="header-right">
+      <span class="brand">Helix</span>
     </div>
   </div>
 
-  <div id="module-mutations" class="module">
-    <h2>Mutation Simulator</h2>
-    <p class="coming-soon">Coming soon — introduce point mutations, frameshifts, and splice-site variants into real genes.</p>
+  <!-- Variant Selector -->
+  <div class="variant-bar">
+    <div class="preset-row">
+      <button class="preset active" data-variant="rs334">HBB rs334 <small>Sickle Cell</small></button>
+      <button class="preset" data-variant="rs1801133">MTHFR C677T</button>
+      <button class="preset" data-variant="rs6025">Factor V Leiden</button>
+      <button class="preset" data-variant="rs75961395">CFTR F508del</button>
+      <button class="preset" data-variant="rs80357906">BRCA1 5382insC</button>
+    </div>
+    <div class="search-row">
+      <input type="text" id="gene-search" placeholder="Search gene (e.g. TP53, BRCA2)..." autocomplete="off">
+      <div class="autocomplete" id="autocomplete"></div>
+    </div>
   </div>
-  <div id="module-mendel" class="module">
-    <h2>Mendel Lab</h2>
-    <p class="coming-soon">Coming soon — build families with real ClinVar variants and calculate risks.</p>
+
+  <!-- Variant Info -->
+  <div class="variant-info" id="variant-info"></div>
+
+  <!-- Population Tabs -->
+  <div class="pop-tabs" id="pop-tabs"></div>
+
+  <!-- Chart: Expected vs Observed -->
+  <div class="chart-area">
+    <svg id="hwe-chart" viewBox="0 0 500 200" preserveAspectRatio="xMidYMid meet"></svg>
   </div>
-  <div id="module-evolution" class="module">
-    <h2>Evolution Sandbox</h2>
-    <p class="coming-soon">Coming soon — simulate selection, drift, and migration across the globe.</p>
+
+  <!-- Stats -->
+  <div class="stats-row" id="stats-row"></div>
+
+  <!-- Inbreeding Slider -->
+  <div class="slider-row">
+    <label>Inbreeding (F)
+      <span class="val" id="f-val">0.00</span>
+    </label>
+    <input type="range" id="f-slider" min="0" max="0.5" step="0.005" value="0">
   </div>
-  <div id="module-meiosis" class="module">
-    <h2>Meiosis &amp; Crossing-Over</h2>
-    <p class="coming-soon">Coming soon — animated meiosis with real recombination rates.</p>
-  </div>
-  <div id="module-karyotype" class="module">
-    <h2>Karyotype Workbench</h2>
-    <p class="coming-soon">Coming soon — drag and drop chromosome sorting.</p>
-  </div>
-  <div id="module-tumor" class="module">
-    <h2>Tumor Genetics</h2>
-    <p class="coming-soon">Coming soon — multi-hit cancer model with COSMIC data.</p>
-  </div>
-  <div id="module-pharma" class="module">
-    <h2>Pharmacogenetics</h2>
-    <p class="coming-soon">Coming soon — drug metabolism simulator with CYP variants.</p>
-  </div>
-  <div id="module-population" class="module">
-    <h2>Population Map</h2>
-    <p class="coming-soon">Coming soon — global variant frequency comparator.</p>
-  </div>
-  <div id="module-epigenetics" class="module">
-    <h2>Epigenetics Sandbox</h2>
-    <p class="coming-soon">Coming soon — methylation, imprinting, and the Horvath clock.</p>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
+    <span class="embed-hint">embed: <code>?embed=true</code></span>
   </div>
 </div>
 
-<script type="module" src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
