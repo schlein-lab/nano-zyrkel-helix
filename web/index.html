@@ -3,18 +3,75 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Helix — Hardy-Weinberg Explorer</title>
+<title>Helix — Interactive Human Genetics</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="widget" id="widget">
 
+  <!-- Module Chooser (shown first) -->
+  <div id="module-chooser">
+    <div class="header-banner">
+      <img src="helix-banner.png" alt="" class="banner-img" style="height:100px;">
+      <div class="banner-overlay">
+        <h1>Helix <span class="badge live">live</span></h1>
+        <p class="banner-sub">Interactive Human Genetics — real data, real science</p>
+      </div>
+    </div>
+    <div class="chooser-grid">
+      <a class="chooser-card" href="#hwe" onclick="showModule('hwe')">
+        <div class="cc-icon">p&sup2;+2pq+q&sup2;</div>
+        <div class="cc-title">Hardy-Weinberg</div>
+        <div class="cc-desc">Allele frequencies, HWE testing, gnomAD data</div>
+        <span class="badge live">live</span>
+      </a>
+      <a class="chooser-card" href="mendel.html">
+        <div class="cc-icon">Aa&times;Aa</div>
+        <div class="cc-title">Mendel Lab</div>
+        <div class="cc-desc">Crosses, pedigrees, inheritance patterns</div>
+        <span class="badge live">live</span>
+      </a>
+      <a class="chooser-card cc-soon">
+        <div class="cc-icon">&Delta;DNA</div>
+        <div class="cc-title">Mutations</div>
+        <div class="cc-desc">Point mutations, frameshifts, protein effects</div>
+        <span class="badge soon">soon</span>
+      </a>
+      <a class="chooser-card cc-soon">
+        <div class="cc-icon">&#127758;</div>
+        <div class="cc-title">Evolution</div>
+        <div class="cc-desc">Drift, selection, Out-of-Africa simulation</div>
+        <span class="badge soon">soon</span>
+      </a>
+      <a class="chooser-card cc-soon">
+        <div class="cc-icon">&#9763;</div>
+        <div class="cc-title">Tumor Genetics</div>
+        <div class="cc-desc">Multi-hit model, Knudson, COSMIC data</div>
+        <span class="badge soon">soon</span>
+      </a>
+      <a class="chooser-card cc-soon">
+        <div class="cc-icon">&#9883;</div>
+        <div class="cc-title">Karyotype</div>
+        <div class="cc-desc">Chromosome sorting, aberrations</div>
+        <span class="badge soon">soon</span>
+      </a>
+    </div>
+    <div class="footer">
+      <span>powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
+    </div>
+  </div>
+
+  <!-- HWE Module (hidden until selected) -->
+  <div id="module-hwe" style="display:none">
+
   <!-- Header -->
-  <div class="header-banner">
+  <div class="header-banner hwe-header">
     <img src="helix-banner.png" alt="" class="banner-img">
     <div class="banner-overlay">
-      <h1>Helix <span class="badge live">live</span></h1>
-      <p class="banner-sub">Hardy-Weinberg Explorer</p>
+      <a href="#" onclick="showChooser()" class="back-link">&larr;</a>
+      <div>
+        <h1>Hardy-Weinberg Explorer</h1>
+      </div>
     </div>
   </div>
 
@@ -78,11 +135,28 @@
 
   <!-- Footer -->
   <div class="footer">
-    <a href="mendel.html">Mendel Lab &#8594;</a>
+    <a href="#" onclick="showChooser()">&larr; All modules</a>
     <span>powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
   </div>
+
+  </div><!-- /module-hwe -->
 </div>
 
+<script>
+function showModule(id) {
+  document.getElementById('module-chooser').style.display = 'none';
+  document.getElementById('module-' + id).style.display = '';
+  return false;
+}
+function showChooser() {
+  document.getElementById('module-chooser').style.display = '';
+  document.getElementById('module-hwe').style.display = 'none';
+  location.hash = '';
+  return false;
+}
+// Auto-navigate from hash
+if (location.hash === '#hwe') showModule('hwe');
+</script>
 <script src="app.js"></script>
 </body>
 </html>
