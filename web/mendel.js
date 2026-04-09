@@ -361,24 +361,31 @@ function calcMito() {
   // Get child heteroplasmy distribution
   const childDist = betaBinomialChildDistribution(h, bottleneckN);
 
-  // Summary: probability of child being in different ranges
-  let pLow = 0, pMid = 0, pHigh = 0;
-  // Low: 0-25%, Mid: 25-75%, High: 75-100%
-  for (let i = 0; i < childDist.length; i++) {
-    const pct = i * 5;
-    if (pct <= 25) pLow += childDist[i];
-    else if (pct <= 75) pMid += childDist[i];
-    else pHigh += childDist[i];
+  // Summary: any child with mutant mt-DNA > 0% is a carrier at minimum
+  // Risk depends on disease model
+  let pZero = childDist[0] || 0; // prob child gets 0% (only if mother ~0%)
+  let pAny = 1 - pZero; // prob child has ANY mutant load
+
+  // For disease-specific risk: integrate child distribution against risk curve
+  let pSymptomatic = 0;
+  if (disease.riskAt) {
+    for (let i = 0; i < childDist.length; i++) {
+      const pct = i * 5;
+      const riskAtThisLevel = interpolateRisk(disease.riskAt, pct);
+      pSymptomatic += childDist[i] * riskAtThisLevel;
+    }
+  } else {
+    // General: can't predict, but any heteroplasmy = some risk
+    pSymptomatic = 0; // unknown
   }
 
   const outcomes = [];
-  if (pLow > 0.01) outcomes.push({ geno: `low (0-25%)`, prob: pLow, status: 'unaffected', count: 1 });
-  if (pMid > 0.01) outcomes.push({ geno: `mid (25-75%)`, prob: pMid, status: 'carrier', count: 1 });
-  if (pHigh > 0.01) outcomes.push({ geno: `high (75-100%)`, prob: pHigh, status: 'affected', count: 1 });
+  if (pZero > 0.01) outcomes.push({ geno: 'homoplasmic wt', prob: pZero, status: 'unaffected', count: 1 });
+  if (pAny - pSymptomatic > 0.01) outcomes.push({ geno: 'heteroplasmic', prob: Math.max(0, pAny - pSymptomatic), status: 'carrier', count: 1 });
+  if (pSymptomatic > 0.01) outcomes.push({ geno: 'symptomatic', prob: pSymptomatic, status: 'affected', count: 1 });
 
-  // If all zero (edge case), show the main bin
   if (outcomes.length === 0) {
-    outcomes.push({ geno: `~${Math.round(h * 100)}%`, prob: 1, status: h > 0.5 ? 'affected' : 'unaffected', count: 1 });
+    outcomes.push({ geno: `~${Math.round(h * 100)}%`, prob: 1, status: h > 0 ? 'carrier' : 'unaffected', count: 1 });
   }
 
   return {
@@ -389,6 +396,18 @@ function calcMito() {
     mitoDisease: disease,
     childDist,
   };
+}
+
+function interpolateRisk(curve, pct) {
+  if (pct <= curve[0][0]) return curve[0][1];
+  if (pct >= curve[curve.length - 1][0]) return curve[curve.length - 1][1];
+  for (let i = 0; i < curve.length - 1; i++) {
+    if (pct >= curve[i][0] && pct <= curve[i + 1][0]) {
+      const t = (pct - curve[i][0]) / (curve[i + 1][0] - curve[i][0]);
+      return curve[i][1] + t * (curve[i + 1][1] - curve[i][1]);
+    }
+  }
+  return 0;
 }
 
 function genoAlleles(g) {
@@ -557,29 +576,57 @@ function renderPunnett(cross) {
 function renderOffspring(cross) {
   const row = document.getElementById('offspring-row');
   const pen = penetrance / 100;
+  const isMito = inheritance === 'mito';
 
+  // For mitochondrial: risk includes both 'affected' and 'carrier' (variable heteroplasmy)
+  // since carriers ARE at risk — heteroplasmy above zero means mutant mt-DNA is present
   let affectedRisk = 0;
-  cross.outcomes.forEach(o => { if (o.status === 'affected') affectedRisk += o.prob; });
-  const effectiveRisk = affectedRisk * pen;
+  let atRiskTotal = 0; // affected + carrier (for mito: anyone with mutant load)
+  cross.outcomes.forEach(o => {
+    if (o.status === 'affected') affectedRisk += o.prob;
+    if (o.status === 'affected' || o.status === 'carrier') atRiskTotal += o.prob;
+  });
+
+  // For non-mito: penetrance modifies the genotypic risk
+  // For mito: penetrance doesn't apply in the same way — risk IS the heteroplasmy distribution
+  const effectiveRisk = isMito ? affectedRisk : affectedRisk * pen;
 
   const preset = activePreset ? DISEASE_PRESETS[activePreset] : null;
 
   let html = cross.outcomes.map(o => {
     const pct = (o.prob * 100).toFixed(0);
+    // For non-mito: show penetrance-adjusted phenotype
+    let phenoLabel = o.status;
+    if (!isMito && o.status === 'affected' && pen < 1) {
+      phenoLabel = `affected (${penetrance}% pen.)`;
+    }
     return `<div class="offspring-card ${o.status}">
       <div class="o-geno">${o.geno}</div>
       <div class="o-prob">${pct}%</div>
-      <div class="o-pheno">${o.status}</div>
+      <div class="o-pheno">${phenoLabel}</div>
     </div>`;
   }).join('');
 
   html += `<div class="risk-summary" style="width:100%;margin-top:0.3rem;">`;
-  const riskClass = effectiveRisk >= 0.25 ? 'high' : effectiveRisk >= 0.05 ? 'medium' : 'low';
-  html += `<span class="risk-value ${riskClass}">${(effectiveRisk * 100).toFixed(1)}%</span>`;
-  html += `<div class="risk-label">risk per child${pen < 1 ? ` (${penetrance}% penetrance)` : ''}</div>`;
-  if (preset) html += `<div class="risk-label" style="margin-top:0.2rem;color:var(--text-muted)">${preset.info}</div>`;
-  html += `</div>`;
 
+  if (isMito) {
+    // Show two risk numbers: symptomatic + any mutant load
+    const riskClass = affectedRisk >= 0.25 ? 'high' : affectedRisk >= 0.05 ? 'medium' : 'low';
+    html += `<span class="risk-value ${riskClass}">${(affectedRisk * 100).toFixed(1)}%</span>`;
+    html += `<div class="risk-label">likely symptomatic (high heteroplasmy)</div>`;
+    if (atRiskTotal > affectedRisk + 0.01) {
+      html += `<div class="risk-label" style="margin-top:0.15rem;color:var(--warning);">${(atRiskTotal * 100).toFixed(1)}% carry mutant mt-DNA (variable load)</div>`;
+    }
+    const disease = MITO_DISEASES[mitoDisease];
+    if (disease) html += `<div class="risk-label" style="margin-top:0.2rem;color:var(--text-muted);font-size:0.65rem;">${disease.info}</div>`;
+  } else {
+    const riskClass = effectiveRisk >= 0.25 ? 'high' : effectiveRisk >= 0.05 ? 'medium' : 'low';
+    html += `<span class="risk-value ${riskClass}">${(effectiveRisk * 100).toFixed(1)}%</span>`;
+    html += `<div class="risk-label">risk per child${pen < 1 ? ` (${penetrance}% penetrance)` : ''}</div>`;
+    if (preset) html += `<div class="risk-label" style="margin-top:0.2rem;color:var(--text-muted)">${preset.info}</div>`;
+  }
+
+  html += `</div>`;
   row.innerHTML = html;
 }
 
