@@ -1,0 +1,556 @@
+// ── Mendel Lab ──────────────────────────────────────────────────
+
+const DISEASE_PRESETS = {
+  cf: {
+    name: 'Cystic Fibrosis', gene: 'CFTR', variant: 'p.Phe508del',
+    inheritance: 'ar', p1: 'Aa', p2: 'Aa',
+    info: '~1:25 carrier rate in Europeans. Both parents carriers → 25% risk.',
+  },
+  sickle: {
+    name: 'Sickle Cell Disease', gene: 'HBB', variant: 'p.Glu7Val',
+    inheritance: 'ar', p1: 'Aa', p2: 'Aa',
+    info: 'Carrier advantage against malaria. Aa × Aa → 25% SCD, 50% trait.',
+  },
+  huntington: {
+    name: "Huntington's Disease", gene: 'HTT', variant: 'CAG expansion',
+    inheritance: 'ad', p1: 'Aa', p2: 'AA',
+    info: 'One affected parent (Aa) → 50% risk for each child. Full penetrance.',
+  },
+  brca1: {
+    name: 'BRCA1 Cancer Risk', gene: 'BRCA1', variant: 'c.5266dupC',
+    inheritance: 'ad', p1: 'Aa', p2: 'AA', penetrance: 70,
+    info: 'Inherited cancer predisposition. ~70% penetrance for breast cancer by age 80.',
+  },
+  hemophilia: {
+    name: 'Hemophilia A', gene: 'F8', variant: 'various',
+    inheritance: 'xr', p1: 'Aa', p2: 'AA',
+    info: 'X-linked recessive. Carrier mother → 50% sons affected, 50% daughters carriers.',
+  },
+  duchenne: {
+    name: 'Duchenne MD', gene: 'DMD', variant: 'exon deletions',
+    inheritance: 'xr', p1: 'Aa', p2: 'AA',
+    info: 'X-linked recessive. ~1:3500 male births. Carrier mothers usually unaffected.',
+  },
+};
+
+// ── State ───────────────────────────────────────────────────────
+let inheritance = 'ar';
+let p1geno = 'AA';
+let p2geno = 'Aa';
+let penetrance = 100;
+let currentMode = 'cross';
+let pedigreeChildren = [];
+let quizIndex = 0;
+let activePreset = null;
+
+// ── Init ────────────────────────────────────────────────────────
+function init() {
+  if (new URLSearchParams(location.search).has('embed')) {
+    document.body.classList.add('embed');
+  }
+
+  // Mode tabs
+  document.querySelectorAll('.mode-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      currentMode = tab.dataset.mode;
+      document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.mode-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('mode-' + currentMode).classList.add('active');
+      if (currentMode === 'pedigree') renderPedigree();
+      if (currentMode === 'quiz') loadQuiz();
+    });
+  });
+
+  // Inheritance
+  document.getElementById('inheritance').addEventListener('change', (e) => {
+    inheritance = e.target.value;
+    updateGenoButtons();
+    render();
+  });
+
+  // Parent genotype buttons
+  ['parent1', 'parent2'].forEach((pid, idx) => {
+    document.getElementById(pid).querySelectorAll('.geno-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById(pid).querySelectorAll('.geno-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (idx === 0) p1geno = btn.dataset.g;
+        else p2geno = btn.dataset.g;
+        activePreset = null;
+        document.querySelectorAll('.vpreset').forEach(b => b.classList.remove('active'));
+        render();
+      });
+    });
+  });
+
+  // Penetrance
+  document.getElementById('pen-slider').addEventListener('input', (e) => {
+    penetrance = parseInt(e.target.value);
+    document.getElementById('pen-val').textContent = penetrance + '%';
+    render();
+  });
+
+  // Variant presets
+  document.querySelectorAll('.vpreset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const d = DISEASE_PRESETS[btn.dataset.v];
+      if (!d) return;
+      activePreset = btn.dataset.v;
+      document.querySelectorAll('.vpreset').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      inheritance = d.inheritance;
+      document.getElementById('inheritance').value = inheritance;
+      p1geno = d.p1;
+      p2geno = d.p2;
+      penetrance = d.penetrance || 100;
+      document.getElementById('pen-slider').value = penetrance;
+      document.getElementById('pen-val').textContent = penetrance + '%';
+      updateGenoButtons();
+      render();
+    });
+  });
+
+  // Pedigree buttons
+  document.getElementById('ped-add').addEventListener('click', addPedigreeChild);
+  document.getElementById('ped-reset').addEventListener('click', () => {
+    pedigreeChildren = [];
+    renderPedigree();
+  });
+
+  updateGenoButtons();
+  render();
+}
+
+function updateGenoButtons() {
+  const isX = inheritance === 'xr' || inheritance === 'xd';
+  const isMito = inheritance === 'mito';
+
+  // For X-linked: parent2 is father with hemizygous genotypes
+  ['parent1', 'parent2'].forEach((pid, idx) => {
+    const card = document.getElementById(pid);
+    const btns = card.querySelectorAll('.geno-btn');
+    if (isX && idx === 1) {
+      // Father: only A or a (hemizygous)
+      btns[0].textContent = 'XᴬY'; btns[0].dataset.g = 'XAY';
+      btns[1].style.display = 'none';
+      btns[2].textContent = 'XᵃY'; btns[2].dataset.g = 'XaY';
+      card.querySelector('.parent-label').textContent = 'Father';
+    } else if (isX && idx === 0) {
+      btns[0].textContent = 'XᴬXᴬ'; btns[0].dataset.g = 'AA';
+      btns[1].style.display = ''; btns[1].textContent = 'XᴬXᵃ'; btns[1].dataset.g = 'Aa';
+      btns[2].textContent = 'XᵃXᵃ'; btns[2].dataset.g = 'aa';
+      card.querySelector('.parent-label').textContent = 'Mother';
+    } else {
+      btns[0].textContent = 'AA'; btns[0].dataset.g = 'AA';
+      btns[1].style.display = ''; btns[1].textContent = 'Aa'; btns[1].dataset.g = 'Aa';
+      btns[2].textContent = 'aa'; btns[2].dataset.g = 'aa';
+      card.querySelector('.parent-label').textContent = idx === 0 ? 'Parent 1' : 'Parent 2';
+    }
+
+    // Re-select active
+    const current = idx === 0 ? p1geno : p2geno;
+    btns.forEach(b => b.classList.toggle('active', b.dataset.g === current));
+  });
+}
+
+// ── Cross Calculation ───────────────────────────────────────────
+function calcCross() {
+  const isX = inheritance === 'xr' || inheritance === 'xd';
+  const isDom = inheritance === 'ad' || inheritance === 'xd';
+
+  if (isX) return calcXLinked();
+  if (inheritance === 'mito') return calcMito();
+
+  // Autosomal
+  const g1 = genoAlleles(p1geno);
+  const g2 = genoAlleles(p2geno);
+  const outcomes = {};
+
+  for (const a1 of g1) {
+    for (const a2 of g2) {
+      const g = [a1, a2].sort().join('');
+      const normalized = g === 'Aa' || g === 'aA' ? 'Aa' : g;
+      outcomes[normalized] = (outcomes[normalized] || 0) + 1;
+    }
+  }
+
+  const total = Object.values(outcomes).reduce((a, b) => a + b, 0);
+  const result = [];
+  for (const [geno, count] of Object.entries(outcomes)) {
+    const prob = count / total;
+    const affected = isDom ? (geno !== 'AA' ? false : true) : true;
+    // For recessive: aa = affected. For dominant: Aa or aa = affected
+    let status;
+    if (isDom) {
+      status = (geno === 'Aa' || geno === 'aa') ? 'affected' : 'unaffected';
+    } else {
+      status = geno === 'aa' ? 'affected' : geno === 'Aa' ? 'carrier' : 'unaffected';
+    }
+    result.push({ geno, prob, status, count });
+  }
+
+  return { outcomes: result, total, punnett: { g1, g2 } };
+}
+
+function calcXLinked() {
+  const isDom = inheritance === 'xd';
+  const motherAlleles = genoAlleles(p1geno); // [X^A, X^a] etc
+  const fatherX = p2geno === 'XAY' ? 'A' : 'a';
+
+  const outcomes = {};
+  // Daughters get X from father + X from mother
+  // Sons get Y from father + X from mother
+  for (const m of motherAlleles) {
+    // Daughter
+    const dg = [m, fatherX].sort().join('');
+    const dk = 'X' + dg;
+    outcomes[dk] = outcomes[dk] || { geno: dg, sex: 'F', count: 0 };
+    outcomes[dk].count++;
+    // Son
+    const sk = m + 'Y';
+    outcomes[sk] = outcomes[sk] || { geno: m, sex: 'M', count: 0 };
+    outcomes[sk].count++;
+  }
+
+  const total = Object.values(outcomes).reduce((a, b) => a + b.count, 0);
+  const result = [];
+  for (const [key, v] of Object.entries(outcomes)) {
+    const prob = v.count / total;
+    let status;
+    if (v.sex === 'M') {
+      status = v.geno === 'a' ? 'affected' : 'unaffected';
+    } else {
+      if (isDom) status = (v.geno === 'Aa' || v.geno === 'aA' || v.geno === 'aa') ? 'affected' : 'unaffected';
+      else status = v.geno === 'aa' ? 'affected' : v.geno.includes('a') ? 'carrier' : 'unaffected';
+    }
+    const label = v.sex === 'M' ? `${v.geno}Y ♂` : `X${v.geno} ♀`;
+    result.push({ geno: label, prob, status, count: v.count });
+  }
+
+  return { outcomes: result, total, punnett: { g1: motherAlleles, g2: [fatherX, 'Y'] } };
+}
+
+function calcMito() {
+  // Mitochondrial: mother passes to all children
+  const affected = p1geno === 'aa' || p1geno === 'Aa';
+  return {
+    outcomes: [{ geno: 'maternal', prob: 1.0, status: affected ? 'affected' : 'unaffected', count: 1 }],
+    total: 1,
+    punnett: null,
+  };
+}
+
+function genoAlleles(g) {
+  if (g === 'AA') return ['A', 'A'];
+  if (g === 'Aa') return ['A', 'a'];
+  if (g === 'aa') return ['a', 'a'];
+  if (g === 'XAY') return ['A'];
+  if (g === 'XaY') return ['a'];
+  return ['A', 'a'];
+}
+
+// ── Render ──────────────────────────────────────────────────────
+function render() {
+  const cross = calcCross();
+  renderPhenotypes();
+  renderPunnett(cross);
+  renderOffspring(cross);
+}
+
+function renderPhenotypes() {
+  const isDom = inheritance === 'ad' || inheritance === 'xd';
+  const preset = activePreset ? DISEASE_PRESETS[activePreset] : null;
+  const label = preset ? preset.name : (isDom ? 'Dominant trait' : 'Recessive trait');
+
+  function phenoText(g, isParent2) {
+    const isX = inheritance === 'xr' || inheritance === 'xd';
+    if (isX && isParent2) {
+      return g === 'XaY' ? `<span style="color:var(--danger)">Affected ♂</span>` : `<span style="color:var(--success)">Unaffected ♂</span>`;
+    }
+    if (isDom) {
+      return g === 'AA' ? `<span style="color:var(--success)">Unaffected</span>` : `<span style="color:var(--danger)">Affected</span>`;
+    } else {
+      if (g === 'aa') return `<span style="color:var(--danger)">Affected</span>`;
+      if (g === 'Aa') return `<span style="color:var(--warning)">Carrier</span>`;
+      return `<span style="color:var(--success)">Unaffected</span>`;
+    }
+  }
+
+  document.getElementById('p1-pheno').innerHTML = phenoText(p1geno, false);
+  document.getElementById('p2-pheno').innerHTML = phenoText(p2geno, true);
+}
+
+function renderPunnett(cross) {
+  const svg = document.getElementById('punnett');
+  if (!cross.punnett) { svg.innerHTML = '<text x="150" y="100" fill="#475569" font-size="11" text-anchor="middle">Mitochondrial: maternal inheritance only</text>'; return; }
+
+  const { g1, g2 } = cross.punnett;
+  const w = 300, h = 200;
+  const cellW = 60, cellH = 45;
+  const startX = (w - (g2.length + 1) * cellW) / 2;
+  const startY = 15;
+
+  let html = '';
+  const isDom = inheritance === 'ad' || inheritance === 'xd';
+
+  // Header row (parent 2 alleles)
+  g2.forEach((a, j) => {
+    const x = startX + (j + 1) * cellW;
+    html += `<text x="${x + cellW/2}" y="${startY + cellH/2 + 4}" fill="var(--accent)" font-size="14" text-anchor="middle" font-weight="700">${a}</text>`;
+  });
+
+  // Rows (parent 1 alleles)
+  g1.forEach((a1, i) => {
+    const y = startY + (i + 1) * cellH;
+    html += `<text x="${startX + cellW/2}" y="${y + cellH/2 + 4}" fill="var(--accent)" font-size="14" text-anchor="middle" font-weight="700">${a1}</text>`;
+
+    g2.forEach((a2, j) => {
+      const x = startX + (j + 1) * cellW;
+      const geno = [a1, a2].sort().join('');
+      let color, bgOpacity;
+
+      if (a2 === 'Y') {
+        // Son
+        color = a1 === 'a' ? 'var(--danger)' : 'var(--success)';
+        bgOpacity = a1 === 'a' ? 0.15 : 0.08;
+      } else if (isDom) {
+        const aff = geno !== 'AA';
+        color = aff ? 'var(--danger)' : 'var(--success)';
+        bgOpacity = aff ? 0.15 : 0.08;
+      } else {
+        const isAff = geno === 'aa';
+        const isCarrier = geno === 'Aa' || geno === 'aA';
+        color = isAff ? 'var(--danger)' : isCarrier ? 'var(--warning)' : 'var(--success)';
+        bgOpacity = isAff ? 0.15 : isCarrier ? 0.1 : 0.05;
+      }
+
+      html += `<rect x="${x + 2}" y="${y + 2}" width="${cellW - 4}" height="${cellH - 4}" fill="${color}" opacity="${bgOpacity}" rx="4"/>`;
+      html += `<rect x="${x + 2}" y="${y + 2}" width="${cellW - 4}" height="${cellH - 4}" fill="none" stroke="${color}" stroke-width="1" opacity="0.3" rx="4"/>`;
+
+      const label = a2 === 'Y' ? `${a1}Y` : geno;
+      html += `<text x="${x + cellW/2}" y="${y + cellH/2 + 5}" fill="${color}" font-size="13" text-anchor="middle" font-family="monospace" font-weight="600">${label}</text>`;
+    });
+  });
+
+  svg.innerHTML = html;
+  svg.setAttribute('viewBox', `0 0 ${w} ${startY + (g1.length + 1) * cellH + 5}`);
+}
+
+function renderOffspring(cross) {
+  const row = document.getElementById('offspring-row');
+  const pen = penetrance / 100;
+
+  let affectedRisk = 0;
+  cross.outcomes.forEach(o => { if (o.status === 'affected') affectedRisk += o.prob; });
+  const effectiveRisk = affectedRisk * pen;
+
+  const preset = activePreset ? DISEASE_PRESETS[activePreset] : null;
+
+  let html = cross.outcomes.map(o => {
+    const pct = (o.prob * 100).toFixed(0);
+    return `<div class="offspring-card ${o.status}">
+      <div class="o-geno">${o.geno}</div>
+      <div class="o-prob">${pct}%</div>
+      <div class="o-pheno">${o.status}</div>
+    </div>`;
+  }).join('');
+
+  html += `<div class="risk-summary" style="width:100%;margin-top:0.3rem;">`;
+  const riskClass = effectiveRisk >= 0.25 ? 'high' : effectiveRisk >= 0.05 ? 'medium' : 'low';
+  html += `<span class="risk-value ${riskClass}">${(effectiveRisk * 100).toFixed(1)}%</span>`;
+  html += `<div class="risk-label">risk per child${pen < 1 ? ` (${penetrance}% penetrance)` : ''}</div>`;
+  if (preset) html += `<div class="risk-label" style="margin-top:0.2rem;color:var(--text-muted)">${preset.info}</div>`;
+  html += `</div>`;
+
+  row.innerHTML = html;
+}
+
+// ── Pedigree Mode ───────────────────────────────────────────────
+function addPedigreeChild() {
+  const cross = calcCross();
+  // Random child based on probabilities
+  const r = Math.random();
+  let cum = 0;
+  let child = cross.outcomes[0];
+  for (const o of cross.outcomes) {
+    cum += o.prob;
+    if (r <= cum) { child = o; break; }
+  }
+  // Apply penetrance
+  if (child.status === 'affected' && Math.random() > penetrance / 100) {
+    child = { ...child, status: 'unaffected', penetranceNote: true };
+  }
+  pedigreeChildren.push(child);
+  renderPedigree();
+}
+
+function renderPedigree() {
+  const svg = document.getElementById('pedigree-svg');
+  const isDom = inheritance === 'ad' || inheritance === 'xd';
+  const isX = inheritance === 'xr' || inheritance === 'xd';
+  const w = 500, h = 320;
+
+  let html = '';
+
+  // Parents — generation I
+  const p1x = 160, p2x = 340, py = 50, size = 24;
+
+  // Parent 1 (circle = female if X-linked, else square)
+  const p1shape = isX ? 'circle' : 'square';
+  const p1color = getGenoColor(p1geno, isDom, false);
+  html += drawPerson(p1x, py, size, p1shape, p1color, p1geno);
+
+  // Parent 2
+  const p2shape = isX ? 'square' : 'square';
+  const p2color = getGenoColor(p2geno, isDom, isX);
+  html += drawPerson(p2x, py, size, p2shape, p2color, p2geno);
+
+  // Marriage line
+  html += `<line x1="${p1x + size}" y1="${py}" x2="${p2x - size}" y2="${py}" stroke="#475569" stroke-width="1.5"/>`;
+
+  // Descent line
+  const midX = (p1x + p2x) / 2;
+  html += `<line x1="${midX}" y1="${py}" x2="${midX}" y2="${py + 50}" stroke="#475569" stroke-width="1.5"/>`;
+
+  // Children — generation II
+  const nKids = pedigreeChildren.length || 0;
+  if (nKids > 0) {
+    const childSpacing = Math.min(70, (w - 60) / nKids);
+    const startCX = midX - (nKids - 1) * childSpacing / 2;
+    const cy = py + 100;
+
+    // Horizontal line above children
+    if (nKids > 1) {
+      html += `<line x1="${startCX}" y1="${py + 50}" x2="${startCX + (nKids - 1) * childSpacing}" y2="${py + 50}" stroke="#475569" stroke-width="1.5"/>`;
+    }
+
+    pedigreeChildren.forEach((child, i) => {
+      const cx = startCX + i * childSpacing;
+      html += `<line x1="${cx}" y1="${py + 50}" x2="${cx}" y2="${cy - size}" stroke="#475569" stroke-width="1"/>`;
+
+      const isMale = child.geno.includes('Y') || child.geno.includes('♂');
+      const shape = isMale ? 'square' : (isX ? 'circle' : (Math.random() > 0.5 ? 'circle' : 'square'));
+      const color = child.status === 'affected' ? '#ef4444' : child.status === 'carrier' ? '#f59e0b' : '#10b981';
+      const filled = child.status === 'affected';
+      html += drawPerson(cx, cy, 18, shape, color, '', filled);
+
+      // Label
+      html += `<text x="${cx}" y="${cy + 32}" fill="#94a3b8" font-size="8" text-anchor="middle">${child.geno}</text>`;
+    });
+  } else {
+    html += `<text x="${midX}" y="${py + 80}" fill="#475569" font-size="10" text-anchor="middle">Click "+ Add child" to simulate offspring</text>`;
+  }
+
+  // Legend
+  const ly = h - 30;
+  html += `<circle cx="20" cy="${ly}" r="6" fill="none" stroke="#10b981" stroke-width="1.5"/>`;
+  html += `<text x="32" y="${ly + 4}" fill="#64748b" font-size="8">Unaffected</text>`;
+  html += `<circle cx="100" cy="${ly}" r="6" fill="none" stroke="#f59e0b" stroke-width="1.5"/>`;
+  html += `<text x="112" y="${ly + 4}" fill="#64748b" font-size="8">Carrier</text>`;
+  html += `<circle cx="165" cy="${ly}" r="6" fill="#ef4444" stroke="#ef4444" stroke-width="1.5"/>`;
+  html += `<text x="177" y="${ly + 4}" fill="#64748b" font-size="8">Affected</text>`;
+
+  // Stats
+  if (nKids > 0) {
+    const aff = pedigreeChildren.filter(c => c.status === 'affected').length;
+    const carr = pedigreeChildren.filter(c => c.status === 'carrier').length;
+    html += `<text x="${w - 10}" y="${ly + 4}" fill="#64748b" font-size="9" text-anchor="end">${aff}/${nKids} affected, ${carr}/${nKids} carriers</text>`;
+  }
+
+  svg.innerHTML = html;
+  document.getElementById('ped-info').textContent = nKids > 0 ? `${nKids} children simulated` : '';
+}
+
+function drawPerson(x, y, size, shape, color, label, filled) {
+  let html = '';
+  if (shape === 'circle') {
+    html += `<circle cx="${x}" cy="${y}" r="${size}" fill="${filled ? color : 'none'}" stroke="${color}" stroke-width="2"/>`;
+  } else {
+    html += `<rect x="${x - size}" y="${y - size}" width="${size * 2}" height="${size * 2}" fill="${filled ? color : 'none'}" stroke="${color}" stroke-width="2" rx="2"/>`;
+  }
+  if (label) {
+    html += `<text x="${x}" y="${y + size + 14}" fill="#94a3b8" font-size="9" text-anchor="middle" font-family="monospace">${label}</text>`;
+  }
+  return html;
+}
+
+function getGenoColor(geno, isDom, isFatherXLinked) {
+  if (isFatherXLinked) {
+    return geno === 'XaY' ? '#ef4444' : '#10b981';
+  }
+  if (isDom) return geno === 'AA' ? '#10b981' : '#ef4444';
+  if (geno === 'aa') return '#ef4444';
+  if (geno === 'Aa') return '#f59e0b';
+  return '#10b981';
+}
+
+// ── Quiz Mode ───────────────────────────────────────────────────
+const QUIZZES = [
+  {
+    q: 'Two unaffected parents have an affected child. What is the most likely inheritance pattern?',
+    opts: ['Autosomal Dominant', 'Autosomal Recessive', 'X-linked Dominant', 'Mitochondrial'],
+    answer: 1,
+    explain: 'Both parents must be carriers (Aa). The affected child is homozygous (aa). This is autosomal recessive inheritance.',
+  },
+  {
+    q: 'An affected father and unaffected mother have 3 affected daughters and 2 unaffected sons. Most likely pattern?',
+    opts: ['Autosomal Recessive', 'X-linked Recessive', 'Autosomal Dominant', 'X-linked Dominant'],
+    answer: 3,
+    explain: 'X-linked dominant: affected father passes X to all daughters (affected) and Y to all sons (unaffected).',
+  },
+  {
+    q: 'A carrier mother (X-linked recessive) and unaffected father. What is the risk for each son?',
+    opts: ['0%', '25%', '50%', '100%'],
+    answer: 2,
+    explain: 'Carrier mother (XᴬXᵃ) passes Xᵃ to 50% of sons. These sons (XᵃY) are affected.',
+  },
+  {
+    q: 'Both parents are carriers for cystic fibrosis (Aa × Aa). What fraction of UNAFFECTED children are carriers?',
+    opts: ['1/4', '1/3', '2/3', '3/4'],
+    answer: 2,
+    explain: 'Aa × Aa → 1 AA : 2 Aa : 1 aa. Among 3 unaffected (1 AA + 2 Aa), 2/3 are carriers.',
+  },
+  {
+    q: 'Huntington disease has 100% penetrance and is autosomal dominant. One parent is Aa. What is the risk per child?',
+    opts: ['25%', '50%', '75%', '100%'],
+    answer: 1,
+    explain: 'Aa × AA → 50% Aa (affected) and 50% AA (unaffected). Each child has 50% risk.',
+  },
+];
+
+function loadQuiz() {
+  const area = document.getElementById('quiz-area');
+  const quiz = QUIZZES[quizIndex % QUIZZES.length];
+
+  area.innerHTML = `
+    <div class="quiz-question">${quiz.q}</div>
+    <div class="quiz-options">
+      ${quiz.opts.map((opt, i) => `<button class="quiz-opt" data-i="${i}">${opt}</button>`).join('')}
+    </div>
+  `;
+
+  area.querySelectorAll('.quiz-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = parseInt(btn.dataset.i);
+      area.querySelectorAll('.quiz-opt').forEach(b => {
+        b.classList.add(parseInt(b.dataset.i) === quiz.answer ? 'correct' : 'wrong');
+        b.disabled = true;
+      });
+      const correct = i === quiz.answer;
+      area.innerHTML += `
+        <div class="quiz-feedback" style="background:${correct ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)'}">
+          ${correct ? 'Correct!' : 'Not quite.'} ${quiz.explain}
+        </div>
+        <button class="quiz-next" id="quiz-next">Next question</button>
+      `;
+      document.getElementById('quiz-next').addEventListener('click', () => {
+        quizIndex++;
+        loadQuiz();
+      });
+    });
+  });
+}
+
+// ── Go ──────────────────────────────────────────────────────────
+init();

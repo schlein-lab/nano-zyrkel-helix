@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helix — Mendel Lab</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="mendel.css">
+</head>
+<body>
+<div class="widget">
+
+  <div class="header-banner">
+    <img src="helix-banner.png" alt="" class="banner-img">
+    <div class="banner-overlay">
+      <h1>Helix <span class="badge live">live</span></h1>
+      <p class="banner-sub">Mendel Lab — Inheritance Explorer</p>
+    </div>
+  </div>
+
+  <!-- Mode & Inheritance -->
+  <div class="mode-bar">
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="cross">Cross</button>
+      <button class="mode-tab" data-mode="pedigree">Pedigree</button>
+      <button class="mode-tab" data-mode="quiz">Quiz</button>
+    </div>
+    <select id="inheritance" class="inheritance-select">
+      <option value="ad">Autosomal Dominant</option>
+      <option value="ar" selected>Autosomal Recessive</option>
+      <option value="xr">X-linked Recessive</option>
+      <option value="xd">X-linked Dominant</option>
+      <option value="mito">Mitochondrial</option>
+    </select>
+  </div>
+
+  <!-- Cross Mode -->
+  <div id="mode-cross" class="mode-panel active">
+    <!-- Parent genotypes -->
+    <div class="parents-row">
+      <div class="parent-card" id="parent1">
+        <div class="parent-label">Parent 1</div>
+        <div class="parent-geno">
+          <button class="geno-btn active" data-g="AA">AA</button>
+          <button class="geno-btn" data-g="Aa">Aa</button>
+          <button class="geno-btn" data-g="aa">aa</button>
+        </div>
+        <div class="parent-pheno" id="p1-pheno"></div>
+      </div>
+      <div class="cross-symbol">&times;</div>
+      <div class="parent-card" id="parent2">
+        <div class="parent-label">Parent 2</div>
+        <div class="parent-geno">
+          <button class="geno-btn" data-g="AA">AA</button>
+          <button class="geno-btn active" data-g="Aa">Aa</button>
+          <button class="geno-btn" data-g="aa">aa</button>
+        </div>
+        <div class="parent-pheno" id="p2-pheno"></div>
+      </div>
+    </div>
+
+    <!-- Penetrance -->
+    <div class="slider-row">
+      <label>Penetrance <span class="val" id="pen-val">100%</span></label>
+      <input type="range" id="pen-slider" min="0" max="100" step="1" value="100">
+    </div>
+
+    <!-- Punnett Square -->
+    <div class="punnett-area">
+      <svg id="punnett" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <!-- Offspring probabilities -->
+    <div class="offspring-row" id="offspring-row"></div>
+
+    <!-- Variant presets -->
+    <div class="variants-section">
+      <div class="section-label">Real variant examples <span class="hint">(sets inheritance + parents)</span></div>
+      <div class="preset-row">
+        <button class="vpreset" data-v="cf">CF (CFTR) <small>AR</small></button>
+        <button class="vpreset" data-v="sickle">Sickle Cell <small>AR</small></button>
+        <button class="vpreset" data-v="huntington">Huntington <small>AD</small></button>
+        <button class="vpreset" data-v="brca1">BRCA1 <small>AD</small></button>
+        <button class="vpreset" data-v="hemophilia">Hemophilia A <small>XR</small></button>
+        <button class="vpreset" data-v="duchenne">Duchenne <small>XR</small></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pedigree Mode -->
+  <div id="mode-pedigree" class="mode-panel">
+    <div class="pedigree-canvas">
+      <svg id="pedigree-svg" viewBox="0 0 500 320" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+    <div class="pedigree-controls">
+      <button class="ped-btn" id="ped-add">+ Add child</button>
+      <button class="ped-btn" id="ped-reset">Reset</button>
+      <div class="ped-info" id="ped-info"></div>
+    </div>
+  </div>
+
+  <!-- Quiz Mode -->
+  <div id="mode-quiz" class="mode-panel">
+    <div class="quiz-area" id="quiz-area"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <a href="index.html">&#8592; Hardy-Weinberg</a>
+    <span>powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
+  </div>
+</div>
+
+<script src="mendel.js"></script>
+</body>
+</html>
