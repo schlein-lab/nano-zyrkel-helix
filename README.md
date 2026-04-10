@@ -31,6 +31,27 @@
 
 Each module is a self-contained Rust application compiled to WebAssembly via [Trunk](https://trunkrs.dev/). Modules run entirely in the browser — no server required after initial load. Real genomic datasets are bundled or fetched client-side from public APIs.
 
+## Architecture
+
+helix is a downstream consumer of the [nano-zyrkel](https://github.com/schlein-lab/nano-zyrkel) central core architecture:
+
+- **Domain code (this repo)** — `web/src/genetics/`: Hardy-Weinberg,
+  Mendelian inheritance, mutation simulation, population genetics.
+  These are the parts that make helix specifically about teaching
+  genetics.
+- **Generic primitives (central core)** — `nano-zyrkel-wasm-core`
+  pinned via Cargo dep in `web/Cargo.toml`. Provides `DataLoader`,
+  `ConfigReader`, `Stats` and a chart kit that any browser-side
+  nano-zyrkel can reuse.
+- **Updates** — `.nano-zyrkel-versions.json` pins the binary + WASM
+  core versions. The `update-core` reusable workflow opens a PR every
+  Monday with the latest compatible release.
+
+This means helix tracks improvements to the shared infrastructure
+without re-implementing them — when the central core ships a new
+chart type or a faster `Stats::chi_square`, helix gets it through a
+single Cargo bump.
+
 ## Embed in Your Course
 
 Individual modules can be embedded as iframes in any LMS (Moodle, Canvas, etc.):

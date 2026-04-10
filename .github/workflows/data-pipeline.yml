@@ -1,13 +1,14 @@
-name: 'nano-zyrkel: Helix Data Pipeline'
+name: Helix Data Pipeline
+
+# Pulls the central nano-zyrkel binary release pinned in
+# .nano-zyrkel-versions.json, runs it against this repo's
+# hats/config.json and commits the staging output. The actual fetch /
+# parse / report logic lives in the central nano-zyrkel-core library.
 
 on:
   schedule:
     - cron: '0 3 * * 0'
   workflow_dispatch:
-    inputs:
-      mode:
-        description: 'Pipeline mode: pipeline | fetch | index | quiz'
-        default: 'pipeline'
 
 permissions:
   contents: write
@@ -18,42 +19,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get nano-zyrkel
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Read pinned binary version
+        id: pin
         run: |
-          CHANNEL="${{ vars.NANO_CHANNEL || 'stable' }}"
-          gh release download "$CHANNEL" \
+          set -e
+          version=$(jq -r '.binary' .nano-zyrkel-versions.json)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Download nano-zyrkel binary
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p core/bin
+          gh release download "bin-${{ steps.pin.outputs.version }}" \
             --repo schlein-lab/nano-zyrkel \
-            --pattern "nano-zyrkel-*-linux*" --dir /tmp/bin || \
-          gh release download latest \
-            --repo schlein-lab/nano-zyrkel \
-            --pattern "nano-zyrkel-*-linux*" --dir /tmp/bin
-          chmod +x /tmp/bin/nano-zyrkel*
-          BINARY=$(ls /tmp/bin/nano-zyrkel* | head -1)
-          ln -sf "$BINARY" ./nano-zyrkel
+            --pattern "nano-zyrkel-x86_64-unknown-linux-gnu.tar.gz" \
+            --clobber \
+            --output core/bin/nano-zyrkel.tar.gz
+          tar -xzf core/bin/nano-zyrkel.tar.gz -C core/bin
+          rm core/bin/nano-zyrkel.tar.gz
+          chmod +x core/bin/nano-zyrkel
 
       - name: Run pipeline
         env:
-          RUN_MODE: ${{ github.event.inputs.mode || 'pipeline' }}
-        run: ./nano-zyrkel --config hats/config.json --mode "${RUN_MODE}" --verbose
-
-      - name: Write health
-        if: always()
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          VERSION=$(./nano-zyrkel --version 2>/dev/null || echo "unknown")
-          LATEST=$(gh release view stable --repo schlein-lab/nano-zyrkel --json tagName -q .tagName 2>/dev/null || echo "unknown")
-          mkdir -p staging/nano-zyrkel-helix
-          cat > staging/nano-zyrkel-helix/health.json <<HEALTH
-          {"runner_version":"$VERSION","latest_stable":"$LATEST","checked_at":"$(date -u +%Y-%m-%dT%H:%M:%SZ)"}
-          HEALTH
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: ./core/bin/nano-zyrkel --config hats/config.json --lang en
 
       - name: Commit results
         run: |
           git config user.name "nano-zyrkel"
-          git config user.email "nano@zyrkel.local"
+          git config user.email "nano-zyrkel@users.noreply.github.com"
           git add staging/
           git diff --staged --quiet || \
             git commit -m "data: helix $(date -u +%Y-%m-%dT%H:%M)"

@@ -1,26 +1,39 @@
 [package]
 name = "helix"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Christian Schlein"]
+license = "MIT"
+description = "Interactive Human Genetics Teaching Suite — domain crate for the nano-zyrkel-helix user repo"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 [features]
 default = ["wasm"]
-wasm = ["wasm-bindgen", "js-sys", "serde-wasm-bindgen", "getrandom/js"]
+wasm = [
+    "wasm-bindgen",
+    "js-sys",
+    "serde-wasm-bindgen",
+    "getrandom/js",
+    "nano-zyrkel-wasm-core",
+]
 
 [dependencies]
+# Domain dependencies (used by the genetics/ modules in this repo).
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 rand = { version = "0.8", features = ["small_rng"] }
 getrandom = { version = "0.2", optional = true }
 
-# WASM-only
+# WASM-only bindings: wasm-bindgen and the central nano-zyrkel-wasm-core
+# library. The core gives us DataLoader, ConfigReader, Stats and Charts
+# so the helix UI can read the same hats/config.json the binary core
+# understands and reuse generic visualization primitives.
 wasm-bindgen = { version = "0.2", optional = true }
 js-sys = { version = "0.3", optional = true }
 serde-wasm-bindgen = { version = "0.6", optional = true }
+nano-zyrkel-wasm-core = { git = "https://github.com/schlein-lab/nano-zyrkel", tag = "wasm-v0.1.0", optional = true, default-features = false, features = ["data", "config"] }
 
 [profile.release]
 lto = "thin"
@@ -29,4 +42,10 @@ strip = "symbols"
 opt-level = "s"
 
 [package.metadata.wasm-pack.profile.release]
-wasm-opt = false
+wasm-opt = [
+    "-Oz",
+    "--enable-bulk-memory",
+    "--enable-nontrapping-float-to-int",
+    "--enable-mutable-globals",
+    "--enable-sign-ext",
+]
