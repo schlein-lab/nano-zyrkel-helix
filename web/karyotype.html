@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helix — Karyotype Workbench</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="karyotype.css">
+</head>
+<body>
+<div class="widget">
+
+  <div class="header-banner">
+    <img src="helix-banner.png" alt="" class="banner-img">
+    <div class="banner-overlay">
+      <h1>Helix <span class="badge live">live</span></h1>
+      <p class="banner-sub">Karyotype Workbench — Cytogenetics Trainer</p>
+    </div>
+  </div>
+
+  <!-- Mode tabs -->
+  <div class="mode-bar">
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="compare">Compare</button>
+      <button class="mode-tab" data-mode="aberrations">Aberrations</button>
+      <button class="mode-tab" data-mode="quiz">Quiz</button>
+      <button class="mode-tab" data-mode="exam">Exam (50)</button>
+      <button class="mode-tab" data-mode="build">Build</button>
+    </div>
+  </div>
+
+  <!-- Compare Mode (default): SVG schema vs real photo -->
+  <div id="mode-compare" class="mode-panel active">
+    <div class="compare-split">
+      <div class="compare-side">
+        <h3>Schematic (UCSC GRCh38)</h3>
+        <div id="compare-svg"></div>
+      </div>
+      <div class="compare-side real">
+        <h3>Real (NHGRI G-banding)</h3>
+        <img class="real-photo" src="img/nhgri_karyotype.png" alt="NHGRI human male karyotype (public domain)">
+        <div class="photo-highlight" id="photo-highlight"></div>
+      </div>
+    </div>
+    <div class="compare-info" id="compare-info">
+      Hover over a band to see its name and ClinGen dosage info (where curated).
+    </div>
+  </div>
+
+  <!-- Aberrations Mode -->
+  <div id="mode-aberrations" class="mode-panel">
+    <div class="aberration-presets">
+      <div class="aberration-categories">
+        <button class="cat-btn active" data-cat="numerical">Numerical</button>
+        <button class="cat-btn" data-cat="structural">Deletions</button>
+        <button class="cat-btn" data-cat="translocation">Translocations</button>
+      </div>
+      <div class="preset-grid" id="preset-grid"></div>
+    </div>
+    <div id="aberration-karyo" style="padding:0.5rem 0.8rem;"></div>
+    <div class="aberration-info" id="aberration-info">
+      <div style="color:var(--text-dim);font-size:0.72rem;">Select a syndrome above to view details.</div>
+    </div>
+    <div class="segregation-area" id="segregation-area" style="display:none;">
+      <div class="segregation-title">Meiotic segregation — 6 possible gamete types</div>
+      <div class="gametes-row" id="gametes-row"></div>
+      <div style="font-size:0.65rem;color:var(--text-dim);line-height:1.4;">
+        Robertsonian carriers are phenotypically normal but produce unbalanced gametes.
+        Empirical risk of liveborn trisomy is much lower than theoretical (most unbalanced
+        conceptions miscarry early). For rob(13;14): ~1% risk of Patau in offspring.
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz Mode -->
+  <div id="mode-quiz" class="mode-panel">
+    <div class="quiz-area" id="quiz-area"></div>
+  </div>
+
+  <!-- Exam Mode (50 cases) -->
+  <div id="mode-exam" class="mode-panel">
+    <div id="exam-area"></div>
+  </div>
+
+  <!-- Build Mode -->
+  <div id="mode-build" class="mode-panel">
+    <div id="build-area"></div>
+  </div>
+
+  <div class="science-disclaimer">
+    Cytoband data: UCSC GRCh38 (cytoBand.txt, public). Real karyotype image: NHGRI (public domain).
+    Dosage curation: ClinGen Dosage Sensitivity Map. Clinical features and frequencies are simplified
+    for teaching — consult standard references (ISCN 2020, Thompson &amp; Thompson, OMIM) for diagnostic work.
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <a href="index.html">&#8592; All modules</a>
+    <span>powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
+  </div>
+</div>
+
+<script src="karyotype.js"></script>
+</body>
+</html>

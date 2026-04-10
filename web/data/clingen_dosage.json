@@ -1,0 +1,512 @@
+[
+  {
+    "iscaId": "ISCA-46757",
+    "name": "21q21.3 region (includes APP)",
+    "cytoband": "21q21.3",
+    "location": "chr21:25734570-26573286",
+    "hi_score": 0,
+    "hi_desc": "No evidence available",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-46743",
+    "name": "Xq25 region (includes STAG2)",
+    "cytoband": "Xq25",
+    "location": "chrX:123900469-124102669",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-46742",
+    "name": "7p22.1 region (includes ACTB)",
+    "cytoband": "7p22.1",
+    "location": "chr7:5497217-5760091",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 1,
+    "ts_desc": "Little evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-46553",
+    "name": "3q24 Region (includes ZIC1)",
+    "cytoband": "3q24",
+    "location": "chr3:136684193-148623326",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 0,
+    "ts_desc": "No evidence available"
+  },
+  {
+    "iscaId": "ISCA-46304",
+    "name": "Xq28 region (includes MECP2)",
+    "cytoband": "Xq28",
+    "location": "chrX:154008529-154110279",
+    "hi_score": 0,
+    "hi_desc": "No evidence available",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-46303",
+    "name": "SOX9 upstream enhancer region",
+    "cytoband": "17q24.3",
+    "location": "chr17:69896855-71796293",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 1,
+    "ts_desc": "Little evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-46302",
+    "name": "Xp21.2 region (includes NR0B1)",
+    "cytoband": "Xp21.2",
+    "location": "chrX:30176883-30336883",
+    "hi_score": 0,
+    "hi_desc": "No evidence available",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-46300",
+    "name": "15q24 recurrent region (LCR C-LCR D) (includes SIN3A)",
+    "cytoband": "15q24",
+    "location": "chr15:75339446-75680568",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 0,
+    "ts_desc": "No evidence available"
+  },
+  {
+    "iscaId": "ISCA-46299",
+    "name": "Xp11.22 region (includes HUWE1)",
+    "cytoband": "Xp11.22",
+    "location": "chrX:53334251-53766556",
+    "hi_score": 0,
+    "hi_desc": "No evidence available",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-46296",
+    "name": "15q24 recurrent region (LCR A-LCR C)",
+    "cytoband": "15q24.1-q24.2",
+    "location": "chr15:72671374-75215971",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 1,
+    "ts_desc": "Little evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-46294",
+    "name": "22q11.2 recurrent region (distal type III, D-G, D-H, E-H, F-H, or F-G) (includes SMARCB1)",
+    "cytoband": "22q11.23",
+    "location": "chr22:23489015-24236853",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 1,
+    "ts_desc": "Little evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-46290",
+    "name": "Xp11.22p11.23 recurrent region (includes SHROOM4)",
+    "cytoband": "Xp11.22-p11.23",
+    "location": "chrX:48447780-52444264",
+    "hi_score": 0,
+    "hi_desc": "No evidence available",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37501",
+    "name": "17q23.1q23.2 recurrent region (includes TBX2, TBX4)",
+    "cytoband": "17q23.1-q23.2",
+    "location": "chr17:60035641-62198448",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 2,
+    "ts_desc": "Some evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37500",
+    "name": "15q25.2 recurrent region (proximal, LCR-A/B-C) (includes RPS17)",
+    "cytoband": "15q25.2",
+    "location": "chr15:82534140-84045981",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 0,
+    "ts_desc": "No evidence available"
+  },
+  {
+    "iscaId": "ISCA-37498",
+    "name": "11q13.2q13.4 recurrent region (includes SHANK2, FGFs)",
+    "cytoband": "11q13.2-q13.4",
+    "location": "chr11:67996175-71525885",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 0,
+    "ts_desc": "No evidence available"
+  },
+  {
+    "iscaId": "ISCA-37495",
+    "name": "2q11.2 recurrent region (includes ARID5A, TMEM127)",
+    "cytoband": "2q11.2",
+    "location": "chr2:96073264-97005692",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 1,
+    "ts_desc": "Little evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37494",
+    "name": "Xq28 recurrent region (int22h1/int22h2-flanked) (includes RAB39B)",
+    "cytoband": "Xq28",
+    "location": "chrX:154890328-155335092",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37493",
+    "name": "1q43q44 terminal region (includes AKT3)",
+    "cytoband": "1q43-q44",
+    "location": "chr1:243124428-245154985",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 0,
+    "ts_desc": "No evidence available"
+  },
+  {
+    "iscaId": "ISCA-37486",
+    "name": "16p11.2 recurrent region (distal, BP1-BP3, BP2-BP3, or BP1-BP4) (includes SH2B1)",
+    "cytoband": "16p11.2",
+    "location": "chr16:28811314-29035178",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 1,
+    "ts_desc": "Little evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37478",
+    "name": "15q11.2q13 recurrent (PWS/AS) region (Class I, BP1-BP3 and Class II, BP2-BP3)",
+    "cytoband": "15q11.2-q13.1",
+    "location": "chr15:23465365-28134728",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37468",
+    "name": "Xp11.23 region (includes MAOA and MAOB)",
+    "cytoband": "Xp11.23",
+    "location": "chrX:43654906-43882474",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 0,
+    "ts_desc": "No evidence available"
+  },
+  {
+    "iscaId": "ISCA-37467",
+    "name": "7q36.3 ZRS (SHH cis-regulatory) duplication region (within LMBR1 intron 5)",
+    "cytoband": "7q36.3",
+    "location": "chr7:156791102-156791874",
+    "hi_score": 0,
+    "hi_desc": "No evidence available",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37448",
+    "name": "15q11.2 recurrent region (BP1-BP2) (includes NIPA1)",
+    "cytoband": "15q11.2",
+    "location": "chr15:22782170-23040134",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 40,
+    "ts_desc": "Dosage sensitivity unlikely"
+  },
+  {
+    "iscaId": "ISCA-37447",
+    "name": "DLK1-MEG3 Intergenic Region",
+    "cytoband": "14q32.2",
+    "location": "chr14:100724515-100833215",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 0,
+    "ts_desc": "No evidence available"
+  },
+  {
+    "iscaId": "ISCA-37446",
+    "name": "22q11.2 recurrent (DGS) region (proximal, A-B, A-C, or A-D) (includes TBX1)",
+    "cytoband": "22q11.21",
+    "location": "chr22:18924718-21111383",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37443",
+    "name": "3q29 recurrent region (includes DLG1)",
+    "cytoband": "3q29",
+    "location": "chr3:196029183-197617791",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 1,
+    "ts_desc": "Little evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37442",
+    "name": "6q24 region (includes PLAGL1)",
+    "cytoband": "6q24",
+    "location": "chr6:143922155-144095424",
+    "hi_score": 1,
+    "hi_desc": "Little evidence for dosage pathogenicity",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37441",
+    "name": "11p11.2 (Potocki-Shaffer syndrome) region (includes ALX4, EXT2)",
+    "cytoband": "11p11.2",
+    "location": "chr11:43873250-46130899",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 0,
+    "ts_desc": "No evidence available"
+  },
+  {
+    "iscaId": "ISCA-37439",
+    "name": "Xq28 recurrent region (includes GDI1)",
+    "cytoband": "Xq28",
+    "location": "chrX:154396223-154555683",
+    "hi_score": 0,
+    "hi_desc": "No evidence available",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37436",
+    "name": "17p12 recurrent (HNPP/CMT1A) region (includes PMP22)",
+    "cytoband": "17p12",
+    "location": "chr17:14194598-15519638",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37434",
+    "name": "1p36 terminal region (includes GABRD)",
+    "cytoband": "1p36.33-p36.31",
+    "location": "chr1:898703-6229913",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 2,
+    "ts_desc": "Some evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37432",
+    "name": "17q12 recurrent (RCAD syndrome) region (includes HNF1B)",
+    "cytoband": "17q12",
+    "location": "chr17:36458167-37854616",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37431",
+    "name": "17q11.2 recurrent region (type-1, -2, or -3) (includes NF1)",
+    "cytoband": "17q11.2",
+    "location": "chr17:30780079-31937008",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 2,
+    "ts_desc": "Some evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37430",
+    "name": "17p13.3 (Miller-Dieker syndrome) region (includes YWHAE and PAFAH1B1)",
+    "cytoband": "17p13.3",
+    "location": "chr17:1344539-2685615",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37429",
+    "name": "4p16.3 terminal (Wolf-Hirschhorn syndrome) region",
+    "cytoband": "4p16.3",
+    "location": "chr4:337779-2009235",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 2,
+    "ts_desc": "Some evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37425",
+    "name": "5q35 recurrent (Sotos syndrome) region (includes NSD1)",
+    "cytoband": "5q35.2-q35.3",
+    "location": "chr5:176301976-177620792",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37424",
+    "name": "10q22.3q23.2 recurrent region (includes BMPR1A)",
+    "cytoband": "10q22.3-q23.2",
+    "location": "chr10:79923087-86979631",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 1,
+    "ts_desc": "Little evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37423",
+    "name": "8p23.1 recurrent region (includes GATA4)",
+    "cytoband": "8p23.1",
+    "location": "chr8:8242542-11908820",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 2,
+    "ts_desc": "Some evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37421",
+    "name": "1q21.1 recurrent region (distal, BP3-BP4) (includes GJA5)",
+    "cytoband": "1q21.1-q21.2",
+    "location": "chr1:147105904-147917509",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 2,
+    "ts_desc": "Some evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37420",
+    "name": "17q21.31 recurrent (KdVS) region (includes KANSL1)",
+    "cytoband": "17q21.3",
+    "location": "chr17:45627800-46087514",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 1,
+    "ts_desc": "Little evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37418",
+    "name": "17p11.2 recurrent (SMS/PLS) region (includes RAI1)",
+    "cytoband": "17p11.2",
+    "location": "chr17:16906714-20309889",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37417",
+    "name": "Xp22.31 recurrent region (includes STS)",
+    "cytoband": "Xp22.31",
+    "location": "chrX:6537771-8156913",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 40,
+    "ts_desc": "Dosage sensitivity unlikely"
+  },
+  {
+    "iscaId": "ISCA-37411",
+    "name": "15q13.3 recurrent region (BP3-BP5 or BP4-BP5) (includes CHRNA7)",
+    "cytoband": "15q13.3",
+    "location": "chr15:30900686-32153204",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 1,
+    "ts_desc": "Little evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37408",
+    "name": "2p15p16.1 region (includes BCL11A)",
+    "cytoband": "2p15-p16.1",
+    "location": "chr2:58912065-62261736",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 1,
+    "ts_desc": "Little evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37406",
+    "name": "16p13.3 region (includes CREBBP)",
+    "cytoband": "16p13.3",
+    "location": "chr16:3725055-3880120",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 1,
+    "ts_desc": "Little evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37401",
+    "name": "11p13 (WAGR syndrome) region",
+    "cytoband": "11p13",
+    "location": "chr11:31781961-32489442",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 1,
+    "ts_desc": "Little evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37400",
+    "name": "16p11.2 recurrent region (proximal, BP4-BP5) (includes TBX6)",
+    "cytoband": "16p11.2",
+    "location": "chr16:29638676-30188531",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37397",
+    "name": "22q11.2 recurrent region (distal type I, D-E or D-F)",
+    "cytoband": "22q11.21-q11.22",
+    "location": "chr22:21562828-22620608",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 1,
+    "ts_desc": "Little evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37393",
+    "name": "22q11.21 recurrent (CES) region (includes CECR2)",
+    "cytoband": "22q11.1-q11.21",
+    "location": "chr22:16912063-18109094",
+    "hi_score": 0,
+    "hi_desc": "No evidence available",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37392",
+    "name": "7q11.23 recurrent (Williams-Beuren syndrome) region (proximal) (includes ELN)",
+    "cytoband": "7q11.23",
+    "location": "chr7:73330452-74728173",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 3,
+    "ts_desc": "Sufficient evidence for dosage pathogenicity"
+  },
+  {
+    "iscaId": "ISCA-37390",
+    "name": "5p15 terminal (Cri du chat syndrome) region",
+    "cytoband": "5p15.33-p15.2",
+    "location": "chr5:37695-11347150",
+    "hi_score": 3,
+    "hi_desc": "Sufficient evidence for dosage pathogenicity",
+    "ts_score": 2,
+    "ts_desc": "Some evidence for dosage pathogenicity"
+  }
+]
