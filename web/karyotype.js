@@ -11,9 +11,48 @@ let currentMode = 'compare';
 let selectedChr = null;
 let activeSyndrome = null;
 let activeCategory = 'numerical';
-let examIndex = 0;
-let examAnswered = false;
-let examStats = { correct: 0, total: 0, byCategory: {} };
+
+// ── i18n (UI strings) ─────────────────────────────────────────────
+let uiLang = 'de';
+const I18N = {
+  de: {
+    compare: 'Vergleich', build: 'Sortieren', aberrations: 'Aberrationen', quiz: 'Quiz',
+    schematic: 'Schema (UCSC GRCh38)', real: 'Real (Lin et al. 2023)',
+    dragRotate: 'Ziehen zum Drehen', reset: 'Zurueck',
+    hint: 'Hilfe', submit: 'Auswerten', assign: '-- Zuordnen --',
+    correct: 'Richtig!', wrong: 'Falsch', chrLabel: 'Chromosom',
+    studium: 'Studium', facharzt: 'Facharzt',
+    prevChr: 'Vorheriges Chromosom', nextChr: 'Naechstes Chromosom',
+    prevSpec: 'Vorheriges Specimen', nextSpec: 'Naechstes Specimen',
+    clickChr: 'Klicke ein Chromosom zum Laden.',
+    arrowHint: 'Pfeiltasten: Links/Rechts = Specimens, Oben/Unten = Chromosom.',
+    diagnose: 'Diagnose', klinik: 'Klinik', diagnostik: 'Diagnostik', genetik: 'Genetik', beratung: 'Beratung',
+    all: 'Alle', single: 'Einzeln', easy: '24', hard: '46',
+    score: 'Punkte', time: 'Zeit', hints: 'Hilfen',
+    noExpert: 'Noch keine Facharzt-Fragen fuer diesen Fall',
+    resetStats: 'Stats zuruecksetzen', prev: 'Zurueck', next: 'Weiter',
+    fall: 'Fall',
+  },
+  en: {
+    compare: 'Compare', build: 'Sort', aberrations: 'Aberrations', quiz: 'Quiz',
+    schematic: 'Schematic (UCSC GRCh38)', real: 'Real (Lin et al. 2023)',
+    dragRotate: 'Drag to rotate', reset: 'Reset',
+    hint: 'Hint', submit: 'Submit', assign: '-- Assign --',
+    correct: 'Correct!', wrong: 'Wrong', chrLabel: 'Chromosome',
+    studium: 'Student', facharzt: 'Board Exam',
+    prevChr: 'Previous chromosome', nextChr: 'Next chromosome',
+    prevSpec: 'Previous specimen', nextSpec: 'Next specimen',
+    clickChr: 'Click a chromosome to load it.',
+    arrowHint: 'Arrow keys: Left/Right = specimens, Up/Down = chromosome.',
+    diagnose: 'Diagnosis', klinik: 'Clinical', diagnostik: 'Diagnostics', genetik: 'Genetics', beratung: 'Counseling',
+    all: 'All', single: 'Single', easy: '24', hard: '46',
+    score: 'Score', time: 'Time', hints: 'Hints',
+    noExpert: 'No board exam questions for this case yet',
+    resetStats: 'Reset stats', prev: 'Prev', next: 'Next',
+    fall: 'Case',
+  }
+};
+function t(key) { return (I18N[uiLang] || I18N.de)[key] || key; }
 
 // Acrocentric chromosomes (small p-arms with rRNA stalks/satellites)
 const ACROCENTRIC = ['13', '14', '15', '21', '22'];
@@ -175,8 +214,8 @@ const ROB_SEGREGATION = [
   { label: 'Adjacent', chroms: '14 only', result: 'Monosomy 13', pheno: 'Lethal (miscarriage)', class: 'monosomy' }
 ];
 
-// ── Exam cases (50 clinical scenarios) ────────────────────────────
-const EXAM_CASES = [
+// (EXAM_CASES removed — use QUIZ_CASES from quiz_cases.js + quiz_expert.js)
+const _REMOVED = [
   // ── Numerical autosomal (10) ────────────
   { id: 1, cat: 'num_auto', iscn: '47,XX,+21', vignette: 'Newborn girl with hypotonia, single palmar crease, upslanted palpebral fissures, and a heart murmur (AVSD on echo).', q: 'Most likely diagnosis?', choices: ['Trisomy 21 (Down syndrome)', 'Trisomy 18 (Edwards)', 'Triple X', 'Turner syndrome'], answer: 0, explain: 'Classic newborn presentation of Down syndrome. AVSD (atrioventricular septal defect) is the most characteristic cardiac lesion. 95% of cases are full trisomy 21 from meiotic non-disjunction.' },
   { id: 2, cat: 'num_auto', iscn: '47,XY,+21', vignette: 'Boy at routine pediatric exam: mild ID, characteristic facies, no major organ malformations.', q: 'Karyotype interpretation?', choices: ['46,XY,t(21;21)', '47,XY,+21', '47,XY,+18', '46,XY,del(21)'], answer: 1, explain: 'Standard ISCN notation for Down syndrome in a male. Always check for translocation Down (rob(14;21) or rob(21;21)) — recurrence risk differs dramatically.' },
@@ -1007,100 +1046,6 @@ function renderQzCase() {
   });
 }
 
-// ── Exam Mode (50 cases) ──────────────────────────────────────────
-function loadExamState() {
-  try {
-    const saved = localStorage.getItem('helix_exam_stats');
-    if (saved) examStats = JSON.parse(saved);
-  } catch (e) {}
-}
-
-function saveExamState() {
-  try {
-    localStorage.setItem('helix_exam_stats', JSON.stringify(examStats));
-  } catch (e) {}
-}
-
-function renderExamMode() {
-  loadExamState();
-  renderExamCase();
-}
-
-function renderExamCase() {
-  const container = document.getElementById('exam-area');
-  if (!container) return;
-  const c = EXAM_CASES[examIndex];
-  if (!c) return;
-
-  const progress = ((examIndex + 1) / EXAM_CASES.length) * 100;
-  examAnswered = false;
-
-  let html = `
-    <div class="exam-header">
-      <span>Case ${c.id}/50</span>
-      <div class="exam-progress-bar"><div class="exam-progress-fill" style="width:${progress}%"></div></div>
-      <span class="exam-counter">${examStats.correct || 0}/${examStats.total || 0}</span>
-    </div>
-    <div class="exam-case">
-      <div class="exam-vignette">${c.vignette}</div>
-      <div class="exam-karyo">
-        <div style="font-family:monospace;color:var(--accent);font-size:0.85rem;text-align:center;padding:1rem;">${c.iscn}</div>
-      </div>
-      <div class="quiz-question" style="font-size:0.78rem;margin:0.4rem 0;">${c.q}</div>
-      <div class="quiz-choices">
-        ${c.choices.map((ch, i) => `<button class="quiz-choice" data-i="${i}">${ch}</button>`).join('')}
-      </div>
-      <div class="exam-explanation"></div>
-    </div>
-    <div class="exam-controls">
-      <button id="exam-prev" ${examIndex === 0 ? 'disabled' : ''}>← Prev</button>
-      <button id="exam-skip">Skip</button>
-      <button id="exam-next" class="primary">Next →</button>
-    </div>
-  `;
-  container.innerHTML = html;
-
-  container.querySelectorAll('.quiz-choice').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (examAnswered) return;
-      examAnswered = true;
-      const i = parseInt(btn.dataset.i);
-      const correct = i === c.answer;
-      container.querySelectorAll('.quiz-choice').forEach((b, idx) => {
-        b.disabled = true;
-        if (idx === c.answer) b.classList.add('correct');
-        else if (idx === i) b.classList.add('wrong');
-      });
-      const exp = container.querySelector('.exam-explanation');
-      exp.classList.add('show');
-      exp.innerHTML = `<div class="iscn">${c.iscn}</div><div style="margin-top:0.3rem">${c.explain}</div>`;
-
-      // Update stats
-      examStats.total = (examStats.total || 0) + 1;
-      if (correct) examStats.correct = (examStats.correct || 0) + 1;
-      if (!examStats.byCategory) examStats.byCategory = {};
-      if (!examStats.byCategory[c.cat]) examStats.byCategory[c.cat] = { correct: 0, total: 0 };
-      examStats.byCategory[c.cat].total++;
-      if (correct) examStats.byCategory[c.cat].correct++;
-      saveExamState();
-
-      // Update header counter
-      const counter = container.querySelector('.exam-counter');
-      if (counter) counter.textContent = `${examStats.correct}/${examStats.total}`;
-    });
-  });
-
-  document.getElementById('exam-prev')?.addEventListener('click', () => {
-    if (examIndex > 0) { examIndex--; renderExamCase(); }
-  });
-  document.getElementById('exam-next')?.addEventListener('click', () => {
-    if (examIndex < EXAM_CASES.length - 1) { examIndex++; renderExamCase(); }
-  });
-  document.getElementById('exam-skip')?.addEventListener('click', () => {
-    if (examIndex < EXAM_CASES.length - 1) { examIndex++; renderExamCase(); }
-  });
-}
-
 // ── Build Mode (sorting game) ─────────────────────────────────────
 let buildState = null;
 
@@ -1491,7 +1436,6 @@ function switchMode(mode) {
     case 'compare': renderCompareMode(); break;
     case 'aberrations': renderAberrationsMode(); break;
     case 'quiz': renderQuizMode(); break;
-    case 'exam': renderExamMode(); break;
     case 'build': renderBuildMode(); break;
   }
 }
@@ -1536,6 +1480,20 @@ async function init() {
   }
 
   initTheme();
+
+  // Language toggle
+  try { uiLang = localStorage.getItem('helix_lang') || 'de'; } catch (e) {}
+  const langBtn = document.getElementById('lang-toggle');
+  if (langBtn) {
+    langBtn.textContent = uiLang.toUpperCase();
+    langBtn.addEventListener('click', () => {
+      uiLang = uiLang === 'de' ? 'en' : 'de';
+      langBtn.textContent = uiLang.toUpperCase();
+      try { localStorage.setItem('helix_lang', uiLang); } catch (e) {}
+      // Re-render current mode
+      switchMode(currentMode);
+    });
+  }
 
   // Tab listeners
   document.querySelectorAll('.mode-tab').forEach(tab => {

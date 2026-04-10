@@ -39,6 +39,25 @@ body.karyo-light .schema-pager-host {
   border: 1px solid var(--border);
 }
 
+.lang-toggle {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  width: 28px;
+  height: 24px;
+  border-radius: 5px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.lang-toggle:hover { border-color: var(--accent); }
+
 .theme-toggle {
   background: var(--bg);
   border: 1px solid var(--border);
