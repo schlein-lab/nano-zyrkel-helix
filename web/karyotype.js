@@ -15,18 +15,6 @@ let examIndex = 0;
 let examAnswered = false;
 let examStats = { correct: 0, total: 0, byCategory: {} };
 
-// G-banding palette (matches CSS)
-const STAIN_COLORS = {
-  gneg:    '#1e293b',
-  gpos25:  '#475569',
-  gpos50:  '#6b7280',
-  gpos75:  '#9ca3af',
-  gpos100: '#e5e7eb',
-  acen:    '#06b6d4',
-  gvar:    '#818cf8',
-  stalk:   '#f59e0b'
-};
-
 // Acrocentric chromosomes (small p-arms with rRNA stalks/satellites)
 const ACROCENTRIC = ['13', '14', '15', '21', '22'];
 
@@ -301,19 +289,17 @@ function renderChromosome(chrId, options = {}) {
   let svg = `<svg class="chr-svg" width="${width + 4}" height="${totalH + 4}" viewBox="0 0 ${width + 4} ${totalH + 4}">`;
   svg += `<g transform="translate(2,2)">`;
 
-  // Draw bands
+  // Draw bands - use CSS classes (band-gneg etc.) so theme can swap colors
   for (const b of chr.bands) {
     const y = b.start * scale;
     const h = (b.end - b.start) * scale;
-    const stainColor = STAIN_COLORS[b.stain] || '#475569';
+    const stainClass = `band-${b.stain || 'gneg'}`;
     const isAcen = b.stain === 'acen';
 
     if (isAcen) {
-      // Draw centromere as triangular indent
-      const cy = y + h / 2;
-      svg += `<rect x="2" y="${y}" width="${width - 4}" height="${h}" fill="${stainColor}"/>`;
+      svg += `<rect class="${stainClass}" x="2" y="${y}" width="${width - 4}" height="${h}"/>`;
     } else {
-      svg += `<rect x="0" y="${y}" width="${width}" height="${h}" fill="${stainColor}" data-band="${b.band}" data-chr="${chrId}"/>`;
+      svg += `<rect class="${stainClass}" x="0" y="${y}" width="${width}" height="${h}" data-band="${b.band}" data-chr="${chrId}"/>`;
     }
   }
 
@@ -349,93 +335,173 @@ function renderKaryogram(highlightChr = null, aberration = null) {
   return html;
 }
 
-// ── Compare Mode (Zoom + multiple specimens per chromosome) ───────
-const SPECIMENS = [
-  {
-    id: 'nhgri',
-    name: 'NHGRI 46,XY',
-    src: 'img/nhgri_karyotype.png',
-    license: 'Public Domain (NIH)',
-    note: 'Reference G-banding from National Human Genome Research Institute. High-condensation metaphase.'
-  },
-  {
-    id: 'general',
-    name: 'General 46,XY',
-    src: 'img/general_male.jpg',
-    license: 'CC BY-SA 4.0',
-    note: 'Different specimen, different lab. Notice the variation in banding sharpness and chromosome condensation.'
-  },
-  {
-    id: 'trisomy21',
-    name: 'Trisomy 21',
-    src: 'img/trisomy21.png',
-    license: 'Public Domain (DOE)',
-    note: 'Down syndrome example: count the chromosomes in row 21. This is what aneuploidy looks like in real cytogenetics.'
-  }
+// ── Compare Mode (chromosome pager) ───────────────────────────────
+const CHROMOSOME_ORDER = [
+  '1','2','3','4','5','6','7','8','9','10','11','12',
+  '13','14','15','16','17','18','19','20','21','22','X','Y'
 ];
+const REAL_CROPS_PER_CHR = 30;
 
-let activeSpecimen = 'nhgri';
+let activeChr = '1';
+let activeCropIdx = 1; // 1..30
 
 function renderCompareMode() {
   const container = document.getElementById('mode-compare');
   if (!container) return;
 
-  const specimen = SPECIMENS.find(s => s.id === activeSpecimen);
-
   container.innerHTML = `
-    <div class="compare-toolbar">
-      <span class="toolbar-label">Real specimen:</span>
-      <div class="specimen-tabs">
-        ${SPECIMENS.map(s => `
-          <button class="specimen-tab ${s.id === activeSpecimen ? 'active' : ''}" data-spec="${s.id}">${s.name}</button>
-        `).join('')}
-      </div>
-    </div>
     <div class="compare-split">
-      <div class="compare-side">
+      <div class="compare-side schema-side">
         <h3>Schematic (UCSC GRCh38)</h3>
-        <div id="compare-svg"></div>
-      </div>
-      <div class="compare-side real">
-        <h3>Real (${specimen.name})</h3>
-        <div class="real-photo-wrap">
-          <img class="real-photo" src="${specimen.src}" alt="${specimen.name}">
+        <div class="schema-pager-host">
+          <div id="schema-large"></div>
+          <div id="schema-large-label" class="schema-large-label"></div>
         </div>
-        <div class="specimen-license">${specimen.license}</div>
+        <div id="compare-svg" class="schema-mini-grid"></div>
+      </div>
+      <div class="compare-side real-side">
+        <h3>Real (Lin et al. 2023)</h3>
+        <div class="pager">
+          <button class="pager-arrow pager-up" data-dir="prev-chr" title="Previous chromosome (\u2191)">\u25B2</button>
+          <div class="pager-main">
+            <button class="pager-arrow pager-left" data-dir="prev-crop" title="Previous specimen (\u2190)">\u25C0</button>
+            <div class="pager-img-wrap">
+              <img id="pager-img" class="pager-img" src="" alt="">
+            </div>
+            <button class="pager-arrow pager-right" data-dir="next-crop" title="Next specimen (\u2192)">\u25B6</button>
+          </div>
+          <button class="pager-arrow pager-down" data-dir="next-chr" title="Next chromosome (\u2193)">\u25BC</button>
+        </div>
+        <div class="pager-meta">
+          <span id="pager-chr-label">Chromosome 1</span>
+          <span id="pager-crop-counter">1 / 30</span>
+        </div>
+        <div class="pager-license">CC BY 4.0 &middot; Lin et al. 2023, Sci Data</div>
       </div>
     </div>
     <div class="compare-info" id="compare-info">
-      <strong>${specimen.note}</strong><br>
-      <span style="font-size:0.65rem;">Click any chromosome pair on the left to zoom in and compare schema vs. real ideogram side-by-side.</span>
+      Click a chromosome below to load it. Hover over bands in the large schema for names. Use \u2190\u2192 for specimens, \u2191\u2193 for chromosomes.
     </div>
   `;
 
-  // Render SVG karyogram into the left side
+  // Render the schema mini-grid
   const svgHost = document.getElementById('compare-svg');
   if (svgHost) {
-    svgHost.innerHTML = renderKaryogram();
-    // Make chromosome pairs clickable to open zoom modal
-    svgHost.querySelectorAll('.chr-pair').forEach(pair => {
-      pair.style.cursor = 'pointer';
-      pair.addEventListener('click', () => {
-        const chrId = pair.dataset.chr;
-        openChromosomeZoom(chrId);
-      });
-    });
-    // Hover for band info
-    svgHost.querySelectorAll('rect[data-band]').forEach(rect => {
-      rect.addEventListener('mouseenter', (e) => {
-        e.stopPropagation();
-        showBandInfo(e.target.dataset.chr, e.target.dataset.band);
-      });
-    });
+    svgHost.innerHTML = renderKaryogram(activeChr);
+    bindSchemaInteractions(svgHost);
   }
 
-  // Specimen tab switching
-  container.querySelectorAll('.specimen-tab').forEach(btn => {
+  // Pager arrow buttons
+  container.querySelectorAll('.pager-arrow').forEach(btn => {
     btn.addEventListener('click', () => {
-      activeSpecimen = btn.dataset.spec;
-      renderCompareMode();
+      const dir = btn.dataset.dir;
+      handlePagerNav(dir);
+    });
+  });
+
+  // Keyboard navigation
+  if (!window._karyoKeyHandler) {
+    window._karyoKeyHandler = (e) => {
+      // Only respond when compare mode is active
+      const compareActive = document.getElementById('mode-compare')?.classList.contains('active');
+      if (!compareActive) return;
+      switch (e.key) {
+        case 'ArrowLeft':  handlePagerNav('prev-crop'); e.preventDefault(); break;
+        case 'ArrowRight': handlePagerNav('next-crop'); e.preventDefault(); break;
+        case 'ArrowUp':    handlePagerNav('prev-chr');  e.preventDefault(); break;
+        case 'ArrowDown':  handlePagerNav('next-chr');  e.preventDefault(); break;
+      }
+    };
+    document.addEventListener('keydown', window._karyoKeyHandler);
+  }
+
+  updatePager();
+}
+
+function bindSchemaInteractions(svgHost) {
+  svgHost.querySelectorAll('.chr-pair').forEach(pair => {
+    pair.style.cursor = 'pointer';
+    pair.addEventListener('click', () => {
+      activeChr = pair.dataset.chr;
+      activeCropIdx = 1;
+      updatePager();
+      svgHost.innerHTML = renderKaryogram(activeChr);
+      bindSchemaInteractions(svgHost);
+    });
+  });
+  svgHost.querySelectorAll('rect[data-band]').forEach(rect => {
+    rect.addEventListener('mouseenter', (e) => {
+      e.stopPropagation();
+      showBandInfo(e.target.dataset.chr, e.target.dataset.band);
+    });
+  });
+}
+
+function handlePagerNav(dir) {
+  switch (dir) {
+    case 'prev-crop':
+      activeCropIdx = activeCropIdx > 1 ? activeCropIdx - 1 : REAL_CROPS_PER_CHR;
+      break;
+    case 'next-crop':
+      activeCropIdx = activeCropIdx < REAL_CROPS_PER_CHR ? activeCropIdx + 1 : 1;
+      break;
+    case 'prev-chr': {
+      const i = CHROMOSOME_ORDER.indexOf(activeChr);
+      activeChr = CHROMOSOME_ORDER[i > 0 ? i - 1 : CHROMOSOME_ORDER.length - 1];
+      activeCropIdx = 1;
+      const svgHost = document.getElementById('compare-svg');
+      if (svgHost) {
+        svgHost.innerHTML = renderKaryogram(activeChr);
+        bindSchemaInteractions(svgHost);
+      }
+      break;
+    }
+    case 'next-chr': {
+      const i = CHROMOSOME_ORDER.indexOf(activeChr);
+      activeChr = CHROMOSOME_ORDER[i < CHROMOSOME_ORDER.length - 1 ? i + 1 : 0];
+      activeCropIdx = 1;
+      const svgHost = document.getElementById('compare-svg');
+      if (svgHost) {
+        svgHost.innerHTML = renderKaryogram(activeChr);
+        bindSchemaInteractions(svgHost);
+      }
+      break;
+    }
+  }
+  updatePager();
+}
+
+function updatePager() {
+  const img = document.getElementById('pager-img');
+  const label = document.getElementById('pager-chr-label');
+  const counter = document.getElementById('pager-crop-counter');
+  if (!img || !label || !counter) return;
+
+  const num = String(activeCropIdx).padStart(3, '0');
+  img.src = `img/real_crops/chr${activeChr}/${num}.jpg`;
+  img.alt = `Chromosome ${activeChr} specimen ${activeCropIdx}`;
+  label.textContent = `Chromosome ${activeChr}`;
+  counter.textContent = `${activeCropIdx} / ${REAL_CROPS_PER_CHR}`;
+
+  // Also update the large schema with hoverable bands
+  updateSchemaLarge();
+}
+
+function updateSchemaLarge() {
+  const host = document.getElementById('schema-large');
+  const label = document.getElementById('schema-large-label');
+  if (!host) return;
+  const chr = CHROMOSOMES[activeChr];
+  if (!chr) return;
+  host.innerHTML = renderChromosome(activeChr, { height: 320, width: 36 });
+  if (label) {
+    label.textContent = `Chr ${activeChr} \u2014 ${chr.bands.length} bands \u2014 ${(chr.length / 1e6).toFixed(1)} Mb`;
+  }
+  // Bind hover for band info
+  host.querySelectorAll('rect[data-band]').forEach(rect => {
+    rect.addEventListener('mouseenter', (e) => {
+      e.stopPropagation();
+      showBandInfo(e.target.dataset.chr, e.target.dataset.band);
     });
   });
 }
@@ -443,7 +509,6 @@ function renderCompareMode() {
 function showBandInfo(chr, band) {
   const info = document.getElementById('compare-info');
   if (!info) return;
-  // Find dosage info if any
   const dosageMatch = CLINGEN.find(d => d.cytoband && d.cytoband.startsWith(chr));
   let dosageInfo = '';
   if (dosageMatch) {
@@ -452,128 +517,9 @@ function showBandInfo(chr, band) {
       dosageInfo = ` &mdash; <span class="info-genes">ClinGen: ${dosageMatch.name.substring(0, 80)}</span>`;
     }
   }
-  info.innerHTML = `<span class="info-band">${chr}${band}</span>${dosageInfo}<br><span style="font-size:0.65rem;">Click pair for detailed zoom view.</span>`;
+  info.innerHTML = `<span class="info-band">${chr}${band}</span>${dosageInfo}`;
 }
 
-// ── Chromosome Zoom Modal ─────────────────────────────────────────
-const REAL_CROPS_PER_CHR = 30;  // 30 real example images per chromosome class
-
-function openChromosomeZoom(chrId) {
-  const chr = CHROMOSOMES[chrId];
-  if (!chr) return;
-
-  // Remove existing modal if any
-  const existing = document.getElementById('zoom-modal');
-  if (existing) existing.remove();
-
-  // Find ClinGen regions on this chromosome
-  const dosageOnChr = CLINGEN.filter(d => {
-    const cb = d.cytoband || '';
-    const m = cb.match(/^([0-9XY]+)[pq]/);
-    return m && m[1] === chrId;
-  }).slice(0, 8);
-
-  // Build large SVG schema (3x larger)
-  const largeSvg = renderChromosome(chrId, { height: 320, width: 32 });
-
-  // Resolve NIH ideogram filename
-  let ideogramName;
-  if (chrId === 'X' || chrId === 'Y') {
-    ideogramName = `chr${chrId}_550.png`;
-  } else {
-    ideogramName = `chr${chrId.padStart(2, '0')}_550.png`;
-  }
-
-  // Build real crops gallery: 30 cropped specimens
-  const cropsHtml = renderRealCropsGallery(chrId);
-
-  // Modal HTML
-  const modal = document.createElement('div');
-  modal.id = 'zoom-modal';
-  modal.className = 'zoom-modal';
-  modal.innerHTML = `
-    <div class="zoom-backdrop"></div>
-    <div class="zoom-dialog">
-      <div class="zoom-header">
-        <h2>Chromosome ${chrId}</h2>
-        <span class="zoom-stats">${chr.bands.length} bands &middot; ${(chr.length / 1e6).toFixed(1)} Mb</span>
-        <button class="zoom-close">&times;</button>
-      </div>
-      <div class="zoom-body">
-        <div class="zoom-reference">
-          <div class="zoom-col">
-            <div class="zoom-col-label">Schema (UCSC GRCh38)</div>
-            <div class="zoom-svg-host">${largeSvg}</div>
-            <div class="zoom-col-meta">Idealized cytoband consensus</div>
-          </div>
-          <div class="zoom-col">
-            <div class="zoom-col-label">NIH Ideogram (550 bphs)</div>
-            <div class="zoom-img-host">
-              <img class="zoom-ideogram" src="img/chromosomes/${ideogramName}"
-                   alt="Chromosome ${chrId} ideogram"
-                   onerror="this.style.display='none'">
-            </div>
-            <div class="zoom-col-meta">Standard G-banding reference</div>
-          </div>
-        </div>
-
-        <div class="zoom-section-label">${REAL_CROPS_PER_CHR} Real specimens (Lin et al. 2023, CC BY 4.0)</div>
-        <div class="real-crops-gallery">${cropsHtml}</div>
-
-        <div class="zoom-disclaimer">
-          <strong>Why do real chromosomes look different?</strong>
-          Each crop above shows the same chromosome from a different patient sample.
-          They vary in: <em>condensation stage</em> (early vs. late metaphase &mdash;
-          longer or shorter), <em>banding sharpness</em> (depends on trypsin digestion),
-          <em>staining intensity</em>, <em>orientation</em>, and <em>squash artifacts</em>.
-          The schema is an idealized consensus &mdash; in clinical cytogenetics you must
-          learn to recognize the same chromosome across this technical variation.
-        </div>
-
-        ${dosageOnChr.length > 0 ? `
-          <div class="zoom-clingen">
-            <div class="zoom-section-label">ClinGen Dosage-Sensitive Regions on Chr ${chrId}</div>
-            ${dosageOnChr.map(d => `
-              <div class="clingen-row">
-                <span class="cg-band">${d.cytoband}</span>
-                <span class="cg-name">${d.name.substring(0, 90)}</span>
-                <span class="cg-scores">HI:${d.hi_score} TS:${d.ts_score}</span>
-              </div>
-            `).join('')}
-          </div>
-        ` : ''}
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modal);
-
-  // Close handlers
-  modal.querySelector('.zoom-close').addEventListener('click', () => modal.remove());
-  modal.querySelector('.zoom-backdrop').addEventListener('click', () => modal.remove());
-  document.addEventListener('keydown', function escClose(e) {
-    if (e.key === 'Escape') {
-      modal.remove();
-      document.removeEventListener('keydown', escClose);
-    }
-  });
-
-  // Wire up crop click → enlarge
-  modal.querySelectorAll('.real-crop-thumb').forEach(thumb => {
-    thumb.addEventListener('click', () => {
-      thumb.classList.toggle('enlarged');
-    });
-  });
-}
-
-function renderRealCropsGallery(chrId) {
-  let html = '';
-  for (let i = 1; i <= REAL_CROPS_PER_CHR; i++) {
-    const num = String(i).padStart(3, '0');
-    const src = `img/real_crops/chr${chrId}/${num}.jpg`;
-    html += `<img class="real-crop-thumb" src="${src}" alt="chr${chrId} #${i}" loading="lazy">`;
-  }
-  return html;
-}
 
 // ── Aberrations Mode ──────────────────────────────────────────────
 function renderAberrationsMode() {
@@ -609,13 +555,151 @@ function renderAberrationKaryogram() {
   const container = document.getElementById('aberration-karyo');
   if (!container) return;
   const syn = activeSyndrome ? findSyndrome(activeSyndrome) : null;
-  let aberration = null;
-  if (syn) {
+
+  if (!syn) {
+    container.innerHTML = renderKaryogram();
+    return;
+  }
+
+  // Numerical: render full karyogram with extra/missing copy
+  if (activeCategory === 'numerical') {
+    let aberration = null;
     if (syn.count && syn.count > 2) {
       aberration = { type: 'trisomy', chr: syn.chr };
     }
+    container.innerHTML = renderKaryogram(syn.chr, aberration);
+    return;
   }
-  container.innerHTML = renderKaryogram(syn?.chr, aberration);
+
+  // Structural deletion: zoom in on the affected chromosome with band highlight
+  if (activeCategory === 'structural' && syn.type === 'deletion') {
+    container.innerHTML = renderDeletionView(syn);
+    bindBandHover(container);
+    return;
+  }
+
+  // Translocation: show before/after of involved chromosomes
+  if (activeCategory === 'translocation') {
+    container.innerHTML = renderTranslocationView(syn);
+    bindBandHover(container);
+    return;
+  }
+
+  // Fallback
+  container.innerHTML = renderKaryogram(syn.chr);
+}
+
+function bindBandHover(container) {
+  container.querySelectorAll('rect[data-band]').forEach(rect => {
+    rect.addEventListener('mouseenter', (e) => {
+      e.stopPropagation();
+      const tooltip = document.getElementById('aberration-band-tooltip');
+      if (tooltip) {
+        tooltip.textContent = `${e.target.dataset.chr}${e.target.dataset.band}`;
+      }
+    });
+  });
+}
+
+function renderDeletionView(syn) {
+  // Large single chromosome with the affected band highlighted
+  const chr = CHROMOSOMES[syn.chr];
+  if (!chr) return renderKaryogram(syn.chr);
+
+  // Find which band(s) match the deletion region (e.g. "q11.2")
+  const targetRegion = syn.region || '';
+  // Render large chromosome
+  const svg = renderLargeChromosomeWithHighlight(syn.chr, targetRegion);
+
+  return `
+    <div class="aberration-zoom-view">
+      <div class="aberration-zoom-svg">${svg}</div>
+      <div class="aberration-zoom-info">
+        <div class="azi-label">Affected chromosome</div>
+        <div class="azi-region">${syn.chr}${targetRegion}</div>
+        <div class="azi-note">Submicroscopic deletion &mdash; usually invisible on routine karyotype.
+        Detected by FISH probe or chromosomal microarray (CMA) / aCGH.
+        The highlighted band(s) mark the deleted region.</div>
+        <div id="aberration-band-tooltip" class="azi-tooltip"></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderLargeChromosomeWithHighlight(chrId, regionPattern) {
+  const chr = CHROMOSOMES[chrId];
+  if (!chr) return '';
+
+  const maxLength = CHROMOSOMES['1'].length;
+  const pixelHeight = 360;
+  const width = 40;
+  const scale = pixelHeight / maxLength;
+  const totalH = chr.length * scale;
+
+  let svg = `<svg class="chr-svg-large" width="${width + 60}" height="${totalH + 8}" viewBox="0 0 ${width + 60} ${totalH + 8}">`;
+  svg += `<g transform="translate(4,4)">`;
+
+  for (const b of chr.bands) {
+    const y = b.start * scale;
+    const h = (b.end - b.start) * scale;
+    const stainClass = `band-${b.stain || 'gneg'}`;
+    const isAcen = b.stain === 'acen';
+    // Mark this band if it matches the deletion region
+    const isHighlighted = regionPattern && b.band.startsWith(regionPattern);
+    const extra = isHighlighted ? ' aberration-highlighted' : '';
+
+    if (isAcen) {
+      svg += `<rect class="${stainClass}${extra}" x="2" y="${y}" width="${width - 4}" height="${h}"/>`;
+    } else {
+      svg += `<rect class="${stainClass}${extra}" x="0" y="${y}" width="${width}" height="${h}" data-band="${b.band}" data-chr="${chrId}"/>`;
+    }
+    // Label every band on the right
+    if (h > 4) {
+      svg += `<text x="${width + 4}" y="${y + h / 2 + 2}" class="band-label">${b.band}</text>`;
+    }
+  }
+
+  svg += `<rect class="chr-outline" x="0" y="0" width="${width}" height="${totalH}" rx="3" ry="3"/>`;
+  svg += `</g></svg>`;
+  return svg;
+}
+
+function renderTranslocationView(syn) {
+  // For translocations: show the two involved chromosomes side by side
+  // with markers for the breakpoints
+  const chrA = syn.chrA;
+  const chrB = syn.chrB;
+  if (!chrA || !chrB) return renderKaryogram();
+
+  const isRobertsonian = syn.iscn && syn.iscn.includes('rob(');
+
+  let html = `<div class="translocation-view">`;
+  html += `<div class="trans-pair">`;
+  html += `<div class="trans-label">Chromosome ${chrA}</div>`;
+  html += `<div class="trans-svg">${renderChromosome(chrA, { height: 280, width: 30 })}</div>`;
+  html += `</div>`;
+  html += `<div class="trans-arrow">${isRobertsonian ? '\u2295' : '\u2194'}</div>`;
+  html += `<div class="trans-pair">`;
+  html += `<div class="trans-label">Chromosome ${chrB}</div>`;
+  html += `<div class="trans-svg">${renderChromosome(chrB, { height: 280, width: 30 })}</div>`;
+  html += `</div>`;
+  html += `</div>`;
+
+  if (isRobertsonian) {
+    html += `<div class="trans-explainer">
+      <strong>Robertsonian fusion:</strong> The two acrocentric chromosomes
+      fuse at their centromeres. The short arms (containing only redundant
+      rRNA gene clusters) are lost. The carrier has 45 chromosomes total
+      but is phenotypically normal.
+    </div>`;
+  } else {
+    html += `<div class="trans-explainer">
+      <strong>Reciprocal translocation:</strong> Segments are exchanged
+      between the two non-homologous chromosomes. Balanced carriers have
+      no phenotype but produce unbalanced gametes during meiosis.
+    </div>`;
+  }
+  return html;
 }
 
 function findSyndrome(key) {
@@ -827,21 +911,6 @@ function renderExamCase() {
   });
 }
 
-// ── Build Mode (drag & drop sorting) ──────────────────────────────
-function renderBuildMode() {
-  // Simplified: show a hint for now since drag/drop is complex
-  const area = document.getElementById('build-area');
-  if (!area) return;
-  area.innerHTML = `
-    <div style="padding:1rem;text-align:center;color:var(--text-muted);font-size:0.8rem;">
-      <div style="font-size:2rem;color:var(--accent);">🧬</div>
-      <p style="margin-top:0.5rem;">Build Mode</p>
-      <p style="font-size:0.7rem;color:var(--text-dim);margin-top:0.3rem;">Drag scattered chromosomes into their correct numbered slots.<br>Coming soon — full drag &amp; drop sorting.</p>
-      <div style="margin-top:0.7rem;">${renderKaryogram()}</div>
-    </div>
-  `;
-}
-
 // ── Mode switching ────────────────────────────────────────────────
 function switchMode(mode) {
   currentMode = mode;
@@ -857,7 +926,33 @@ function switchMode(mode) {
     case 'aberrations': renderAberrationsMode(); break;
     case 'quiz': renderQuizMode(); break;
     case 'exam': renderExamMode(); break;
-    case 'build': renderBuildMode(); break;
+  }
+}
+
+// ── Theme Toggle ──────────────────────────────────────────────────
+function applyTheme(theme) {
+  if (theme === 'light') {
+    document.body.classList.add('karyo-light');
+  } else {
+    document.body.classList.remove('karyo-light');
+  }
+  const btn = document.getElementById('theme-toggle');
+  if (btn) btn.innerHTML = theme === 'light' ? '\u263E' : '\u2600';
+  try { localStorage.setItem('helix_karyo_theme', theme); } catch (e) {}
+}
+
+function initTheme() {
+  let theme = 'dark';
+  try {
+    theme = localStorage.getItem('helix_karyo_theme') || 'dark';
+  } catch (e) {}
+  applyTheme(theme);
+  const btn = document.getElementById('theme-toggle');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const cur = document.body.classList.contains('karyo-light') ? 'light' : 'dark';
+      applyTheme(cur === 'light' ? 'dark' : 'light');
+    });
   }
 }
 
@@ -872,6 +967,8 @@ async function init() {
     document.querySelector('.widget').innerHTML += '<div style="padding:1rem;color:var(--danger);">Failed to load karyotype data.</div>';
     return;
   }
+
+  initTheme();
 
   // Tab listeners
   document.querySelectorAll('.mode-tab').forEach(tab => {
