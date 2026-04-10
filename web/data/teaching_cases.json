@@ -1,0 +1,403 @@
+[
+  {
+    "id": "sickle_cell",
+    "gene": "HBB", "transcript": "NM_000518.5",
+    "hgvs_c": "c.20A>T", "hgvs_p": "p.Glu7Val",
+    "type": "missense", "clinvar": "Pathogenic",
+    "cds_position": 20, "ref": "A", "alt": "T",
+    "gnomad_id": "11-5227002-T-A",
+    "inheritance": "AR",
+    "condition": "Sickle cell disease",
+    "teaching": {
+      "basis": "Eine einzelne Base aendert sich (A→T). Das Codon GAG wird zu GTG. Statt Glutaminsaeure wird Valin eingebaut. Das Haemoglobin-Protein faltet sich anders — die roten Blutkoerperchen verformen sich unter Sauerstoffmangel zu Sicheln und verstopfen kleine Gefaesse.",
+      "klinisch": "Autosomal-rezessiv. Heterozygote Traeger (HbAS) haben einen Ueberlebensvorteil in Malaria-Gebieten — ein klassisches Beispiel fuer Heterozygotenvorteil und balancierte Selektion. Carrier-Frequenz in Subsahara-Afrika: ~20%. In Europa extrem selten (<0.1%). Die Sichelzellkrise ist eine Notfallsituation mit akuten Schmerzen, Organschaeden und Infektrisiko durch funktionelle Asplenie.",
+      "experte": "Die Mutation betrifft Position 7 der Beta-Globin-Kette (alte Nomenklatur: E6V, da frueher das Met nicht mitgezaehlt wurde). Der Valin-Rest an Position 7 erzeugt einen hydrophoben Kontaktpunkt, der im deoxygenierten Zustand mit einer komplementaeren Tasche am benachbarten HbS-Tetramer interagiert → Polymerisation zu langen Fasern. HbF (fetales Haemoglobin) unterbricht die Polymerisation — daher Symptomfreiheit bis ~6 Monate postnatal. Hydroxyurea induziert HbF-Produktion als Therapieansatz. Gentherapie mit Casgevy (CRISPR) seit 2023 zugelassen."
+    },
+    "quiz_questions": [
+      { "q": "Welcher Mutations-Typ liegt vor?", "options": ["Silent", "Missense", "Nonsense", "Frameshift"], "correct": 1, "explanation": "Eine Aminosaeure wird durch eine andere ersetzt (Glu→Val), daher Missense." },
+      { "q": "Warum ist diese Mutation in bestimmten Regionen Afrikas haeufig?", "options": ["Zufall (Drift)", "Heterozygotenvorteil (Malaria-Resistenz)", "Founder-Effekt", "Hohe Mutationsrate an CpG-Dinukleotiden"], "correct": 1, "explanation": "Traeger (HbAS) haben ~90% reduziertes Malaria-Mortalitaetsrisiko. Dieser Selektionsvorteil haelt die Mutation trotz schwerer Erkrankung bei Homozygoten in der Population." }
+    ]
+  },
+  {
+    "id": "cf_f508del",
+    "gene": "CFTR", "transcript": "NM_000492.4",
+    "hgvs_c": "c.1521_1523del", "hgvs_p": "p.Phe508del",
+    "type": "in-frame deletion", "clinvar": "Pathogenic",
+    "cds_position": 1521, "ref": "CTT", "alt": "",
+    "gnomad_id": "7-117559590-ATCT-A",
+    "inheritance": "AR",
+    "condition": "Cystic fibrosis",
+    "teaching": {
+      "basis": "Drei Basen (CTT) werden geloescht — das ist genau ein Codon. Daher verschiebt sich der Leserahmen NICHT (in-frame). Aber die Aminosaeure Phenylalanin an Position 508 fehlt im Protein, und es faltet sich falsch. Die Zelle erkennt das fehlerhafte Protein und baut es ab, bevor es die Zelloberflaeche erreicht.",
+      "klinisch": "~70% aller CF-Allele in Europa. Carrier-Frequenz ~1:25 in Nordeuropa → Inzidenz ~1:2500. Autosomal-rezessiv. Das CFTR-Protein ist ein Chloridkanal in Epithelzellen. Ohne CFTR: zaehfluessiger Schleim in Lunge, Pankreas, Darm. Seit 2019: CFTR-Modulatoren (Trikafta = Elexacaftor/Tezacaftor/Ivacaftor) verbessern Lungenfunktion bei F508del-Patienten dramatisch.",
+      "experte": "F508del betrifft die Nucleotide-Binding Domain 1 (NBD1). Ohne Phe508 ist die Thermostabilitaet von NBD1 um ~8°C reduziert → Misfolding → ER-assoziierte Degradation (ERAD) durch das Ubiquitin-Proteasom-System. ~1-2% mutiertes Protein erreicht trotzdem die Membran, hat aber reduzierte Offenwahrscheinlichkeit. Trikafta: Elexacaftor stabilisiert NBD1-TMD-Interface, Tezacaftor korrigiert die Processing-Defekt, Ivacaftor potenziert die Kanalaktivitaet. ACMG: PS1 (funktioneller Nachweis), PM2 (AF in Kontrollen passt zu Carrier-Frequenz), PP5 (Expertenpanel-Reviews)."
+    },
+    "quiz_questions": [
+      { "q": "Warum ist p.Phe508del kein Frameshift?", "options": ["Weil nur eine Base fehlt", "Weil genau 3 Basen (ein Codon) fehlen", "Weil die Deletion am Anfang des Gens liegt", "Weil Phenylalanin essentiell ist"], "correct": 1, "explanation": "Eine Frameshift entsteht nur, wenn die Anzahl eingefuegter/geloeschter Basen nicht durch 3 teilbar ist. 3 Basen = 1 Codon = in-frame." },
+      { "q": "Was ist der Pathomechanismus von F508del?", "options": ["mRNA wird durch NMD abgebaut", "Protein wird falsch gefaltet und vor der Membran abgebaut", "Protein ist stabil aber funktionslos", "Protein bildet toxische Aggregate"], "correct": 1, "explanation": "Das mutierte CFTR wird im ER erkannt und via ERAD abgebaut. Es erreicht die Zelloberflaeche kaum (Processing-Defekt Klasse II)." }
+    ]
+  },
+  {
+    "id": "gjb2_35delg",
+    "gene": "GJB2", "transcript": "NM_004004.6",
+    "hgvs_c": "c.35delG", "hgvs_p": "p.Gly12Valfs*12",
+    "type": "frameshift", "clinvar": "Pathogenic",
+    "cds_position": 35, "ref": "G", "alt": "",
+    "gnomad_id": "13-20189473-GG-G",
+    "inheritance": "AR",
+    "condition": "Nonsyndromic hearing loss (DFNB1)",
+    "teaching": {
+      "basis": "Eine einzige Base (G) wird geloescht. Ab hier ist der Leserahmen verschoben — alle folgenden Codons werden falsch abgelesen. Nach 12 falschen Aminosaeuren kommt ein vorzeitiges Stop-Codon. Das Protein ist viel zu kurz und funktionslos.",
+      "klinisch": "Haeufigste Ursache fuer nicht-syndromale Schwerhoerigkeit weltweit (DFNB1). Carrier-Frequenz in Suedeuropa: bis 1:25. Autosomal-rezessiv. Connexin-26 (GJB2) bildet Gap Junctions zwischen Stuetzzellen in der Cochlea — diese Gap Junctions recyceln Kalium-Ionen nach der Schallwandlung. Ohne Connexin-26: Kalium-Ueberladung → Haarzell-Degeneration → sensorineurale Schwerhoerigkeit. Cochlea-Implantat ist die Standardtherapie.",
+      "experte": "PVS1 (Null-Variant durch Frameshift). Aber Achtung: GJB2 hat nur EIN codierendes Exon (Exon 2) → NMD greift NICHT (keine Exon-Exon-Junction downstream vom PTC). Das trunkierte Protein wird trotzdem produziert, ist aber funktionslos. Dies ist ein wichtiger Lehrfall: Frameshift ≠ automatisch NMD. Homozygotie fuer c.35delG: praelingual bilaterale Schwerhoerigkeit (>60 dB). Compound-Heterozygotie mit c.235delC (haeufig in Ostasien) moeglich."
+    },
+    "quiz_questions": [
+      { "q": "Was bedeutet 'fs*12' in der Protein-Notation?", "options": ["12 Aminosaeuren werden ersetzt", "Nach dem Frameshift folgen 12 neue Aminosaeuren bis zum naechsten Stop", "Die Mutation liegt an Position 12", "12% des Proteins sind betroffen"], "correct": 1, "explanation": "fs = Frameshift, *12 = neues Stop-Codon nach 12 Aminosaeuren im verschobenen Leserahmen." },
+      { "q": "Wird NMD bei dieser Mutation ausgeloest?", "options": ["Ja, weil ein vorzeitiges Stop-Codon entsteht", "Nein, weil GJB2 nur ein codierendes Exon hat", "Ja, aber nur im homozygoten Zustand", "Nein, weil die Mutation zu nah am Start liegt"], "correct": 1, "explanation": "NMD benoetigt einen Exon-Junction-Komplex (EJC) downstream des PTC. Da GJB2 nur ein codierendes Exon hat, gibt es keinen EJC → kein NMD." }
+    ]
+  },
+  {
+    "id": "tp53_r175h",
+    "gene": "TP53", "transcript": "NM_000546.6",
+    "hgvs_c": "c.524G>A", "hgvs_p": "p.Arg175His",
+    "type": "missense", "clinvar": "Pathogenic",
+    "cds_position": 524, "ref": "G", "alt": "A",
+    "gnomad_id": "17-7674220-C-T",
+    "inheritance": "AD (somatisch + Keimbahn/Li-Fraumeni)",
+    "condition": "Li-Fraumeni syndrome / diverse Tumoren",
+    "teaching": {
+      "basis": "Eine Base aendert sich (G→A). Das Codon CGC wird zu CAC: Arginin wird zu Histidin. Das p53-Protein ist ein 'Waechter des Genoms' — es stoppt den Zellzyklus bei DNA-Schaeden. Mit dieser Mutation kann p53 nicht mehr an DNA binden → geschaedigte Zellen teilen sich unkontrolliert.",
+      "klinisch": "R175H ist die haeufigste TP53-Hotspot-Mutation in Tumoren (~6% aller TP53-Mutationen in COSMIC). Somatisch in vielen Tumorarten. Als Keimbahnmutation: Li-Fraumeni-Syndrom (LFS) — Lebenszeitrisiko fuer Krebs ~70-90%. Typische LFS-Tumoren: Brust, Sarkom, Hirntumor, Nebenniere. Wichtig: Gain-of-Function — das mutierte p53 unterdrückt nicht nur seine eigene Funktion, sondern stört aktiv andere Tumorsuppressoren.",
+      "experte": "R175H ist eine strukturelle Mutation in der DNA-Bindungsdomaene (L2-Loop, Zink-Bindungsstelle). Der Verlust des Zink-koordinierenden Arginins destabilisiert die gesamte Bindungsdomaene (Tm sinkt um ~6°C). Gain-of-Function Mechanismen: (1) Dominant-negativ über Tetramerisierung mit Wildtyp-p53, (2) Interaktion mit p63/p73 → Blockade alternativer Tumorsuppression, (3) Transaktivierung von Onkogenen. In der Keimbahn: ACMG PS1 (funktionelle Studien), PS3 (Hotspot), PM1 (Funktionsdomaene), PM2 (extrem selten in gnomAD). Therapeutisch: APR-246 (Eprenetapopt) versucht, mutiertes p53 thermodynamisch zu re-stabilisieren."
+    },
+    "quiz_questions": [
+      { "q": "Was ist das Besondere an TP53-Missense-Mutationen im Vergleich zu anderen Tumorsuppressoren?", "options": ["Sie sind immer somatisch", "Viele haben einen Gain-of-Function-Effekt", "Sie betreffen nur die Splice-Site", "Sie sind immer homozygot"], "correct": 1, "explanation": "Anders als bei den meisten Tumorsuppressoren (rein Loss-of-Function) haben viele TP53-Missense-Mutationen einen aktiven Gain-of-Function-Effekt: das mutierte Protein stoert andere Tumorsuppressoren." },
+      { "q": "Warum nennt man p53 den 'Waechter des Genoms'?", "options": ["Weil es DNA repariert", "Weil es bei DNA-Schaeden den Zellzyklus stoppt oder Apoptose einleitet", "Weil es Mutationen verhindert", "Weil es Teil der DNA-Replikationsmaschinerie ist"], "correct": 1, "explanation": "p53 ist ein Transkriptionsfaktor, der bei DNA-Schaeden aktiviert wird. Es stoppt den Zellzyklus (p21-Weg) und kann bei irreparablen Schaeden Apoptose einleiten (BAX/PUMA-Weg)." }
+    ]
+  },
+  {
+    "id": "brca1_5382insc",
+    "gene": "BRCA1", "transcript": "NM_007294.4",
+    "hgvs_c": "c.5266dupC", "hgvs_p": "p.Gln1756Profs*74",
+    "type": "frameshift", "clinvar": "Pathogenic",
+    "cds_position": 5266, "ref": "", "alt": "C",
+    "gnomad_id": "17-43057051-C-CC",
+    "inheritance": "AD",
+    "condition": "Hereditary breast/ovarian cancer",
+    "teaching": {
+      "basis": "Eine zusaetzliche Base (C) wird eingefuegt. Ab hier ist der Leserahmen verschoben. Nach 74 falschen Aminosaeuren kommt ein vorzeitiges Stop-Codon. Das BRCA1-Protein kann seine Aufgabe in der DNA-Reparatur nicht mehr erfuellen.",
+      "klinisch": "Ashkenazi-jüdische Gruendermutation — ~1% Carrier-Frequenz in dieser Population. BRCA1 ist essentiell fuer die homologe Rekombination (HR), den praezisesten DNA-Doppelstrangbruch-Reparaturweg. Ohne BRCA1: genomische Instabilitaet → akkumulierende Mutationen → Tumorentstehung. Brust-Ca-Risiko ~60-80% bis 80 Jahre, Ovarial-Ca-Risiko ~40%. PARP-Inhibitoren (Olaparib) nutzen die HR-Defizienz therapeutisch (synthetische Letalitaet).",
+      "experte": "Die Duplikation liegt in Exon 20 (von 24). PTC in Exon 20 → EJC auf Exon 20/21-Junction vorhanden → NMD wird ausgeloest. Daher: deutlich reduziertes mRNA-Level. ACMG: PVS1 (Null-Variant, NMD-predicted), PM2 (AF 0.00009 global, aber 0.01 in Ashkenazim), PP5. Founder-Effekt: Die Mutation entstand vor ~1800 Jahren in der ashkenazisch-juedischen Population. Zusammen mit 185delAG (BRCA1) und 6174delT (BRCA2) bildet sie das ashkenazische Founder-Trio. Panel-Sequenzierung bei familiaerem Mamma-Ca ist Standard."
+    },
+    "quiz_questions": [
+      { "q": "Warum ist diese Variante in der ashkenazisch-juedischen Population besonders haeufig?", "options": ["Selektionsvorteil (Heterozygotenvorteil)", "Founder-Effekt (kleine Gruenderpopulation)", "Hohe Mutationsrate in BRCA1", "Epigenetische Vererbung"], "correct": 1, "explanation": "Founder-Effekt: Eine kleine Gruenderpopulation trug zufaellig diese Variante. Durch genetischen Drift in der relativ isolierten Population stieg die Frequenz auf ~1%." }
+    ]
+  },
+  {
+    "id": "fvl_r506q",
+    "gene": "F5", "transcript": "NM_000130.5",
+    "hgvs_c": "c.1601G>A", "hgvs_p": "p.Arg534Gln",
+    "type": "missense", "clinvar": "Pathogenic/Risk factor",
+    "cds_position": 1601, "ref": "G", "alt": "A",
+    "gnomad_id": "1-169519049-C-T",
+    "inheritance": "AD (unvollstaendige Penetranz)",
+    "condition": "Factor V Leiden thrombophilia",
+    "teaching": {
+      "basis": "Eine Base aendert sich (G→A). Arginin wird zu Glutamin. Das ist eine Missense-Mutation, aber mit einer Besonderheit: Die betroffene Stelle ist genau die Schnittstelle, an der Protein C den Faktor V normalerweise inaktiviert. Das mutierte Protein kann nicht mehr abgeschaltet werden → die Blutgerinnung laeuft ueber.",
+      "klinisch": "Haeufigste erbliche Thrombophilie. Carrier-Frequenz in Europaeern: ~5% (heterozygot). Heterozygot: 5-7x erhoehtes VTE-Risiko. Homozygot: 50-80x erhoehtes Risiko. Trotzdem: Viele Traeger entwickeln nie eine Thrombose (unvollstaendige Penetranz). Risikofaktoren, die das Risiko potenzieren: Pille, Schwangerschaft, Immobilisation, Rauchen. In HWE trotz Pathogenitaet — die Penetranz ist zu niedrig fuer merkliche Selektion.",
+      "experte": "Arg506 ist die primaere Schnittstelle fuer aktiviertes Protein C (APC) auf Faktor Va. Gln506 kann nicht gespalten werden → APC-Resistenz. Zweite Schnittstelle (Arg306) ist noch vorhanden, aber ~10x langsamer. Diagnostik: APC-Resistenz-Test (funktionell) + genetische Bestaetigung. ACMG fuer Thrombophilie-Varianten: spezielle Interpretationsrichtlinien — 'Risk factor' statt 'Pathogenic' wird diskutiert, da das Krankheitsrisiko stark vom Kontext abhaengt. Ethnische Verteilung: ~5% EUR, <0.5% AFR/EAS/SAS — vermutlich Founder-Effekt nach Out-of-Africa."
+    },
+    "quiz_questions": [
+      { "q": "Warum ist diese Mutation trotz 5% Carrier-Frequenz in HWE?", "options": ["Sie ist nicht wirklich pathogen", "Die Penetranz ist zu niedrig fuer merkliche Selektion gegen Traeger", "HWE gilt nicht fuer Krankheitsvarianten", "Sie hat einen Heterozygotenvorteil"], "correct": 1, "explanation": "Die meisten Traeger bleiben gesund. Die Selektion gegen die Variante ist so schwach, dass HWE-Abweichungen in der Populationsgroesse von gnomAD nicht nachweisbar sind." }
+    ]
+  },
+  {
+    "id": "pku_r408w",
+    "gene": "PAH", "transcript": "NM_000277.3",
+    "hgvs_c": "c.1222C>T", "hgvs_p": "p.Arg408Trp",
+    "type": "missense", "clinvar": "Pathogenic",
+    "cds_position": 1222, "ref": "C", "alt": "T",
+    "gnomad_id": "12-103234260-G-A",
+    "inheritance": "AR",
+    "condition": "Phenylketonuria (PKU)",
+    "teaching": {
+      "basis": "Arginin wird zu Tryptophan. Das PAH-Enzym (Phenylalaninhydroxylase) baut normalerweise die Aminosaeure Phenylalanin ab. Mit dieser Mutation funktioniert das Enzym nicht → Phenylalanin staut sich im Blut an und schaedigt das Gehirn.",
+      "klinisch": "R408W ist die haeufigste PKU-Mutation in Europa (~30% der Allele in Irland). Klassische PKU: schwere intellektuelle Beeintraechtigung ohne Behandlung. Neugeborenen-Screening (Guthrie-Test, seit den 1960ern) ermoeglicht fruehe Diaet → normale Entwicklung. Phenylalanin-arme Diaet lebenslang. Maternale PKU: Frauen muessen vor und waehrend der Schwangerschaft strenge Diaet einhalten, sonst Embryopathie (Mikrozephalie, Herzfehler).",
+      "experte": "R408W liegt in der katalytischen Domaene (Exon 12). Die Mutation betrifft nicht direkt das aktive Zentrum, sondern destabilisiert die Protein-Faltung → reduzierte Enzymstabilitaet + Aggregationsneigung. Restaktivitaet: <1% → klassische PKU. Genotype-Phenotype-Korrelation bei PAH: Patienten mit R408W homozygot haben konsistent schwere PKU, waehrend Compound-Heterozygote je nach zweitem Allel milde Hyperphenylalaninaemie bis klassische PKU zeigen. BH4-Responsivitaet: R408W-Homozygote sprechen NICHT auf Sapropterin (BH4) an — wichtig fuer Therapieplanung."
+    },
+    "quiz_questions": [
+      { "q": "Was wuerde passieren, wenn ein PKU-Patient keine Diaet einhielte?", "options": ["Keine Auswirkung bei Erwachsenen", "Phenylalanin-Akkumulation mit neurotoxischen Effekten", "Spontane Enzym-Erholung durch alternative Stoffwechselwege", "Milde Symptome nur bei Stress"], "correct": 1, "explanation": "Ohne Diaet steigt Phenylalanin im Blut auf toxische Werte (>1200 umol/L). Bei Kindern: irreversible Hirnschaedigung. Bei Erwachsenen: Konzentrationsstoerungen, psychiatrische Symptome — auch wenn die Schaeden weniger schwer sind als im Kindesalter." }
+    ]
+  },
+  {
+    "id": "achondroplasia_g380r",
+    "gene": "FGFR3", "transcript": "NM_000142.5",
+    "hgvs_c": "c.1138G>A", "hgvs_p": "p.Gly380Arg",
+    "type": "missense", "clinvar": "Pathogenic",
+    "cds_position": 1138, "ref": "G", "alt": "A",
+    "gnomad_id": "4-1804392-G-A",
+    "inheritance": "AD (de novo in ~80%)",
+    "condition": "Achondroplasia",
+    "teaching": {
+      "basis": "Glycin wird zu Arginin ersetzt. Glycin ist die kleinste Aminosaeure, Arginin eine der groessten. In der Transmembrandomaene des FGFR3-Rezeptors fuehrt diese Aenderung zu einer Daueraktivierung — der Rezeptor signalisiert staendig 'aufhoeren zu wachsen', selbst wenn das Signal gar nicht da ist.",
+      "klinisch": "Haeufigste Form des Kleinwuchses (~1:25.000). >98% aller Achondroplasie-Faelle haben exakt diese Mutation — bemerkenswert spezifischer Hotspot. ~80% de novo (Eltern nicht betroffen). Starke Assoziation mit vaeterlichem Alter (Mutation entsteht in Spermatogonien). Gain-of-Function: FGFR3 bremst normalerweise das Knochenwachstum — die Mutation verstaerkt diesen Bremseffekt. Vosoritide (C-Typ-natriuretisches Peptid-Analogon) seit 2021 als Therapie zugelassen.",
+      "experte": "G380R liegt in der Transmembrandomaene. Der Arginin-Rest stabilisiert aktive Rezeptor-Dimere (Wasserstoffbruecken mit benachbarter Helix) → konstitutive Aktivierung des STAT1/MAPK-Signalwegs → vorzeitige Chondrozyten-Differenzierung → verkuerzte Roehrenknochen. CpG-Dinukleotid an dieser Position erklaert die hohe de novo-Rate: CpG→TpG Transition durch spontane Desaminierung von 5-Methylcytosin. Die paternal-age-Assoziation entsteht durch klonale Expansion von Spermatogonien mit FGFR3-Mutationen (selektiver Vorteil der mutierten Zelle!)."
+    },
+    "quiz_questions": [
+      { "q": "Warum ist >98% der Achondroplasie durch exakt dieselbe Mutation verursacht?", "options": ["Nur diese Position ist mutierbar", "CpG-Hotspot + Gain-of-Function nur bei genau dieser Aminosaeure-Aenderung", "FGFR3 hat nur ein Exon", "Andere Mutationen sind nicht ueberlebensfaehig"], "correct": 1, "explanation": "CpG-Dinukleotide haben eine ~10x hoehere Mutationsrate (Desaminierung von 5mC). Zusaetzlich: Nur G380R (und seltener G380C) erzeugen genau den Gain-of-Function-Effekt, der zu Achondroplasie fuehrt. Andere FGFR3-Mutationen verursachen andere Skelettdysplasien." }
+    ]
+  },
+  {
+    "id": "marfan_splice",
+    "gene": "FBN1", "transcript": "NM_000138.5",
+    "hgvs_c": "c.4096-1G>A", "hgvs_p": "p.?",
+    "type": "splice-site", "clinvar": "Pathogenic",
+    "cds_position": null, "ref": "G", "alt": "A",
+    "gnomad_id": null,
+    "inheritance": "AD",
+    "condition": "Marfan syndrome",
+    "teaching": {
+      "basis": "Die Mutation liegt nicht in einem Codon, sondern an der Exon-Intron-Grenze — der sogenannten Splice-Site. Die Zelle erkennt normalerweise 'GT...AG' als Markierung, wo ein Intron herausgeschnitten werden muss. Wenn das 'G' am Akzeptor (AG) zu 'A' wird (AA), kann das Intron nicht korrekt entfernt werden → die mRNA ist fehlerhaft.",
+      "klinisch": "Kanonische Splice-Site-Mutation (Position -1 des Akzeptors). Moegliche Folgen: (1) Exon-Skipping, (2) Aktivierung eines kryptischen Splice-Sites, (3) Intron-Retention. Alle fuehren zu veraendertem/fehlerhaftem Fibrillin-1 → Marfan-Syndrom: Hochwuchs, Linsenluxation, Aortenaneurysma. Autosomal-dominant mit variabler Expressivitaet. Jaehrliche Echokardiographie ist lebenswichtig.",
+      "experte": "Position c.4096-1 ist die letzte Base des Introns (Akzeptor-Site AG-Dinukleotid). Mutation → AA statt AG → Verlust des 3'-Splice-Signals. Konsequenzen haengen vom Kontext ab: Wenn Exon-Skipping → in-frame bei Exon-Laenge divisible by 3, sonst Frameshift. FBN1 Exon 33 (betroffen hier) hat 137 bp → nicht durch 3 teilbar → Frameshift bei Skipping → PTC → NMD wahrscheinlich → Haploinsuffizienz. Aber: kryptischer Splice-Site 6bp downstream koennte teilweise genutzt werden → verkuerztes Protein ohne NMD (dominant-negativ). RNA-Analyse empfohlen! PVS1_Strong (Splice-Site), PM2."
+    },
+    "quiz_questions": [
+      { "q": "Was bedeutet 'c.4096-1G>A'?", "options": ["Position 4096 im Protein, Glycin zu Alanin", "Erste Base nach Exon 33", "Letzte Base des Introns vor dem naechsten Exon", "Position 4096 im Chromosom"], "correct": 2, "explanation": "Die '-1' Notation zeigt: 1 Base VOR dem naechsten Exon, also die letzte Intron-Base. Das ist die Akzeptor-Splice-Site (Teil des AG-Dinukleotids)." },
+      { "q": "Warum steht 'p.?' in der Protein-Notation?", "options": ["Das Protein wurde nicht untersucht", "Der Effekt auf Proteinebene ist nicht vorhersagbar ohne RNA-Analyse", "Es gibt kein betroffenes Protein", "Die Software konnte es nicht berechnen"], "correct": 1, "explanation": "Bei Splice-Mutationen sind mehrere Szenarien moeglich (Exon-Skipping, kryptischer Splice-Site, Intron-Retention). Ohne RNA-Analyse ist der genaue Proteineffekt nicht vorhersagbar → 'p.?'." }
+    ]
+  },
+  {
+    "id": "taysachs_ivsn12",
+    "gene": "HEXA", "transcript": "NM_000520.6",
+    "hgvs_c": "c.1421+1G>C", "hgvs_p": "p.?",
+    "type": "splice-site", "clinvar": "Pathogenic",
+    "cds_position": null, "ref": "G", "alt": "C",
+    "gnomad_id": null,
+    "inheritance": "AR",
+    "condition": "Tay-Sachs disease",
+    "teaching": {
+      "basis": "Wieder eine Splice-Site-Mutation, diesmal am Donor-Ende (GT-Regel). Das 'G' in GT wird zu 'C' → CT. Die Zelle kann das Intron nicht mehr erkennen und schneidet falsch oder gar nicht. Das Enzym Hexosaminidase A fehlt → Ganglioside stauen sich in Nervenzellen an.",
+      "klinisch": "Klassische Tay-Sachs: progressiver Verlust motorischer und kognitiver Faehigkeiten ab ~6 Monaten, Tod meist vor dem 5. Lebensjahr. Carrier-Frequenz bei Ashkenazim: ~1:30 (Founder). Neugeborenen-Screening + Traeger-Screening in Hochrisiko-Populationen hat die Inzidenz um >90% gesenkt — eines der erfolgreichsten genetischen Screening-Programme.",
+      "experte": "IVS12+1G>C: Verlust des Donor-Splice-Sites von Intron 12. Exon 12-Skipping → Frameshift → PTC → NMD → kein funktionelles HexA-Protein. Ashkenazische Gruendermutationen in HEXA: c.1421+1G>C (~60% der Allele) + c.1274_1277dupTATC (~25%). Enzymdiagnostik: HexA-Aktivitaet mit 4-MUG-Substrat unterscheidet Traeger (50% Restaktivitaet) von Betroffenen (<5%). Pseudodefizienz-Allel (c.739C>T, p.Arg247Trp) reduziert HexA-Aktivitaet gegenueber kuenstlichem Substrat, aber nicht gegenueber natuerlichem GM2-Gangliosid → wichtige Differentialdiagnose."
+    },
+    "quiz_questions": [
+      { "q": "Was bedeutet '+1' in c.1421+1G>C?", "options": ["1 Base nach dem Exon-Ende (erste Intron-Base, Donor-Site)", "Position 1 des Proteins", "1 Base vor dem Exon-Start", "Erste Base des naechsten Exons"], "correct": 0, "explanation": "+1 = erste Base des Introns nach dem Exon. Das ist das 'G' des GT-Donor-Dinukleotids. Zum Vergleich: -1 waere die letzte Intron-Base vor dem naechsten Exon (AG-Akzeptor)." }
+    ]
+  },
+  {
+    "id": "huntington_repeat",
+    "gene": "HTT", "transcript": "NM_002111.8",
+    "hgvs_c": "CAG-Repeat-Expansion (>36 Repeats)", "hgvs_p": "p.Gln-Expansion (Polyglutamin-Tract)",
+    "type": "repeat expansion", "clinvar": "Pathogenic (>39 Repeats)",
+    "cds_position": null, "ref": null, "alt": null,
+    "gnomad_id": null,
+    "inheritance": "AD",
+    "condition": "Huntington disease",
+    "teaching": {
+      "basis": "Dies ist kein normaler SNV oder Indel, sondern eine Repeat-Expansion: Die Sequenz 'CAG' (codiert Glutamin) wird viel zu oft wiederholt. Normal: 10-35 Repeats. Pathogen: >39 Repeats. Je laenger der Repeat, desto mehr Glutamine im Protein → toxisches Polyglutamin-Aggregat, das Nervenzellen im Striatum zerstoert.",
+      "klinisch": "Autosomal-dominant mit Antizipation (frueherer Onset in naechster Generation, besonders bei paternaler Vererbung). Symptombeginn: 30-50 Jahre (bei >60 Repeats: juvenil). Choreatische Bewegungsstoerungen, psychiatrische Symptome, Demenz. Kein Heilmittel. Praediktive Testung moeglich, aber ethisch komplex — genetische Beratung obligat. 36-39 Repeats: reduzierte Penetranz (unsichere Prognose).",
+      "experte": "Antizipation: Meiotische Instabilitaet in Spermatogenese → paternale Transmission kann Repeat um 5-10 CAGs expandieren. Somatische Instabilitaet: Im Striatum expandieren Repeats ueber die Lebenszeit weiter (MSH3-abhaengig). HTT-Lowering-Therapien: Antisense-Oligonukleotide (Tominersen) in Phase III gescheitert (2021), aber gen-selektive Ansaetze (SNP-basiert) in Entwicklung. Genetische Modifier: DNA-Repair-Gene (FAN1, MSH3, PMS1, PMS2) beeinflussen Onset um bis zu 25 Jahre → somatische Repeat-Expansion als therapeutisches Target."
+    },
+    "quiz_questions": [
+      { "q": "Was ist Antizipation bei Huntington?", "options": ["Die Krankheit wird in jeder Generation milder", "Die Krankheit beginnt in der naechsten Generation frueher und schwerer", "Die Krankheit ueberspringt eine Generation", "Die Krankheit zeigt erst ab 60 Jahren Symptome"], "correct": 1, "explanation": "Antizipation bedeutet: Der CAG-Repeat expandiert bei der Weitergabe (besonders paternal), daher frueherer Onset und schwererer Verlauf in der naechsten Generation." }
+    ]
+  },
+  {
+    "id": "hemophilia_inv22",
+    "gene": "F8", "transcript": "NM_000132.4",
+    "hgvs_c": "Intron 22 Inversion", "hgvs_p": "p.0 (kein Protein)",
+    "type": "structural (inversion)", "clinvar": "Pathogenic",
+    "cds_position": null, "ref": null, "alt": null,
+    "gnomad_id": null,
+    "inheritance": "XR",
+    "condition": "Hemophilia A (severe)",
+    "teaching": {
+      "basis": "Dies ist kein einfacher Basenaustausch, sondern ein ganzer DNA-Abschnitt wurde umgedreht (invertiert). Intron 22 von F8 enthaelt eine Sequenz, die auch ausserhalb des Gens vorkommt. Bei der Meiose koennen sich diese Sequenzen falsch paaren und eine Inversion ausloesen → das Gen wird in zwei Stuecke zerbrochen.",
+      "klinisch": "Ursache fuer ~45% aller schweren Haemophilie A-Faelle. X-chromosomal-rezessiv: Fast nur Maenner betroffen. Schwere Haemophilie: <1% Faktor-VIII-Aktivitaet → spontane Blutungen in Gelenke und Muskeln. Therapie: regelmaessige Faktor-VIII-Substitution oder Emicizumab (bispezifischer Antikoerper). Gentherapie (Valoctocogene Roxaparvovec) seit 2022 zugelassen.",
+      "experte": "Intron 22 enthaelt eine CpG-Insel mit zwei Genen (F8A und F8B). ~400 kb telomerisch liegen zwei extragene Kopien von F8A (int22h-2 und int22h-3). Intrachromosomale homologe Rekombination zwischen int22h-1 (intragen) und int22h-2 oder -3 (extragen) → Inversion von Exon 1-22 relativ zu Exon 23-26 → kein intaktes F8-Transkript. Entsteht fast ausschliesslich in der maennlichen Meiose (nur ein X-Chromosom, kein Schutz durch allelen Gegenpart). Southern Blot (historisch) oder Inverse-Shifting-PCR fuer Diagnostik."
+    },
+    "quiz_questions": [
+      { "q": "Warum tritt diese Inversion fast nur bei vaeterlicher Vererbung auf?", "options": ["Maenner haben nur ein X-Chromosom — kein alleles Gegenstueck verhindert die Fehlpaarung", "Maenner haben instabilere DNA", "F8 ist nur auf dem vaeterlichen X aktiv", "Frauen haben X-Inaktivierung als Schutz"], "correct": 0, "explanation": "In der maennlichen Meiose liegt das X-Chromosom als Univalent vor (kein Pairing-Partner). Intrachromosomale Rekombination zwischen den homologen Repeats (int22h) kann ungehindert stattfinden. Bei Frauen paaren die X-Chromosomen miteinander → intermolekulares Pairing bevorzugt → intrachromosomale Inversion wird unterdrueckt." }
+    ]
+  },
+  {
+    "id": "duchenne_exon_del",
+    "gene": "DMD", "transcript": "NM_004006.3",
+    "hgvs_c": "c.6291_6438del (Exon 44 Deletion)", "hgvs_p": "p.?",
+    "type": "exon deletion (out-of-frame)", "clinvar": "Pathogenic",
+    "cds_position": null, "ref": null, "alt": null,
+    "gnomad_id": null,
+    "inheritance": "XR",
+    "condition": "Duchenne muscular dystrophy",
+    "teaching": {
+      "basis": "Ein ganzes Exon (Exon 44) fehlt. Wenn die verbleibenden Exons 43 und 45 zusammengespliced werden, passen ihre Leserahmen nicht zusammen → Frameshift → vorzeitiges Stop-Codon → kein funktionelles Dystrophin-Protein → schwere Muskeldystrophie.",
+      "klinisch": "Duchenne (DMD) vs Becker (BMD): Der Unterschied ist der Leserahmen! DMD: Out-of-frame Deletion → kein Dystrophin → schwerer Verlauf (Gehverlust ~12J, Kardiomyopathie, Lebenserwartung ~30J). BMD: In-frame Deletion → verkuerztes aber teilweise funktionelles Dystrophin → milderer Verlauf. 'Reading Frame Rule' erklaert >90% der Faelle. Exon-Skipping-Therapie (Antisense-Oligonukleotide) versucht, Duchenne in Becker umzuwandeln.",
+      "experte": "DMD-Gen: 2.4 Mb, groesstes menschliches Gen, 79 Exons. Hotspot-Region fuer Deletionen: Exon 45-55 und Exon 2-20. Reading Frame Rule (Monaco 1988): Wenn Deletion den Leserahmen erhaelt → BMD; wenn nicht → DMD. Exon 44 hat 148 bp (nicht durch 3 teilbar) → Junction Exon43/Exon45 erzeugt Frameshift. Casimersen (Exon 45-Skipping) wuerde bei Exon 44-Deletion: Exon43 direkt an Exon46 → Leserahmen pruefen! 2551bp (E1-43) + 177bp (E45) = 2728bp… Exon 45 Skip: E43→E46, pruefe ob in-frame. Micro-Dystrophin Gentherapie (SRP-9001) als Alternative."
+    },
+    "quiz_questions": [
+      { "q": "Warum ist die Deletion von Exon 44 Duchenne (schwer) und nicht Becker (mild)?", "options": ["Exon 44 ist besonders wichtig", "Exon 44 hat eine Laenge, die nicht durch 3 teilbar ist → Frameshift beim Splicen", "Exon 44 enthaelt das aktive Zentrum", "Duchenne hat immer groessere Deletionen als Becker"], "correct": 1, "explanation": "Exon 44 = 148 bp. Wenn es fehlt und Exon 43 direkt an Exon 45 gespliced wird, stimmt der Leserahmen nicht → Frameshift → PTC → kein Dystrophin → Duchenne. Das ist die 'Reading Frame Rule'." }
+    ]
+  },
+  {
+    "id": "beta_thal_nonsense",
+    "gene": "HBB", "transcript": "NM_000518.5",
+    "hgvs_c": "c.118C>T", "hgvs_p": "p.Gln40*",
+    "type": "nonsense", "clinvar": "Pathogenic",
+    "cds_position": 118, "ref": "C", "alt": "T",
+    "gnomad_id": "11-5226873-G-A",
+    "inheritance": "AR",
+    "condition": "Beta-thalassemia major",
+    "teaching": {
+      "basis": "Das Codon CAG (Glutamin) wird zu TAG (Stop). Die Translation bricht an Position 40 ab — das Beta-Globin-Protein hat normalerweise 147 Aminosaeuren, ist jetzt aber nur 39 lang. So kurz kann es kein Haemoglobin bilden.",
+      "klinisch": "Schwere Beta-Thalassaemie (beta-0): kein Beta-Globin-Protein aus diesem Allel. Homozygot oder compound heterozygot → transfusionsabhaengige Thalassaemia major. Ueberschuessige Alpha-Ketten praezipitieren in Erythrozyten-Vorlaeufern → ineffektive Erythropoese. Therapie: lebenslange Transfusionen + Eisenchelation, oder Stammzelltransplantation. Gentherapie (Zynteglo) fuer beta-Thal seit 2022.",
+      "experte": "PTC an Codon 40 in Exon 2 (von 3): EJC auf Exon2/3-Junction vorhanden → NMD wird ausgeloest → stark reduziertes mRNA-Level → beta-0. Vergleiche mit Codon 127 Nonsense (Exon 3): kein downstream EJC → kein NMD → trunkiertes Protein wird produziert → dominant-negative Beta-Thalassaemie mit Heinz-Koerperchen! Gleicher Mutations-Typ (Nonsense), voellig unterschiedlicher Mechanismus je nach Position. Dieses Beispiel illustriert perfekt, warum NMD-Vorhersage klinisch relevant ist."
+    },
+    "quiz_questions": [
+      { "q": "Was wuerde bei einer Nonsense-Mutation in Exon 3 (letztes Exon) passieren?", "options": ["Identischer Effekt wie in Exon 2", "NMD wird NICHT ausgeloest — trunkiertes Protein wird produziert", "Die Mutation waere nicht pathogen", "mRNA wird stabilisiert und mehr Protein produziert"], "correct": 1, "explanation": "NMD benoetigt einen EJC downstream des PTC. Im letzten Exon gibt es keinen → kein NMD → das trunkierte Protein wird produziert. Bei HBB: instabile truncated Beta-Ketten bilden Heinz-Koerperchen → dominant-negative Wirkung." }
+    ]
+  },
+  {
+    "id": "rett_r168x",
+    "gene": "MECP2", "transcript": "NM_004992.4",
+    "hgvs_c": "c.502C>T", "hgvs_p": "p.Arg168*",
+    "type": "nonsense", "clinvar": "Pathogenic",
+    "cds_position": 502, "ref": "C", "alt": "T",
+    "gnomad_id": "X-154031430-C-T",
+    "inheritance": "XD (de novo)",
+    "condition": "Rett syndrome",
+    "teaching": {
+      "basis": "CGA (Arginin) wird zu TGA (Stop). Das MeCP2-Protein bindet normalerweise an methylierte DNA und reguliert, welche Gene aktiv sind. Ohne funktionelles MeCP2 ist die Genregulation im Gehirn gestoert → schwere neurologische Entwicklungsstoerung.",
+      "klinisch": "Rett-Syndrom betrifft fast ausschliesslich Maedchen (X-chromosomal-dominant, bei Jungen meist letal). De novo in >99%. Symptombeginn: 6-18 Monate mit Regression — Verlust erlernter Faehigkeiten (Sprache, Handgebrauch), stereotype Handbewegungen. CpG-Hotspot: R168X ist eine der 8 haeufigsten MECP2-Mutationen, die zusammen ~70% aller Rett-Faelle erklaeren.",
+      "experte": "R168X liegt in der TRD (Transcriptional Repression Domain). PTC in Exon 4 (von 4) → letztes Exon → KEIN NMD → trunkiertes Protein wird produziert. X-Inaktivierung beeinflusst den Schweregrad: Maedchen mit skewed XCI zugunsten des normalen Allels sind milder betroffen. Mosaikbefunde bei Jungen moeglich (milderer Verlauf). MECP2 Duplikation Syndrom (bei Jungen): Gain-of-Function → anderes Krankheitsbild! Genotype-Phenotype: R168X gehoert zu den schwereren Mutationen — frueher Onset, schlechtere motorische Funktion als late-truncating Mutationen (z.B. R294X)."
+    },
+    "quiz_questions": [
+      { "q": "Warum betrifft Rett-Syndrom fast nur Maedchen?", "options": ["MECP2 ist nur bei Maedchen exprimiert", "Jungen haben kein MECP2-Gen", "Jungen mit MECP2-Mutationen ueberleben meist nicht (X-chromosomal, kein zweites Allel als Backup)", "X-Inaktivierung schuetzt Maedchen komplett"], "correct": 2, "explanation": "MECP2 liegt auf dem X-Chromosom. Maedchen haben ein zweites X mit normalem MECP2 (gemildert durch X-Inaktivierung). Jungen haben nur ein X → kein funktionelles MeCP2 → meist letal prenatal oder neonatal." }
+    ]
+  },
+  {
+    "id": "egfr_l858r",
+    "gene": "EGFR", "transcript": "NM_005228.5",
+    "hgvs_c": "c.2573T>G", "hgvs_p": "p.Leu858Arg",
+    "type": "missense", "clinvar": "Pathogenic (somatisch)",
+    "cds_position": 2573, "ref": "T", "alt": "G",
+    "gnomad_id": "7-55259515-T-G",
+    "inheritance": "somatisch",
+    "condition": "Non-small cell lung cancer (NSCLC)",
+    "teaching": {
+      "basis": "Leucin wird zu Arginin. Dies ist eine somatische Mutation — sie entsteht im Tumor, nicht in der Keimbahn. Der EGF-Rezeptor wird dauerhaft aktiviert → die Zelle teilt sich unkontrolliert. Aber: Diese Mutation macht den Tumor empfindlich fuer gezielte Therapie!",
+      "klinisch": "EGFR L858R ist die zweithaeufigste EGFR-Aktivierungsmutation in NSCLC (~35% der EGFR-mutierten Tumoren). Besonders haeufig bei: Nie-Rauchern, Frauen, ostasiatischer Herkunft. Tyrosinkinase-Inhibitoren (TKI) sind hochwirksam: Osimertinib (3. Gen) als Erstlinientherapie → PFS ~18 Monate vs ~10 Monate Chemotherapie. Companion Diagnostic: EGFR-Testung ist Pflicht vor Therapieentscheidung bei fortgeschrittenem NSCLC.",
+      "experte": "L858R liegt in der Aktivierungsschleife (A-Loop) der Kinasedomaene. Arginin an Position 858 stabilisiert die aktive Konformation durch eine Salzbruecke mit Asp855 → konstitutive Kinaseaktivitaet unabhaengig von Ligandenbindung. Resistenzmutation T790M (Gatekeeper) → Verlust der TKI-Wirkung bei 1./2.-Gen-TKIs, aber nicht bei Osimertinib. Triple-Mutation EGFR C797S + T790M + L858R → Resistenz gegen alle zugelassenen TKIs. Liquid Biopsy (ctDNA) ermoeglicht nicht-invasives Monitoring der Resistenzentwicklung."
+    },
+    "quiz_questions": [
+      { "q": "Warum ist diese 'pathogene' Mutation gleichzeitig eine gute Nachricht fuer den Patienten?", "options": ["Sie verlangsamt den Tumor", "Sie macht den Tumor empfindlich fuer gezielte Therapie (TKI)", "Sie wird vom Immunsystem erkannt", "Sie verhindert Metastasierung"], "correct": 1, "explanation": "EGFR-Aktivierungsmutationen sind ein therapeutisches Target: TKIs wie Osimertinib blockieren spezifisch den mutierten Rezeptor. Patienten mit EGFR-Mutationen haben eine deutlich bessere Prognose als solche ohne ('Oncogene addiction')." }
+    ]
+  },
+  {
+    "id": "silent_example",
+    "gene": "HBB", "transcript": "NM_000518.5",
+    "hgvs_c": "c.19G>A", "hgvs_p": "p.Glu7Glu (=)",
+    "type": "silent", "clinvar": "Benign",
+    "cds_position": 19, "ref": "G", "alt": "A",
+    "gnomad_id": null,
+    "inheritance": null,
+    "condition": null,
+    "teaching": {
+      "basis": "Die Base aendert sich (G→A), das Codon GAG wird zu GAA — aber beide codieren dieselbe Aminosaeure (Glutaminsaeure)! Das Protein ist identisch. So eine Mutation heisst 'silent' oder 'synonym'. Direkt neben der Sichelzell-Mutation, aber komplett harmlos.",
+      "klinisch": "Die Redundanz des genetischen Codes (Wobble-Position, 3. Base des Codons) macht viele Mutationen klinisch irrelevant. ABER Vorsicht: Manche scheinbar 'stillen' Mutationen veraendern Splice-Enhancer/Silencer-Motive → Exon-Skipping moeglich! Bioinformatische Splice-Vorhersage (SpliceAI, MaxEntScan) empfohlen bei unklaren Faellen.",
+      "experte": "Codon Usage Bias: GAG und GAA werden in humanen Zellen unterschiedlich haeufig verwendet (GAG bevorzugt). Extreme Codon-Usage-Aenderungen koennen theoretisch die Translationsgeschwindigkeit beeinflussen → veraenderte Protein-Faltung (Kimchi-Sarfaty et al., 2007, ABCB1/MDR1). In der Praxis fast nie klinisch relevant. Die Bezeichnung 'p.Glu7Glu' oder 'p.(=)' zeigt: Aminosaeure unveraendert."
+    },
+    "quiz_questions": [
+      { "q": "Warum veraendert c.19G>A die Aminosaeure nicht?", "options": ["Weil die Mutation ausserhalb des Gens liegt", "Weil die 3. Codon-Position oft redundant ist (Wobble)", "Weil Glutaminsaeure mehrere Codons hat und beide betroffen sind", "Weil G und A chemisch identisch sind"], "correct": 1, "explanation": "Der genetische Code ist degeneriert: 64 Codons codieren 20 Aminosaeuren + Stop. Die 3. Position ('Wobble') toleriert oft Aenderungen ohne Aminosaeurewechsel. GAG und GAA codieren beide Glutaminsaeure." }
+    ]
+  },
+  {
+    "id": "gof_fgfr2",
+    "gene": "FGFR2", "transcript": "NM_000141.5",
+    "hgvs_c": "c.755C>G", "hgvs_p": "p.Ser252Trp",
+    "type": "missense", "clinvar": "Pathogenic",
+    "cds_position": 755, "ref": "C", "alt": "G",
+    "gnomad_id": "10-121520151-G-C",
+    "inheritance": "AD (de novo)",
+    "condition": "Apert syndrome",
+    "teaching": {
+      "basis": "Serin wird zu Tryptophan — eine kleine Aminosaeure wird durch eine grosse aromatische ersetzt. Der FGFR2-Rezeptor erhaelt dadurch eine staerkere Ligandenbindung → er signalisiert zu viel → Schaedelnaehte verschliessen sich zu frueh (Kraniosynostose).",
+      "klinisch": "Apert-Syndrom: Kraniosynostose (turmfoermiger Schaedel) + Syndaktylie ('Loeffelhaende'). ~1:65.000 Geburten. >98% de novo. Starke paternal-age-Assoziation (wie Achondroplasie). S252W und P253R machen zusammen >98% aller Apert-Faelle aus. Operativ: fruehe Kraniotomie noetig um Hirndruck zu vermeiden.",
+      "experte": "S252W liegt im Linker zwischen IgII und IgIII der extrazellulaeren Domaene. Die Trp-Seitenkette erzeugt neue Kontakte zum FGF-Liganden → ~10x erhoehte Ligandenbindungsaffinitaet + Verlust der Liganden-Spezifitaet (bindet FGF-Isoformen, die Wildtyp nicht binden). Wie bei FGFR3/Achondroplasie: klonale Expansion mutierter Spermatogonien ('selfish spermatogonial selection') erklaert die hohe de novo-Rate und Altersabhaengigkeit. Gleicher Mechanismus bei PTPN11 (Noonan), HRAS (Costello), RET (MEN2)."
+    },
+    "quiz_questions": [
+      { "q": "Was haben Achondroplasie (FGFR3) und Apert-Syndrom (FGFR2) gemeinsam?", "options": ["Beide betreffen denselben Knochen", "Beide sind Gain-of-Function-Mutationen in Rezeptor-Tyrosinkinasen mit paternal-age-Effekt", "Beide sind autosomal-rezessiv", "Beide verursachen Kleinwuchs"], "correct": 1, "explanation": "FGFR2 und FGFR3 sind verwandte Rezeptoren. Beide Mutationen erzeugen konstitutive Aktivierung (GoF). Beide entstehen bevorzugt in der vaeterlichen Keimbahn durch 'selfish spermatogonial selection' — mutierte Spermatogonien haben einen Proliferationsvorteil." }
+    ]
+  },
+  {
+    "id": "lynch_msh2",
+    "gene": "MSH2", "transcript": "NM_000251.3",
+    "hgvs_c": "c.942+3A>T", "hgvs_p": "p.?",
+    "type": "splice-site (non-canonical)", "clinvar": "Pathogenic",
+    "cds_position": null, "ref": "A", "alt": "T",
+    "gnomad_id": null,
+    "inheritance": "AD",
+    "condition": "Lynch syndrome (HNPCC)",
+    "teaching": {
+      "basis": "Diese Mutation liegt nicht direkt am Exon-Rand, sondern 3 Basen im Intron — das nennt man eine 'nicht-kanonische' Splice-Mutation. Obwohl sie nicht die GT/AG-Regel direkt betrifft, stoert sie das Splicen trotzdem, weil die Splicemaschinerie auch die umgebenden Basen braucht.",
+      "klinisch": "Lynch-Syndrom: haeufigste erbliche Darmkrebs-Praedisposition (~3% aller Kolorektalkarzinome). MSH2 ist Teil des Mismatch-Repair-Systems (MMR) — ohne MMR: >100x erhoehte Mutationsrate → Mikrosatelliteninstabilitaet (MSI). Lebenszeitrisiko Kolon-Ca: 50-80%, Endometrium-Ca: 40-60%. Immunhistochemie (MMR-Proteinverlust) + MSI-Testing als Screening. Checkpoint-Inhibitoren (Pembrolizumab) hocheffektiv bei MSI-high Tumoren!",
+      "experte": "Position +3 liegt im 5' Splice Site Consensus (MAG|GURAGU). 'A' an Position +3 ist hochkonserviert. A>T reduziert den MaxEntScan-Score von ~8.5 auf ~2.1 → Verlust des Splice-Donors → wahrscheinlich Exon-Skipping oder Intron-Retention. Funktionelle RNA-Analyse zeigt: ~90% aberrantes Transkript. ACMG: PVS1_Strong (Splice, nicht-kanonisch → Strong statt Very Strong), PM2. Nicht-kanonische Splice-Mutationen sind eine haeufige VUS-Quelle — SpliceAI und RNA-Analyse essentiell fuer Klassifikation."
+    },
+    "quiz_questions": [
+      { "q": "Warum werden nicht-kanonische Splice-Mutationen oft als VUS klassifiziert?", "options": ["Weil sie immer benign sind", "Weil der Effekt auf mRNA ohne funktionelle Analyse nicht sicher vorhersagbar ist", "Weil sie zu selten vorkommen", "Weil sie nur somatisch auftreten"], "correct": 1, "explanation": "Kanonische Splice-Sites (GT/AG) haben fast immer einen Effekt. Bei nicht-kanonischen Positionen (+3, +5, etc.) ist der Effekt variabel — manche werden toleriert, andere zerstoeren das Splicen. Bioinformatische Vorhersage (SpliceAI) hilft, aber RNA-Analyse aus Patientenblut ist der Goldstandard." }
+    ]
+  },
+  {
+    "id": "mthfr_c677t",
+    "gene": "MTHFR", "transcript": "NM_005957.5",
+    "hgvs_c": "c.665C>T", "hgvs_p": "p.Ala222Val",
+    "type": "missense", "clinvar": "Benign/Risk factor",
+    "cds_position": 665, "ref": "C", "alt": "T",
+    "gnomad_id": "1-11796321-G-A",
+    "inheritance": "AR (risk factor)",
+    "condition": "MTHFR thermolabile variant (common polymorphism)",
+    "teaching": {
+      "basis": "Alanin wird zu Valin — eine sehr kleine Aenderung. Das MTHFR-Enzym funktioniert noch, aber etwas schlechter bei hohen Temperaturen. Im Alltag: bei den meisten Menschen kein Problem, weil genug Folsaeure aufgenommen wird.",
+      "klinisch": "Dies ist ein LEHRBEISPIEL dafuer, dass Missense ≠ pathogen. MTHFR C677T hat eine Carrier-Frequenz von ~30-40% weltweit — ein normaler Polymorphismus, kein Krankheitsgen. Homozygot (TT): ~10-15% der Europäer, leicht erhoehter Homocystein-Spiegel bei Folsaeuremangel. KEIN Grund fuer praeventive Massnahmen ausser normaler Ernährung. MTHFR-Testung wird NICHT empfohlen (ACMG Practice Guideline 2024). Vorsicht: Viele pseudomedizinische Anbieter verkaufen ueberfluessige MTHFR-Tests.",
+      "experte": "A222V liegt in der katalytischen Domaene. Tm sinkt um ~8°C → verminderte Enzymstabilitaet → ~30% reduzierte Aktivitaet bei TT. HWE wird perfekt eingehalten (Chi² nicht signifikant in allen gnomAD-Populationen) → kein Selektionsdruck. Die Homocystein-Erhoehung bei TT ist mild (~2-3 umol/L) und wird durch adaequate Folsaeurezufuhr komplett ausgeglichen. Das ACMG hat 2024 ein Statement veroeffentlicht: MTHFR-Genotypisierung ist klinisch nicht indiziert und soll nicht als Grundlage fuer Supplementierungsempfehlungen dienen."
+    },
+    "quiz_questions": [
+      { "q": "Ist MTHFR C677T eine pathogene Mutation?", "options": ["Ja, es ist eine anerkannte Erbkrankheit", "Nein, es ist ein haeufiger Polymorphismus ohne klinische Relevanz fuer die meisten Menschen", "Nur bei Homozygotie", "Nur in Kombination mit anderen Mutationen"], "correct": 1, "explanation": "~30-40% der Weltbevoelkerung sind Carrier. Homozygotie (TT) bei ~10-15% der Europaeer. Die minimale Enzymschwaeche wird durch normale Ernaehrung kompensiert. MTHFR-Tests werden von Fachgesellschaften ausdruecklich NICHT empfohlen." }
+    ]
+  },
+  {
+    "id": "braf_v600e",
+    "gene": "BRAF", "transcript": "NM_004333.6",
+    "hgvs_c": "c.1799T>A", "hgvs_p": "p.Val600Glu",
+    "type": "missense", "clinvar": "Pathogenic (somatisch)",
+    "cds_position": 1799, "ref": "T", "alt": "A",
+    "gnomad_id": "7-140753336-A-T",
+    "inheritance": "somatisch",
+    "condition": "Melanom, Kolorektalkarzinom, Schilddruesen-Ca, Haarzell-Leukaemie",
+    "teaching": {
+      "basis": "Valin wird zu Glutaminsaeure — eine kleine hydrophobe durch eine grosse geladene Aminosaeure. Der BRAF-Kinase-Schalter wird in die 'EIN'-Stellung gezwungen → die Zelle bekommt ein permanentes Wachstumssignal.",
+      "klinisch": "V600E ist eine der haeufigsten somatischen Mutationen ueberhaupt: ~50% aller Melanome, ~100% Haarzell-Leukaemien, ~60% papillaere Schilddruesen-Ca. Vemurafenib und Dabrafenib: BRAF-Inhibitoren, die spezifisch V600E-mutiertes BRAF blockieren. Kombination mit MEK-Inhibitoren (Trametinib) verhindert Resistenzentwicklung ueber den MAPK-Bypass.",
+      "experte": "V600E liegt im Activation Segment der Kinasedomaene. Die negative Ladung des Glutamat-Restes mimickt die Phosphorylierung von T599/S602 → konstitutive Kinaseaktivitaet (~500x Wildtyp). BRAF V600E ist seltsamerweise als Monomer aktiv, waehrend Wildtyp-BRAF nur als Dimer signalisiert. Diese Eigenschaft erklaert, warum BRAF-Inhibitoren bei V600E wirken (Monomer-Hemmung), aber bei anderen BRAF-Mutationen paradoxe Aktivierung durch Dimer-Bildung ausloesen koennen."
+    },
+    "quiz_questions": [
+      { "q": "Was verbindet EGFR L858R und BRAF V600E therapeutisch?", "options": ["Beide werden mit demselben Medikament behandelt", "Beide sind Gain-of-Function-Mutationen in Kinasen, die mit spezifischen Inhibitoren targetierbar sind", "Beide treten nur im selben Tumor auf", "Beide sind Keimbahnmutationen"], "correct": 1, "explanation": "Beide Mutationen aktivieren Kinasen konstitutiv → Oncogene Addiction → der Tumor ist abhaengig von dieser einen Mutation → gezielte Hemmung mit spezifischen Inhibitoren ist hocheffektiv." }
+    ]
+  },
+  {
+    "id": "noonan_ptpn11",
+    "gene": "PTPN11", "transcript": "NM_002834.5",
+    "hgvs_c": "c.922A>G", "hgvs_p": "p.Asn308Asp",
+    "type": "missense", "clinvar": "Pathogenic",
+    "cds_position": 922, "ref": "A", "alt": "G",
+    "gnomad_id": "12-112888211-A-G",
+    "inheritance": "AD",
+    "condition": "Noonan syndrome",
+    "teaching": {
+      "basis": "Asparagin wird zu Aspartinsaeure. SHP-2 (das Protein von PTPN11) ist eine Phosphatase, die normalerweise inaktiv bleibt und nur bei Bedarf aktiviert wird. Diese Mutation haelt die Phosphatase teilweise offen → RAS-MAPK-Signalweg ist daueraktiv → ueberschiessendes Wachstumssignal waehrend der Entwicklung.",
+      "klinisch": "Noonan-Syndrom: haeufigste Ursache nicht-chromosomaler angeborener Herzfehler (~1:1000-2500). Typische Merkmale: Pulmonalstenose, Kleinwuchs, Kryptorchismus, typische Fazies (breiter Nacken, tiefsitzende Ohren). Teil der 'RASopathien' — eine Gruppe von Erkrankungen, die alle den RAS-MAPK-Signalweg betreffen (Noonan, Costello, CFC, NF1). ~50% aller Noonan-Faelle haben PTPN11-Mutationen.",
+      "experte": "N308D liegt im PTP-Domaene/N-SH2-Interface. Wildtyp: N-SH2-Domaene blockiert das aktive Zentrum (autoinhibiert). N308D destabilisiert die Autoinhibition → basale Phosphatase-Aktivitaet erhoehrt (aber nicht vollstaendig aktiv). Spezifisch fuer Noonan: GoF-Mutationen in PTPN11, die die Autoinhibition loesen. Spezifisch fuer JMML/Leukaemie: staerker aktivierende somatische PTPN11-Mutationen (E76K). MEK-Inhibitoren werden in klinischen Studien bei schweren RASopathien erprobt."
+    },
+    "quiz_questions": [
+      { "q": "Was sind RASopathien?", "options": ["Tumoren des RAS-Gens", "Eine Gruppe von Entwicklungsstoerungen, die alle den RAS-MAPK-Signalweg betreffen", "Autoimmunerkrankungen", "Infektionskrankheiten durch RAS-Viren"], "correct": 1, "explanation": "RASopathien: Noonan (PTPN11, SOS1, RAF1, KRAS), CFC (BRAF, MEK1/2), Costello (HRAS), NF1 (Neurofibromin). Alle betreffen den RAS-MAPK-Signalweg mit aehnlichen, aber unterscheidbaren Phaenotypen." }
+    ]
+  }
+]

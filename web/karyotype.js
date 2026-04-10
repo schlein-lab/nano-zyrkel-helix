@@ -919,7 +919,10 @@ function saveQzState() {
 function renderQzCase() {
   const area = document.getElementById('quiz-area');
   if (!area) return;
-  const cases = window.QUIZ_CASES || [];
+  // Select language-appropriate question bank
+  const casesDE = window.QUIZ_CASES || [];
+  const casesEN = window.QUIZ_CASES_EN || [];
+  const cases = (uiLang === 'en' && casesEN.length > 0) ? casesEN : casesDE;
   if (cases.length === 0) {
     area.innerHTML = '<div style="padding:1rem;color:var(--danger);">Quiz data not loaded.</div>';
     return;
@@ -928,7 +931,9 @@ function renderQzCase() {
   if (!c) return;
 
   // Get questions from expert pool if available and facharzt mode, else student
-  const expertPool = window.QUIZ_EXPERT || {};
+  const expertPoolDE = window.QUIZ_EXPERT || {};
+  const expertPoolEN = window.QUIZ_EXPERT_EN || {};
+  const expertPool = (uiLang === 'en' && Object.keys(expertPoolEN).length > 0) ? expertPoolEN : expertPoolDE;
   const expertQs = expertPool[c.id];
   const questions = (qzDifficulty === 'facharzt' && expertQs) ? expertQs : c.sub;
   const sub = questions[qzSubIdx];

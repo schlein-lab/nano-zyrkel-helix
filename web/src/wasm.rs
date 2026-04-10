@@ -70,6 +70,39 @@ pub fn translate(dna: &str) -> String {
     protein
 }
 
+#[wasm_bindgen]
+pub fn predict_indel_effect(cds: &str, position: usize, inserted: &str, deleted: usize) -> String {
+    let effect = mutation::predict_indel(cds, position, inserted, deleted);
+    serde_json::to_string(&serde_json::json!({
+        "is_frameshift": effect.is_frameshift,
+        "net_change": effect.net_change,
+        "original_protein_len": effect.original_protein_len,
+        "mutated_protein_len": effect.mutated_protein_len,
+        "first_changed_aa_pos": effect.first_changed_aa_pos,
+        "new_stop_codon_pos": effect.new_stop_codon_pos,
+        "label": effect.label,
+    }))
+    .unwrap()
+}
+
+#[wasm_bindgen]
+pub fn compare_protein_effect(original_cds: &str, mutated_cds: &str) -> String {
+    let aln = mutation::compare_proteins(original_cds, mutated_cds);
+    serde_json::to_string(&serde_json::json!({
+        "original": aln.original,
+        "mutated": aln.mutated,
+        "diff_positions": aln.diff_positions,
+        "first_diff": aln.first_diff,
+    }))
+    .unwrap()
+}
+
+#[wasm_bindgen]
+pub fn predict_nmd_risk(exon_boundaries_json: &str, ptc_cds_position: usize) -> bool {
+    let boundaries: Vec<usize> = serde_json::from_str(exon_boundaries_json).unwrap_or_default();
+    mutation::predict_nmd(&boundaries, ptc_cds_position)
+}
+
 // ── Population Simulation ───────────────────────────────────────
 
 #[wasm_bindgen]
