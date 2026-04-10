@@ -456,6 +456,8 @@ function showBandInfo(chr, band) {
 }
 
 // ── Chromosome Zoom Modal ─────────────────────────────────────────
+const REAL_CROPS_PER_CHR = 30;  // 30 real example images per chromosome class
+
 function openChromosomeZoom(chrId) {
   const chr = CHROMOSOMES[chrId];
   if (!chr) return;
@@ -467,21 +469,23 @@ function openChromosomeZoom(chrId) {
   // Find ClinGen regions on this chromosome
   const dosageOnChr = CLINGEN.filter(d => {
     const cb = d.cytoband || '';
-    // Match "21q22.3" → chr "21"; "Xp22.31" → chr "X"
     const m = cb.match(/^([0-9XY]+)[pq]/);
     return m && m[1] === chrId;
   }).slice(0, 8);
 
   // Build large SVG schema (3x larger)
-  const largeSvg = renderChromosome(chrId, { height: 280, width: 28 });
+  const largeSvg = renderChromosome(chrId, { height: 320, width: 32 });
 
-  // Resolve ideogram filename: chr01..chr22, chrX, chrY
+  // Resolve NIH ideogram filename
   let ideogramName;
   if (chrId === 'X' || chrId === 'Y') {
     ideogramName = `chr${chrId}_550.png`;
   } else {
     ideogramName = `chr${chrId.padStart(2, '0')}_550.png`;
   }
+
+  // Build real crops gallery: 30 cropped specimens
+  const cropsHtml = renderRealCropsGallery(chrId);
 
   // Modal HTML
   const modal = document.createElement('div');
@@ -492,41 +496,40 @@ function openChromosomeZoom(chrId) {
     <div class="zoom-dialog">
       <div class="zoom-header">
         <h2>Chromosome ${chrId}</h2>
+        <span class="zoom-stats">${chr.bands.length} bands &middot; ${(chr.length / 1e6).toFixed(1)} Mb</span>
         <button class="zoom-close">&times;</button>
       </div>
       <div class="zoom-body">
-        <div class="zoom-row">
+        <div class="zoom-reference">
           <div class="zoom-col">
             <div class="zoom-col-label">Schema (UCSC GRCh38)</div>
             <div class="zoom-svg-host">${largeSvg}</div>
-            <div class="zoom-col-meta">${chr.bands.length} bands<br>${(chr.length / 1e6).toFixed(1)} Mb</div>
+            <div class="zoom-col-meta">Idealized cytoband consensus</div>
           </div>
           <div class="zoom-col">
             <div class="zoom-col-label">NIH Ideogram (550 bphs)</div>
             <div class="zoom-img-host">
               <img class="zoom-ideogram" src="img/chromosomes/${ideogramName}"
                    alt="Chromosome ${chrId} ideogram"
-                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-              <div class="zoom-img-fallback" style="display:none;">No ideogram available</div>
+                   onerror="this.style.display='none'">
             </div>
-            <div class="zoom-col-meta">G-banding<br>NIH/NCBI</div>
-          </div>
-          <div class="zoom-col real-col">
-            <div class="zoom-col-label">Real Specimen Crop</div>
-            <div class="zoom-real-host" id="zoom-real-host">
-              ${renderRealSpecimenCrops(chrId)}
-            </div>
-            <div class="zoom-col-meta">From multiple specimens</div>
+            <div class="zoom-col-meta">Standard G-banding reference</div>
           </div>
         </div>
+
+        <div class="zoom-section-label">${REAL_CROPS_PER_CHR} Real specimens (Lin et al. 2023, CC BY 4.0)</div>
+        <div class="real-crops-gallery">${cropsHtml}</div>
+
         <div class="zoom-disclaimer">
           <strong>Why do real chromosomes look different?</strong>
-          Real metaphase chromosomes vary between specimens depending on:
-          condensation stage (early vs. late metaphase), banding technique (G/Q/R/C),
-          staining intensity, and squash artifacts. The schematic is an idealized
-          consensus &mdash; in clinical cytogenetics you must learn to recognize
-          the same chromosome across this technical variation.
+          Each crop above shows the same chromosome from a different patient sample.
+          They vary in: <em>condensation stage</em> (early vs. late metaphase &mdash;
+          longer or shorter), <em>banding sharpness</em> (depends on trypsin digestion),
+          <em>staining intensity</em>, <em>orientation</em>, and <em>squash artifacts</em>.
+          The schema is an idealized consensus &mdash; in clinical cytogenetics you must
+          learn to recognize the same chromosome across this technical variation.
         </div>
+
         ${dosageOnChr.length > 0 ? `
           <div class="zoom-clingen">
             <div class="zoom-section-label">ClinGen Dosage-Sensitive Regions on Chr ${chrId}</div>
@@ -553,25 +556,22 @@ function openChromosomeZoom(chrId) {
       document.removeEventListener('keydown', escClose);
     }
   });
+
+  // Wire up crop click → enlarge
+  modal.querySelectorAll('.real-crop-thumb').forEach(thumb => {
+    thumb.addEventListener('click', () => {
+      thumb.classList.toggle('enlarged');
+    });
+  });
 }
 
-function renderRealSpecimenCrops(chrId) {
-  // Show small crops from each specimen, plus a note about variability
-  // Without exact pixel calibration we show the full specimen with a hint
-  // and let the user pan/zoom mentally. The NIH ideogram column gives the
-  // "isolated" view. This column emphasizes variability between specimens.
+function renderRealCropsGallery(chrId) {
   let html = '';
-  for (const s of SPECIMENS) {
-    html += `
-      <div class="specimen-crop">
-        <div class="crop-label">${s.name}</div>
-        <div class="crop-img-wrap">
-          <img class="crop-img" src="${s.src}" alt="${s.name}">
-        </div>
-      </div>
-    `;
+  for (let i = 1; i <= REAL_CROPS_PER_CHR; i++) {
+    const num = String(i).padStart(3, '0');
+    const src = `img/real_crops/chr${chrId}/${num}.jpg`;
+    html += `<img class="real-crop-thumb" src="${src}" alt="chr${chrId} #${i}" loading="lazy">`;
   }
-  html += `<div class="crop-hint">Each specimen shows the same chromosome with different staining intensity, condensation, and banding sharpness. Find chromosome ${chrId} in each (rows are sorted 1-22 then X/Y).</div>`;
   return html;
 }
 
