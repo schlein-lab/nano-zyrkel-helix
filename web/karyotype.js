@@ -1188,15 +1188,20 @@ function drawBuildSingleMode(area, scoreLine) {
     resultClass = answered === piece.chr ? 'correct' : 'incorrect';
   }
 
-  // Hint: UCSC schema
-  let hintHtml = '';
+  // Hint: UCSC schema side-by-side with the real image
+  let hintSideHtml = '';
   if (buildState.showingHint) {
-    hintHtml = `<div class="build-hint-schema">
-      <div class="build-hint-label">UCSC Schema (-1 Punkt)</div>
-      <div class="build-hint-grid">${CHROMOSOME_ORDER.map(c =>
-        `<div class="build-hint-chr"><div class="build-hint-svg">${renderChromosome(c, { height: 60, width: 8 })}</div><div class="build-hint-num">${c}</div></div>`
-      ).join('')}</div>
-    </div>`;
+    // Show ALL 24 schemata next to the real image for comparison
+    hintSideHtml = `
+      <div class="build-hint-side">
+        <div class="build-hint-label">UCSC Schema (-1 Punkt)</div>
+        <div class="build-hint-all">${CHROMOSOME_ORDER.map(c =>
+          `<div class="build-hint-chr" data-hint-chr="${c}">
+            <div class="build-hint-svg">${renderChromosome(c, { height: 120, width: 14 })}</div>
+            <div class="build-hint-num">${c}</div>
+          </div>`
+        ).join('')}</div>
+      </div>`;
   }
 
   area.innerHTML = `
@@ -1207,30 +1212,31 @@ function drawBuildSingleMode(area, scoreLine) {
         <button class="build-view-btn ${buildState.viewMode === 'spread' ? 'active' : ''}" data-view="spread">Alle</button>
         <button class="build-diff-btn ${buildState.difficulty === 'easy' ? 'active' : ''}" data-diff="easy">24</button>
         <button class="build-diff-btn ${buildState.difficulty === 'hard' ? 'active' : ''}" data-diff="hard">46</button>
-        <button id="build-reset" class="build-action-btn secondary">Neu</button>
       </div>
     </div>
-    <div class="build-single ${resultClass}">
-      <div class="build-single-counter">${buildState.singleIdx + 1} / ${buildState.pieces.length}</div>
-      <div class="build-single-img-wrap" id="build-single-img-wrap">
-        <img src="${src}" alt="" draggable="false" style="transform:rotate(${piece.userRotation}deg)" id="build-single-img">
+    <div class="build-single-layout">
+      <div class="build-single ${resultClass}">
+        <div class="build-single-counter">${buildState.singleIdx + 1} / ${buildState.pieces.length}</div>
+        <div class="build-single-img-wrap" id="build-single-img-wrap">
+          <img src="${src}" alt="" draggable="false" style="transform:rotate(${piece.userRotation}deg)" id="build-single-img">
+        </div>
+        <div class="build-single-controls">
+          <button id="build-rotate-left" class="pager-mini-btn">-90</button>
+          <button id="build-rotate-reset" class="pager-mini-btn">0</button>
+          <button id="build-rotate-right" class="pager-mini-btn">+90</button>
+          <span class="build-rotation-display">${Math.round(piece.userRotation)}\u00B0</span>
+        </div>
+        <select id="build-assign" class="build-assign-select">${options}</select>
+        ${buildState.submitted && isAnswered && answered !== piece.chr ?
+          `<div class="build-correct-answer">Richtig: Chromosom ${piece.chr}</div>` : ''}
+        <div class="build-single-nav">
+          <button id="build-prev" class="pager-arrow pager-left" ${buildState.singleIdx === 0 ? 'disabled' : ''}>\u25C0</button>
+          <button id="build-hint-btn" class="build-action-btn secondary">\u{1F50D} Hilfe</button>
+          <button id="build-next" class="pager-arrow pager-right">\u25B6</button>
+        </div>
       </div>
-      <div class="build-single-controls">
-        <button id="build-rotate-left" class="pager-mini-btn" title="Rotate left">-90</button>
-        <button id="build-rotate-reset" class="pager-mini-btn" title="Reset rotation">0</button>
-        <button id="build-rotate-right" class="pager-mini-btn" title="Rotate right">+90</button>
-        <span class="build-rotation-display">${Math.round(piece.userRotation)}°</span>
-      </div>
-      <select id="build-assign" class="build-assign-select">${options}</select>
-      ${buildState.submitted && isAnswered && answered !== piece.chr ?
-        `<div class="build-correct-answer">Richtig: Chromosom ${piece.chr}</div>` : ''}
-      <div class="build-single-nav">
-        <button id="build-prev" class="pager-arrow pager-left" ${buildState.singleIdx === 0 ? 'disabled' : ''}>\u25C0</button>
-        <button id="build-hint-btn" class="build-action-btn secondary" title="Schema anzeigen (-1 Punkt)">\u{1F50D} Hilfe</button>
-        <button id="build-next" class="pager-arrow pager-right">\u25B6</button>
-      </div>
+      ${hintSideHtml}
     </div>
-    ${hintHtml}
     <div class="build-single-nav-bottom">
       <button id="build-submit" class="build-action-btn" ${Object.keys(buildState.answers).length < buildState.pieces.length ? 'disabled' : ''}>Auswerten</button>
     </div>
@@ -1283,7 +1289,6 @@ function drawBuildSpreadMode(area, scoreLine) {
         <button class="build-diff-btn ${buildState.difficulty === 'easy' ? 'active' : ''}" data-diff="easy">24</button>
         <button class="build-diff-btn ${buildState.difficulty === 'hard' ? 'active' : ''}" data-diff="hard">46</button>
         <button id="build-submit" class="build-action-btn" ${placed < buildState.pieces.length ? 'disabled' : ''}>Auswerten</button>
-        <button id="build-reset" class="build-action-btn secondary">Neu</button>
       </div>
     </div>
     <div class="build-spread" id="build-spread">${spreadHtml}</div>
@@ -1327,16 +1332,29 @@ function bindBuildSingleInteractions(piece) {
     drawBuildGame();
   }, { passive: false });
 
-  // Assignment dropdown
+  // Assignment dropdown — immediate feedback + auto-advance
   document.getElementById('build-assign')?.addEventListener('change', (e) => {
     if (buildState.submitted) return;
     const val = e.target.value;
-    if (val) {
-      buildState.answers[piece.id] = val;
-    } else {
-      delete buildState.answers[piece.id];
-    }
-    drawBuildGame();
+    if (!val) { delete buildState.answers[piece.id]; drawBuildGame(); return; }
+    buildState.answers[piece.id] = val;
+    const correct = val === piece.chr;
+
+    // Flash feedback on the image wrap
+    const wrap = document.getElementById('build-single-img-wrap');
+    const feedback = document.createElement('div');
+    feedback.className = 'build-flash ' + (correct ? 'flash-correct' : 'flash-wrong');
+    feedback.textContent = correct ? 'Richtig!' : `Falsch — Chr ${piece.chr}`;
+    if (wrap) wrap.parentElement.insertBefore(feedback, wrap.nextSibling);
+
+    // Auto-advance after brief delay
+    setTimeout(() => {
+      buildState.showingHint = false;
+      if (buildState.singleIdx < buildState.pieces.length - 1) {
+        buildState.singleIdx++;
+      }
+      drawBuildGame();
+    }, correct ? 600 : 1500);
   });
 
   // Navigation

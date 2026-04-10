@@ -376,36 +376,78 @@ body.karyo-light .build-single-img-wrap { background: #f1f5f9; }
   border-top: 1px solid var(--border);
 }
 
-/* Hint schema grid */
-.build-hint-schema {
-  padding: 0.5rem 0.8rem;
-  border-top: 1px solid var(--border);
+/* Build single layout: image + optional hint side */
+.build-single-layout {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 0.8rem;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* Hint side panel (next to real image) */
+.build-hint-side {
   background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem;
+  max-height: 380px;
+  overflow-y: auto;
+  flex-shrink: 0;
+  width: 240px;
 }
 .build-hint-label {
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   color: var(--warning);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 0.3rem;
   font-weight: 600;
+  text-align: center;
 }
-.build-hint-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  justify-content: center;
+.build-hint-all {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 2px;
 }
 .build-hint-chr {
   display: flex;
   flex-direction: column;
   align-items: center;
+  cursor: default;
+  padding: 1px;
+  border-radius: 3px;
+  transition: background 0.1s;
 }
+.build-hint-chr:hover { background: var(--bg-hover); }
 .build-hint-svg svg { display: block; }
 .build-hint-num {
   font-size: 0.5rem;
   color: var(--text-dim);
   font-family: monospace;
+}
+
+/* Flash feedback after answer */
+.build-flash {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.4rem;
+  border-radius: 5px;
+  margin: 0.3rem 0;
+  animation: flash-fade 0.6s ease-out;
+}
+.flash-correct { color: var(--success); background: rgba(16,185,129,0.15); }
+.flash-wrong { color: var(--danger); background: rgba(239,68,68,0.15); }
+@keyframes flash-fade {
+  0% { opacity: 0; transform: scale(0.9); }
+  30% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 480px) {
+  .build-single-layout { flex-direction: column; align-items: center; }
+  .build-hint-side { width: 100%; max-height: 200px; }
 }
 .build-area {
   padding: 0.6rem 0.8rem;
