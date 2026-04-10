@@ -1012,6 +1012,231 @@ function renderExamCase() {
   });
 }
 
+// ── Build Mode (drag-and-drop sorting game) ───────────────────────
+let buildState = null;
+
+function renderBuildMode() {
+  const area = document.getElementById('build-area');
+  if (!area) return;
+  if (!buildState) {
+    initBuildGame('easy');
+  }
+  drawBuildGame();
+}
+
+function initBuildGame(difficulty) {
+  // Pick chromosomes for the game
+  // Easy:   24 chromosomes (one per class) — chr1..22 + X + Y
+  // Medium: 24 random chromosomes (any class can repeat) — pick 1 random crop per class
+  // Hard:   46 chromosomes (full karyogram pairs) — 2 per class for autosomes, 1 each for X, Y
+  let pieces = [];
+  if (difficulty === 'hard') {
+    // Two distinct random crops per autosome, one for X and Y
+    for (const chr of CHROMOSOME_ORDER) {
+      const count = (chr === 'X' || chr === 'Y') ? 1 : 2;
+      const indices = pickRandomDistinct(REAL_CROPS_PER_CHR, count);
+      indices.forEach(idx => pieces.push({ chr, cropIdx: idx, id: `${chr}_${idx}` }));
+    }
+  } else {
+    // One random crop per chromosome class (24 pieces)
+    for (const chr of CHROMOSOME_ORDER) {
+      const idx = 1 + Math.floor(Math.random() * REAL_CROPS_PER_CHR);
+      pieces.push({ chr, cropIdx: idx, id: `${chr}_${idx}` });
+    }
+  }
+  // Random rotation for added challenge (multiples of 30 degrees)
+  pieces.forEach(p => {
+    p.rotation = Math.floor(Math.random() * 12) * 30 - 180;
+  });
+  // Shuffle order
+  pieces = shuffle(pieces);
+
+  buildState = {
+    difficulty,
+    pieces,
+    placements: {},  // slotKey -> piece.id
+    selectedPieceId: null,
+    submitted: false,
+    score: null,
+    startTime: Date.now()
+  };
+}
+
+function pickRandomDistinct(max, count) {
+  const result = [];
+  while (result.length < count) {
+    const v = 1 + Math.floor(Math.random() * max);
+    if (!result.includes(v)) result.push(v);
+  }
+  return result;
+}
+
+function shuffle(array) {
+  const a = [...array];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function drawBuildGame() {
+  const area = document.getElementById('build-area');
+  if (!area || !buildState) return;
+
+  const placedIds = new Set(Object.values(buildState.placements));
+  const unplaced = buildState.pieces.filter(p => !placedIds.has(p.id));
+
+  // Build slot grid by Denver groups
+  let slotsHtml = '';
+  for (const [groupName, chrs] of Object.entries(DENVER_GROUPS)) {
+    slotsHtml += `<div class="build-group"><div class="build-group-label">${groupName}</div><div class="build-group-row">`;
+    for (const chr of chrs) {
+      // How many slots for this chromosome? hard=2 (or 1 for X/Y), else 1
+      const slotCount = (buildState.difficulty === 'hard' && chr !== 'X' && chr !== 'Y') ? 2 : 1;
+      slotsHtml += `<div class="build-slot-pair">`;
+      for (let s = 0; s < slotCount; s++) {
+        const slotKey = `${chr}_${s}`;
+        const placedId = buildState.placements[slotKey];
+        const placedPiece = placedId ? buildState.pieces.find(p => p.id === placedId) : null;
+        let slotClass = 'build-slot';
+        let slotContent = '';
+        if (placedPiece) {
+          const correct = placedPiece.chr === chr;
+          if (buildState.submitted) {
+            slotClass += correct ? ' correct' : ' incorrect';
+          }
+          slotContent = renderBuildPiece(placedPiece, true);
+        }
+        slotsHtml += `<div class="${slotClass}" data-slot="${slotKey}">${slotContent}</div>`;
+      }
+      slotsHtml += `<div class="build-slot-label">${chr}</div></div>`;
+    }
+    slotsHtml += `</div></div>`;
+  }
+
+  // Spread of unplaced pieces
+  let spreadHtml = '';
+  for (const piece of unplaced) {
+    spreadHtml += renderBuildPiece(piece, false);
+  }
+
+  // Status / score
+  const total = buildState.pieces.length;
+  const placed = Object.keys(buildState.placements).length;
+  let scoreLine = `${placed} / ${total} placed`;
+  if (buildState.submitted && buildState.score !== null) {
+    const elapsed = Math.round((buildState.score.endTime - buildState.startTime) / 1000);
+    scoreLine = `Score: ${buildState.score.correct}/${total} correct (${elapsed}s)`;
+  }
+
+  area.innerHTML = `
+    <div class="build-toolbar">
+      <span class="build-status" id="build-status">${scoreLine}</span>
+      <div class="build-buttons">
+        <button class="build-diff-btn ${buildState.difficulty === 'easy' ? 'active' : ''}" data-diff="easy">Easy (24)</button>
+        <button class="build-diff-btn ${buildState.difficulty === 'hard' ? 'active' : ''}" data-diff="hard">Hard (46)</button>
+        <button id="build-submit" class="build-action-btn" ${placed < total ? 'disabled' : ''}>Submit</button>
+        <button id="build-reset" class="build-action-btn secondary">New Game</button>
+      </div>
+    </div>
+    <div class="build-spread" id="build-spread">${spreadHtml}</div>
+    <div class="build-grid">${slotsHtml}</div>
+    <div class="build-hint">
+      Click a chromosome below to select it, then click a slot above to place it.
+      Click a placed piece to remove it back to the spread.
+      Tip: each piece is randomly rotated &mdash; identify by banding pattern, not orientation.
+    </div>
+  `;
+
+  bindBuildInteractions();
+}
+
+function renderBuildPiece(piece, isPlaced) {
+  const num = String(piece.cropIdx).padStart(3, '0');
+  const src = `img/real_crops/chr${piece.chr}/${num}.jpg`;
+  const selected = buildState.selectedPieceId === piece.id ? 'selected' : '';
+  return `<div class="build-piece ${selected}" data-piece-id="${piece.id}" data-placed="${isPlaced ? '1' : '0'}">
+    <img src="${src}" alt="" draggable="false" style="transform:rotate(${piece.rotation}deg)">
+  </div>`;
+}
+
+function bindBuildInteractions() {
+  // Click piece to select
+  document.querySelectorAll('.build-spread .build-piece').forEach(el => {
+    el.addEventListener('click', () => {
+      const pieceId = el.dataset.pieceId;
+      buildState.selectedPieceId = buildState.selectedPieceId === pieceId ? null : pieceId;
+      drawBuildGame();
+    });
+  });
+
+  // Click placed piece to unplace it
+  document.querySelectorAll('.build-slot .build-piece').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (buildState.submitted) return;
+      const pieceId = el.dataset.pieceId;
+      // Find and remove from placements
+      for (const [slot, pid] of Object.entries(buildState.placements)) {
+        if (pid === pieceId) {
+          delete buildState.placements[slot];
+          break;
+        }
+      }
+      buildState.selectedPieceId = pieceId;
+      drawBuildGame();
+    });
+  });
+
+  // Click slot to place selected piece
+  document.querySelectorAll('.build-slot').forEach(slotEl => {
+    slotEl.addEventListener('click', () => {
+      if (buildState.submitted) return;
+      if (!buildState.selectedPieceId) return;
+      const slotKey = slotEl.dataset.slot;
+      // If slot is occupied, don't replace silently — require unplace first
+      if (buildState.placements[slotKey]) return;
+      buildState.placements[slotKey] = buildState.selectedPieceId;
+      buildState.selectedPieceId = null;
+      drawBuildGame();
+    });
+  });
+
+  // Difficulty buttons
+  document.querySelectorAll('.build-diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      initBuildGame(btn.dataset.diff);
+      drawBuildGame();
+    });
+  });
+
+  // Submit
+  const submitBtn = document.getElementById('build-submit');
+  if (submitBtn) {
+    submitBtn.addEventListener('click', () => {
+      let correct = 0;
+      for (const [slotKey, pieceId] of Object.entries(buildState.placements)) {
+        const piece = buildState.pieces.find(p => p.id === pieceId);
+        const slotChr = slotKey.split('_')[0];
+        if (piece && piece.chr === slotChr) correct++;
+      }
+      buildState.submitted = true;
+      buildState.score = { correct, endTime: Date.now() };
+      drawBuildGame();
+    });
+  }
+
+  // Reset
+  const resetBtn = document.getElementById('build-reset');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      initBuildGame(buildState.difficulty);
+      drawBuildGame();
+    });
+  }
+}
+
 // ── Mode switching ────────────────────────────────────────────────
 function switchMode(mode) {
   currentMode = mode;
@@ -1027,6 +1252,7 @@ function switchMode(mode) {
     case 'aberrations': renderAberrationsMode(); break;
     case 'quiz': renderQuizMode(); break;
     case 'exam': renderExamMode(); break;
+    case 'build': renderBuildMode(); break;
   }
 }
 
