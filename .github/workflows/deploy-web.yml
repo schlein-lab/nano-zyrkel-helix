@@ -45,6 +45,8 @@ jobs:
           mkdir -p pages
           cp web/*.html web/*.js web/*.css web/*.png pages/ 2>/dev/null || true
           cp -r web/pkg pages/pkg
+          if [ -d web/data ]; then cp -r web/data pages/data; fi
+          if [ -d web/img ]; then cp -r web/img pages/img; fi
           if [ -d staging ]; then cp -r staging pages/staging; fi
 
       - name: Upload Pages artifact
