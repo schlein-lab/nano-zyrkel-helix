@@ -858,6 +858,7 @@ function renderSegregation() {
 let qzCaseIdx = 0;
 let qzSubIdx = 0;
 let qzAnswered = false;
+let qzDifficulty = 'student'; // 'student' or 'facharzt'
 let qzStats = { correct: 0, total: 0, byCase: {} };
 
 function renderQuizMode() {
@@ -886,8 +887,14 @@ function renderQzCase() {
   }
   const c = cases[qzCaseIdx];
   if (!c) return;
-  const sub = c.sub[qzSubIdx];
+
+  // Get questions from expert pool if available and facharzt mode, else student
+  const expertPool = window.QUIZ_EXPERT || {};
+  const expertQs = expertPool[c.id];
+  const questions = (qzDifficulty === 'facharzt' && expertQs) ? expertQs : c.sub;
+  const sub = questions[qzSubIdx];
   if (!sub) return;
+  const hasExpert = !!expertQs;
 
   qzAnswered = false;
   const progress = ((qzCaseIdx * 5 + qzSubIdx + 1) / (cases.length * 5)) * 100;
@@ -914,6 +921,10 @@ function renderQzCase() {
       <span>Fall ${qzCaseIdx + 1}/${cases.length}</span>
       <div class="exam-progress-bar"><div class="exam-progress-fill" style="width:${progress}%"></div></div>
       <span class="exam-counter">${qzStats.correct || 0}/${qzStats.total || 0}</span>
+      <div class="qz-diff-toggle">
+        <button class="qz-diff-btn ${qzDifficulty === 'student' ? 'active' : ''}" data-diff="student">Studium</button>
+        <button class="qz-diff-btn ${qzDifficulty === 'facharzt' ? 'active' : ''}" data-diff="facharzt" ${hasExpert ? '' : 'disabled title="Noch keine Facharzt-Fragen fuer diesen Fall"'}>Facharzt</button>
+      </div>
     </div>
     <div class="qz-sub-tabs">${subTabs}</div>
     <div class="exam-case">
@@ -984,6 +995,15 @@ function renderQzCase() {
     qzCaseIdx = 0;
     qzSubIdx = 0;
     renderQzCase();
+  });
+
+  // Difficulty toggle
+  area.querySelectorAll('.qz-diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      qzDifficulty = btn.dataset.diff;
+      qzSubIdx = 0;
+      renderQzCase();
+    });
   });
 }
 
