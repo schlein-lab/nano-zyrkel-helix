@@ -29,23 +29,8 @@
     </div>
   </div>
 
-  <!-- Compare Mode (default): SVG schema vs real photo -->
-  <div id="mode-compare" class="mode-panel active">
-    <div class="compare-split">
-      <div class="compare-side">
-        <h3>Schematic (UCSC GRCh38)</h3>
-        <div id="compare-svg"></div>
-      </div>
-      <div class="compare-side real">
-        <h3>Real (NHGRI G-banding)</h3>
-        <img class="real-photo" src="img/nhgri_karyotype.png" alt="NHGRI human male karyotype (public domain)">
-        <div class="photo-highlight" id="photo-highlight"></div>
-      </div>
-    </div>
-    <div class="compare-info" id="compare-info">
-      Hover over a band to see its name and ClinGen dosage info (where curated).
-    </div>
-  </div>
+  <!-- Compare Mode (default): rendered dynamically by JS -->
+  <div id="mode-compare" class="mode-panel active"></div>
 
   <!-- Aberrations Mode -->
   <div id="mode-aberrations" class="mode-panel">

@@ -160,7 +160,35 @@
 .build-btn:hover { background: var(--accent); }
 .build-btn.secondary { background: var(--bg); border: 1px solid var(--border); color: var(--text-muted); }
 
-/* ── Compare Mode (theory vs reality) ────────────────────────────── */
+/* ── Compare Mode (theory vs reality, multiple specimens) ────────── */
+.compare-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.toolbar-label {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.specimen-tabs { display: flex; gap: 3px; flex-wrap: wrap; }
+.specimen-tab {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+.specimen-tab:hover { border-color: var(--accent-dim); color: var(--text); }
+.specimen-tab.active { background: var(--accent-dim); border-color: var(--accent); color: #fff; }
+
 .compare-split {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -173,6 +201,8 @@
   border-radius: 6px;
   padding: 0.5rem;
   min-height: 200px;
+  display: flex;
+  flex-direction: column;
 }
 .compare-side h3 {
   font-size: 0.7rem;
@@ -185,24 +215,33 @@
 }
 .compare-side.real {
   position: relative;
+}
+.real-photo-wrap {
+  flex: 1;
   overflow: hidden;
+  border-radius: 4px;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
 }
 .real-photo {
-  width: 100%;
-  height: auto;
+  max-width: 100%;
+  max-height: 280px;
   display: block;
-  filter: invert(1) brightness(0.85);
+  filter: invert(1) brightness(0.92) contrast(1.1);
   transition: transform 0.3s;
 }
-.photo-highlight {
-  position: absolute;
-  border: 2px solid var(--accent);
-  background: rgba(6,182,212,0.15);
-  pointer-events: none;
-  display: none;
-  border-radius: 2px;
+.specimen-license {
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  margin-top: 0.3rem;
+  text-align: center;
 }
-.photo-highlight.active { display: block; }
+
+#compare-svg .chr-pair { transition: filter 0.12s; }
+#compare-svg .chr-pair:hover { filter: drop-shadow(0 0 3px var(--accent)) brightness(1.2); }
 
 .compare-info {
   padding: 0.4rem 0.8rem;
@@ -211,12 +250,230 @@
   font-size: 0.72rem;
   color: var(--text-muted);
   min-height: 2.4em;
+  line-height: 1.4;
 }
 .compare-info .info-band { color: var(--accent); font-weight: 600; font-family: monospace; }
 .compare-info .info-genes { color: var(--text-dim); font-size: 0.65rem; }
 
 @media (max-width: 480px) {
   .compare-split { grid-template-columns: 1fr; }
+}
+
+/* ── Zoom Modal (chromosome detail view) ─────────────────────────── */
+.zoom-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.zoom-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10,14,23,0.85);
+  backdrop-filter: blur(4px);
+}
+.zoom-dialog {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--accent-dim);
+  border-radius: 10px;
+  max-width: 720px;
+  width: 100%;
+  max-height: 92vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+}
+.zoom-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  z-index: 1;
+}
+.zoom-header h2 {
+  font-size: 1rem;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.zoom-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0 0.4rem;
+  line-height: 1;
+}
+.zoom-close:hover { color: var(--accent); }
+.zoom-body { padding: 0.8rem 0.9rem; }
+
+.zoom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+@media (max-width: 600px) {
+  .zoom-row { grid-template-columns: 1fr 1fr; }
+  .zoom-row .real-col { grid-column: 1 / -1; }
+}
+.zoom-col {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.zoom-col-label {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+.zoom-svg-host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 290px;
+  flex: 1;
+}
+.zoom-svg-host svg { display: block; }
+.zoom-img-host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 290px;
+  flex: 1;
+  background: #000;
+  border-radius: 4px;
+  width: 100%;
+  padding: 0.4rem;
+}
+.zoom-ideogram {
+  max-height: 280px;
+  max-width: 100%;
+  display: block;
+}
+.zoom-img-fallback { color: var(--text-dim); font-size: 0.65rem; }
+.zoom-col-meta {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  text-align: center;
+  margin-top: 0.4rem;
+  font-family: monospace;
+  line-height: 1.4;
+}
+
+.zoom-real-host {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.specimen-crop {
+  background: #000;
+  border-radius: 4px;
+  padding: 0.3rem;
+  position: relative;
+}
+.crop-label {
+  font-size: 0.58rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.2rem;
+  font-weight: 600;
+}
+.crop-img-wrap {
+  overflow: hidden;
+  border-radius: 3px;
+  height: 70px;
+}
+.crop-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: invert(1) brightness(0.92);
+  cursor: zoom-in;
+  transition: transform 0.3s;
+  transform-origin: center top;
+}
+.crop-img:hover {
+  transform: scale(2.5);
+  transform-origin: var(--zoom-x, center) var(--zoom-y, center);
+}
+.crop-hint {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  margin-top: 0.4rem;
+  line-height: 1.4;
+  padding: 0.3rem;
+  background: var(--bg-card);
+  border-radius: 3px;
+}
+
+.zoom-disclaimer {
+  background: var(--bg);
+  border-left: 3px solid var(--warning);
+  padding: 0.5rem 0.7rem;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0.8rem;
+}
+.zoom-disclaimer strong { color: var(--warning); display: block; margin-bottom: 0.2rem; }
+
+.zoom-clingen {
+  background: var(--bg);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  margin-top: 0.6rem;
+}
+.zoom-section-label {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+}
+.clingen-row {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.65rem;
+  align-items: center;
+}
+.clingen-row:last-child { border-bottom: none; }
+.cg-band {
+  font-family: monospace;
+  color: var(--accent);
+  font-weight: 600;
+  min-width: 70px;
+}
+.cg-name { flex: 1; color: var(--text-muted); }
+.cg-scores {
+  font-family: monospace;
+  color: var(--text-dim);
+  font-size: 0.6rem;
+  background: var(--bg-card);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
 }
 
 /* ── Aberrations Mode ────────────────────────────────────────────── */

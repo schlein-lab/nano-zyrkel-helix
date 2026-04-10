@@ -349,45 +349,230 @@ function renderKaryogram(highlightChr = null, aberration = null) {
   return html;
 }
 
-// ── Compare Mode ──────────────────────────────────────────────────
+// ── Compare Mode (Zoom + multiple specimens per chromosome) ───────
+const SPECIMENS = [
+  {
+    id: 'nhgri',
+    name: 'NHGRI 46,XY',
+    src: 'img/nhgri_karyotype.png',
+    license: 'Public Domain (NIH)',
+    note: 'Reference G-banding from National Human Genome Research Institute. High-condensation metaphase.'
+  },
+  {
+    id: 'general',
+    name: 'General 46,XY',
+    src: 'img/general_male.jpg',
+    license: 'CC BY-SA 4.0',
+    note: 'Different specimen, different lab. Notice the variation in banding sharpness and chromosome condensation.'
+  },
+  {
+    id: 'trisomy21',
+    name: 'Trisomy 21',
+    src: 'img/trisomy21.png',
+    license: 'Public Domain (DOE)',
+    note: 'Down syndrome example: count the chromosomes in row 21. This is what aneuploidy looks like in real cytogenetics.'
+  }
+];
+
+let activeSpecimen = 'nhgri';
+
 function renderCompareMode() {
-  const left = document.getElementById('compare-svg');
-  if (left) {
-    left.innerHTML = renderKaryogram();
-    // Bind hover/click for band info
-    left.querySelectorAll('rect[data-band]').forEach(rect => {
-      rect.style.cursor = 'pointer';
+  const container = document.getElementById('mode-compare');
+  if (!container) return;
+
+  const specimen = SPECIMENS.find(s => s.id === activeSpecimen);
+
+  container.innerHTML = `
+    <div class="compare-toolbar">
+      <span class="toolbar-label">Real specimen:</span>
+      <div class="specimen-tabs">
+        ${SPECIMENS.map(s => `
+          <button class="specimen-tab ${s.id === activeSpecimen ? 'active' : ''}" data-spec="${s.id}">${s.name}</button>
+        `).join('')}
+      </div>
+    </div>
+    <div class="compare-split">
+      <div class="compare-side">
+        <h3>Schematic (UCSC GRCh38)</h3>
+        <div id="compare-svg"></div>
+      </div>
+      <div class="compare-side real">
+        <h3>Real (${specimen.name})</h3>
+        <div class="real-photo-wrap">
+          <img class="real-photo" src="${specimen.src}" alt="${specimen.name}">
+        </div>
+        <div class="specimen-license">${specimen.license}</div>
+      </div>
+    </div>
+    <div class="compare-info" id="compare-info">
+      <strong>${specimen.note}</strong><br>
+      <span style="font-size:0.65rem;">Click any chromosome pair on the left to zoom in and compare schema vs. real ideogram side-by-side.</span>
+    </div>
+  `;
+
+  // Render SVG karyogram into the left side
+  const svgHost = document.getElementById('compare-svg');
+  if (svgHost) {
+    svgHost.innerHTML = renderKaryogram();
+    // Make chromosome pairs clickable to open zoom modal
+    svgHost.querySelectorAll('.chr-pair').forEach(pair => {
+      pair.style.cursor = 'pointer';
+      pair.addEventListener('click', () => {
+        const chrId = pair.dataset.chr;
+        openChromosomeZoom(chrId);
+      });
+    });
+    // Hover for band info
+    svgHost.querySelectorAll('rect[data-band]').forEach(rect => {
       rect.addEventListener('mouseenter', (e) => {
-        const band = e.target.dataset.band;
-        const chr = e.target.dataset.chr;
-        showBandInfo(chr, band);
-        highlightPhotoBand(chr, band);
+        e.stopPropagation();
+        showBandInfo(e.target.dataset.chr, e.target.dataset.band);
       });
     });
   }
+
+  // Specimen tab switching
+  container.querySelectorAll('.specimen-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeSpecimen = btn.dataset.spec;
+      renderCompareMode();
+    });
+  });
 }
 
 function showBandInfo(chr, band) {
   const info = document.getElementById('compare-info');
   if (!info) return;
   // Find dosage info if any
-  const dosageMatch = CLINGEN.find(d => d.cytoband && d.cytoband.includes(`${chr}${band.charAt(0)}`));
+  const dosageMatch = CLINGEN.find(d => d.cytoband && d.cytoband.startsWith(chr));
   let dosageInfo = '';
-  if (dosageMatch && dosageMatch.cytoband.startsWith(chr)) {
-    if (dosageMatch.cytoband === `${chr}${band}` || dosageMatch.cytoband.startsWith(`${chr}${band}`)) {
-      dosageInfo = ` <span class="info-genes">ClinGen: ${dosageMatch.name}</span>`;
+  if (dosageMatch) {
+    const targetBand = `${chr}${band}`;
+    if (dosageMatch.cytoband === targetBand || dosageMatch.cytoband.startsWith(targetBand)) {
+      dosageInfo = ` &mdash; <span class="info-genes">ClinGen: ${dosageMatch.name.substring(0, 80)}</span>`;
     }
   }
-  info.innerHTML = `<span class="info-band">${chr}${band}</span> &mdash; band on chromosome ${chr}.${dosageInfo}`;
+  info.innerHTML = `<span class="info-band">${chr}${band}</span>${dosageInfo}<br><span style="font-size:0.65rem;">Click pair for detailed zoom view.</span>`;
 }
 
-function highlightPhotoBand(chr, band) {
-  // Approximate band position on the NHGRI photo (rough alignment)
-  // This is a simplification — exact pixel mapping would require manual calibration
-  const photo = document.querySelector('.real-photo');
-  if (!photo) return;
-  // Just highlight the chromosome region as a hover effect
-  // (Real implementation would need calibration data per chromosome)
+// ── Chromosome Zoom Modal ─────────────────────────────────────────
+function openChromosomeZoom(chrId) {
+  const chr = CHROMOSOMES[chrId];
+  if (!chr) return;
+
+  // Remove existing modal if any
+  const existing = document.getElementById('zoom-modal');
+  if (existing) existing.remove();
+
+  // Find ClinGen regions on this chromosome
+  const dosageOnChr = CLINGEN.filter(d => {
+    const cb = d.cytoband || '';
+    // Match "21q22.3" → chr "21"; "Xp22.31" → chr "X"
+    const m = cb.match(/^([0-9XY]+)[pq]/);
+    return m && m[1] === chrId;
+  }).slice(0, 8);
+
+  // Build large SVG schema (3x larger)
+  const largeSvg = renderChromosome(chrId, { height: 280, width: 28 });
+
+  // Resolve ideogram filename: chr01..chr22, chrX, chrY
+  let ideogramName;
+  if (chrId === 'X' || chrId === 'Y') {
+    ideogramName = `chr${chrId}_550.png`;
+  } else {
+    ideogramName = `chr${chrId.padStart(2, '0')}_550.png`;
+  }
+
+  // Modal HTML
+  const modal = document.createElement('div');
+  modal.id = 'zoom-modal';
+  modal.className = 'zoom-modal';
+  modal.innerHTML = `
+    <div class="zoom-backdrop"></div>
+    <div class="zoom-dialog">
+      <div class="zoom-header">
+        <h2>Chromosome ${chrId}</h2>
+        <button class="zoom-close">&times;</button>
+      </div>
+      <div class="zoom-body">
+        <div class="zoom-row">
+          <div class="zoom-col">
+            <div class="zoom-col-label">Schema (UCSC GRCh38)</div>
+            <div class="zoom-svg-host">${largeSvg}</div>
+            <div class="zoom-col-meta">${chr.bands.length} bands<br>${(chr.length / 1e6).toFixed(1)} Mb</div>
+          </div>
+          <div class="zoom-col">
+            <div class="zoom-col-label">NIH Ideogram (550 bphs)</div>
+            <div class="zoom-img-host">
+              <img class="zoom-ideogram" src="img/chromosomes/${ideogramName}"
+                   alt="Chromosome ${chrId} ideogram"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <div class="zoom-img-fallback" style="display:none;">No ideogram available</div>
+            </div>
+            <div class="zoom-col-meta">G-banding<br>NIH/NCBI</div>
+          </div>
+          <div class="zoom-col real-col">
+            <div class="zoom-col-label">Real Specimen Crop</div>
+            <div class="zoom-real-host" id="zoom-real-host">
+              ${renderRealSpecimenCrops(chrId)}
+            </div>
+            <div class="zoom-col-meta">From multiple specimens</div>
+          </div>
+        </div>
+        <div class="zoom-disclaimer">
+          <strong>Why do real chromosomes look different?</strong>
+          Real metaphase chromosomes vary between specimens depending on:
+          condensation stage (early vs. late metaphase), banding technique (G/Q/R/C),
+          staining intensity, and squash artifacts. The schematic is an idealized
+          consensus &mdash; in clinical cytogenetics you must learn to recognize
+          the same chromosome across this technical variation.
+        </div>
+        ${dosageOnChr.length > 0 ? `
+          <div class="zoom-clingen">
+            <div class="zoom-section-label">ClinGen Dosage-Sensitive Regions on Chr ${chrId}</div>
+            ${dosageOnChr.map(d => `
+              <div class="clingen-row">
+                <span class="cg-band">${d.cytoband}</span>
+                <span class="cg-name">${d.name.substring(0, 90)}</span>
+                <span class="cg-scores">HI:${d.hi_score} TS:${d.ts_score}</span>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  // Close handlers
+  modal.querySelector('.zoom-close').addEventListener('click', () => modal.remove());
+  modal.querySelector('.zoom-backdrop').addEventListener('click', () => modal.remove());
+  document.addEventListener('keydown', function escClose(e) {
+    if (e.key === 'Escape') {
+      modal.remove();
+      document.removeEventListener('keydown', escClose);
+    }
+  });
+}
+
+function renderRealSpecimenCrops(chrId) {
+  // Show small crops from each specimen, plus a note about variability
+  // Without exact pixel calibration we show the full specimen with a hint
+  // and let the user pan/zoom mentally. The NIH ideogram column gives the
+  // "isolated" view. This column emphasizes variability between specimens.
+  let html = '';
+  for (const s of SPECIMENS) {
+    html += `
+      <div class="specimen-crop">
+        <div class="crop-label">${s.name}</div>
+        <div class="crop-img-wrap">
+          <img class="crop-img" src="${s.src}" alt="${s.name}">
+        </div>
+      </div>
+    `;
+  }
+  html += `<div class="crop-hint">Each specimen shows the same chromosome with different staining intensity, condensation, and banding sharpness. Find chromosome ${chrId} in each (rows are sorted 1-22 then X/Y).</div>`;
+  return html;
 }
 
 // ── Aberrations Mode ──────────────────────────────────────────────
