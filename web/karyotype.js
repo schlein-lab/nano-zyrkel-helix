@@ -854,67 +854,136 @@ function renderSegregation() {
   container.innerHTML = html;
 }
 
-// ── Quiz Mode ─────────────────────────────────────────────────────
-let quizIndex = 0;
-let quizCorrect = 0;
-let quizTotal = 0;
+// ── Quiz / Exam Mode (QUIZ_CASES from quiz_cases.js) ──────────────
+let qzCaseIdx = 0;
+let qzSubIdx = 0;
+let qzAnswered = false;
+let qzStats = { correct: 0, total: 0, byCase: {} };
 
 function renderQuizMode() {
-  loadQuiz();
+  loadQzState();
+  renderQzCase();
 }
 
-function loadQuiz() {
+function loadQzState() {
+  try {
+    const s = localStorage.getItem('helix_quiz_stats');
+    if (s) qzStats = JSON.parse(s);
+  } catch (e) {}
+}
+
+function saveQzState() {
+  try { localStorage.setItem('helix_quiz_stats', JSON.stringify(qzStats)); } catch (e) {}
+}
+
+function renderQzCase() {
   const area = document.getElementById('quiz-area');
   if (!area) return;
-  // Pick random syndrome from numerical or structural
-  const allCases = [];
-  for (const cat of ['numerical', 'structural']) {
-    for (const [key, syn] of Object.entries(SYNDROMES[cat])) {
-      allCases.push({ key, syn });
-    }
+  const cases = window.QUIZ_CASES || [];
+  if (cases.length === 0) {
+    area.innerHTML = '<div style="padding:1rem;color:var(--danger);">Quiz data not loaded.</div>';
+    return;
   }
-  if (allCases.length === 0) return;
-  const pick = allCases[Math.floor(Math.random() * allCases.length)];
+  const c = cases[qzCaseIdx];
+  if (!c) return;
+  const sub = c.sub[qzSubIdx];
+  if (!sub) return;
 
-  // Build choices
-  const otherKeys = allCases.filter(c => c.key !== pick.key).sort(() => Math.random() - 0.5).slice(0, 3);
-  const choices = [pick.syn.name, ...otherKeys.map(c => c.syn.name)].sort(() => Math.random() - 0.5);
-  const correctIdx = choices.indexOf(pick.syn.name);
+  qzAnswered = false;
+  const progress = ((qzCaseIdx * 5 + qzSubIdx + 1) / (cases.length * 5)) * 100;
 
-  let html = `<div class="quiz-stats">Score: ${quizCorrect} / ${quizTotal}</div>`;
-  html += `<div class="quiz-question">Identify the syndrome from this karyotype:</div>`;
-  html += `<div class="quiz-karyo"><div style="font-family:monospace;color:var(--accent);font-size:0.85rem;">${pick.syn.iscn}</div></div>`;
-  html += `<div class="quiz-choices">`;
-  choices.forEach((c, i) => {
-    html += `<button class="quiz-choice" data-i="${i}" data-correct="${correctIdx}">${c}</button>`;
-  });
-  html += `</div>`;
-  html += `<div class="quiz-feedback"></div>`;
-  area.innerHTML = html;
+  // Subfrage-Tabs (1-5)
+  const subLabels = ['Diagnose', 'Klinik', 'Diagnostik', 'Genetik', 'Beratung'];
+  let subTabs = '';
+  for (let i = 0; i < c.sub.length; i++) {
+    const answered = qzStats.byCase?.[c.id]?.[i] !== undefined;
+    const cls = i === qzSubIdx ? 'active' : (answered ? 'done' : '');
+    subTabs += `<button class="qz-sub-tab ${cls}" data-sub="${i}">${subLabels[i] || (i + 1)}</button>`;
+  }
 
+  // Image: use real photo if available, else render SVG karyogram
+  let karyoHtml = '';
+  if (c.img) {
+    karyoHtml = `<img class="qz-karyo-img" src="${c.img}" alt="Karyotype">`;
+  } else {
+    karyoHtml = `<div class="qz-iscn-display">${c.iscn}</div>`;
+  }
+
+  area.innerHTML = `
+    <div class="qz-header">
+      <span>Fall ${qzCaseIdx + 1}/${cases.length}</span>
+      <div class="exam-progress-bar"><div class="exam-progress-fill" style="width:${progress}%"></div></div>
+      <span class="exam-counter">${qzStats.correct || 0}/${qzStats.total || 0}</span>
+    </div>
+    <div class="qz-sub-tabs">${subTabs}</div>
+    <div class="exam-case">
+      <div class="exam-vignette">${c.vignette}</div>
+      <div class="qz-karyo">${karyoHtml}</div>
+      <div class="qz-iscn-line">${c.iscn}</div>
+      <div class="quiz-question">${sub.q}</div>
+      <div class="quiz-choices">
+        ${sub.choices.map((ch, i) => `<button class="quiz-choice" data-i="${i}">${ch}</button>`).join('')}
+      </div>
+      <div class="qz-explain" id="qz-explain"></div>
+    </div>
+    <div class="exam-controls">
+      <button id="qz-prev">Prev</button>
+      <button id="qz-next" class="primary">Next</button>
+      <button id="qz-reset" class="secondary">Reset Stats</button>
+    </div>
+  `;
+
+  // Answer buttons
   area.querySelectorAll('.quiz-choice').forEach(btn => {
     btn.addEventListener('click', () => {
+      if (qzAnswered) return;
+      qzAnswered = true;
       const i = parseInt(btn.dataset.i);
-      const correct = i === correctIdx;
+      const correct = i === sub.answer;
       area.querySelectorAll('.quiz-choice').forEach((b, idx) => {
         b.disabled = true;
-        if (idx === correctIdx) b.classList.add('correct');
+        if (idx === sub.answer) b.classList.add('correct');
         else if (idx === i) b.classList.add('wrong');
       });
-      const fb = area.querySelector('.quiz-feedback');
-      fb.classList.add('show', correct ? 'correct' : 'wrong');
-      fb.innerHTML = correct
-        ? `Correct! ${pick.syn.features.substring(0, 200)}`
-        : `Not quite. Correct answer: <strong>${pick.syn.name}</strong>. ${pick.syn.features.substring(0, 200)}`;
-      if (correct) quizCorrect++;
-      quizTotal++;
-      const next = document.createElement('button');
-      next.className = 'build-btn';
-      next.style.marginTop = '0.5rem';
-      next.textContent = 'Next question';
-      next.onclick = loadQuiz;
-      area.appendChild(next);
+      const exp = document.getElementById('qz-explain');
+      if (exp) {
+        exp.classList.add('show');
+        exp.innerHTML = `<strong>${correct ? 'Richtig!' : 'Falsch.'}</strong> ${sub.explain}`;
+      }
+      qzStats.total = (qzStats.total || 0) + 1;
+      if (correct) qzStats.correct = (qzStats.correct || 0) + 1;
+      if (!qzStats.byCase) qzStats.byCase = {};
+      if (!qzStats.byCase[c.id]) qzStats.byCase[c.id] = {};
+      qzStats.byCase[c.id][qzSubIdx] = correct;
+      saveQzState();
     });
+  });
+
+  // Sub-tabs
+  area.querySelectorAll('.qz-sub-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      qzSubIdx = parseInt(tab.dataset.sub);
+      renderQzCase();
+    });
+  });
+
+  // Navigation
+  document.getElementById('qz-prev')?.addEventListener('click', () => {
+    if (qzSubIdx > 0) { qzSubIdx--; }
+    else if (qzCaseIdx > 0) { qzCaseIdx--; qzSubIdx = 4; }
+    renderQzCase();
+  });
+  document.getElementById('qz-next')?.addEventListener('click', () => {
+    if (qzSubIdx < 4) { qzSubIdx++; }
+    else if (qzCaseIdx < cases.length - 1) { qzCaseIdx++; qzSubIdx = 0; }
+    renderQzCase();
+  });
+  document.getElementById('qz-reset')?.addEventListener('click', () => {
+    qzStats = { correct: 0, total: 0, byCase: {} };
+    saveQzState();
+    qzCaseIdx = 0;
+    qzSubIdx = 0;
+    renderQzCase();
   });
 }
 
