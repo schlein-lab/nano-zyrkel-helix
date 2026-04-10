@@ -318,13 +318,56 @@ body.karyo-light .schema-pager-host {
   min-height: 240px;
   max-height: 320px;
   overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  position: relative;
+  touch-action: none;
+}
+.pager-img-wrap.rotating { cursor: grabbing; }
+.pager-img-wrap::before {
+  content: "\2935 drag to rotate";
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  opacity: 0.5;
+  pointer-events: none;
+  font-family: monospace;
 }
 .pager-img {
-  max-width: 100%;
-  max-height: 320px;
+  max-width: 80%;
+  max-height: 280px;
   height: auto;
   display: block;
   border-radius: 3px;
+  transition: transform 0.05s linear;
+  pointer-events: none;
+}
+
+.pager-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.3rem;
+}
+.pager-mini-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.62rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+.pager-mini-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
+
+#pager-rotation {
+  font-family: monospace;
+  color: var(--accent-dim);
+  font-size: 0.7rem;
 }
 .pager-arrow {
   background: var(--bg-card);

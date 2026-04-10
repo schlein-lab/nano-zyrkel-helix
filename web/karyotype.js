@@ -344,6 +344,7 @@ const REAL_CROPS_PER_CHR = 30;
 
 let activeChr = '1';
 let activeCropIdx = 1; // 1..30
+let pagerRotation = 0; // degrees
 
 function renderCompareMode() {
   const container = document.getElementById('mode-compare');
@@ -365,8 +366,8 @@ function renderCompareMode() {
           <button class="pager-arrow pager-up" data-dir="prev-chr" title="Previous chromosome (\u2191)">\u25B2</button>
           <div class="pager-main">
             <button class="pager-arrow pager-left" data-dir="prev-crop" title="Previous specimen (\u2190)">\u25C0</button>
-            <div class="pager-img-wrap">
-              <img id="pager-img" class="pager-img" src="" alt="">
+            <div class="pager-img-wrap" id="pager-img-wrap" title="Drag to rotate">
+              <img id="pager-img" class="pager-img" src="" alt="" draggable="false">
             </div>
             <button class="pager-arrow pager-right" data-dir="next-crop" title="Next specimen (\u2192)">\u25B6</button>
           </div>
@@ -374,7 +375,11 @@ function renderCompareMode() {
         </div>
         <div class="pager-meta">
           <span id="pager-chr-label">Chromosome 1</span>
+          <span id="pager-rotation">0&deg;</span>
           <span id="pager-crop-counter">1 / 30</span>
+        </div>
+        <div class="pager-controls">
+          <button id="pager-reset-rotation" class="pager-mini-btn" title="Reset rotation">Reset \u21BB</button>
         </div>
         <div class="pager-license">CC BY 4.0 &middot; Lin et al. 2023, Sci Data</div>
       </div>
@@ -398,6 +403,18 @@ function renderCompareMode() {
       handlePagerNav(dir);
     });
   });
+
+  // Pager image rotation (drag to rotate)
+  setupPagerRotation();
+
+  // Reset rotation button
+  const resetBtn = document.getElementById('pager-reset-rotation');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      pagerRotation = 0;
+      applyPagerRotation();
+    });
+  }
 
   // Keyboard navigation
   if (!window._karyoKeyHandler) {
@@ -483,8 +500,92 @@ function updatePager() {
   label.textContent = `Chromosome ${activeChr}`;
   counter.textContent = `${activeCropIdx} / ${REAL_CROPS_PER_CHR}`;
 
+  // Reset rotation on image change
+  pagerRotation = 0;
+  applyPagerRotation();
+
   // Also update the large schema with hoverable bands
   updateSchemaLarge();
+}
+
+function applyPagerRotation() {
+  const img = document.getElementById('pager-img');
+  const rotLabel = document.getElementById('pager-rotation');
+  if (img) img.style.transform = `rotate(${pagerRotation}deg)`;
+  if (rotLabel) rotLabel.textContent = `${Math.round(pagerRotation)}\u00B0`;
+}
+
+function setupPagerRotation() {
+  const wrap = document.getElementById('pager-img-wrap');
+  if (!wrap) return;
+
+  let isDragging = false;
+  let centerX = 0, centerY = 0;
+  let startAngle = 0;
+  let startRotation = 0;
+
+  function getAngle(clientX, clientY) {
+    return Math.atan2(clientY - centerY, clientX - centerX) * 180 / Math.PI;
+  }
+
+  function startDrag(clientX, clientY) {
+    const rect = wrap.getBoundingClientRect();
+    centerX = rect.left + rect.width / 2;
+    centerY = rect.top + rect.height / 2;
+    startAngle = getAngle(clientX, clientY);
+    startRotation = pagerRotation;
+    isDragging = true;
+    wrap.classList.add('rotating');
+  }
+
+  function moveDrag(clientX, clientY) {
+    if (!isDragging) return;
+    const angle = getAngle(clientX, clientY);
+    pagerRotation = startRotation + (angle - startAngle);
+    // Normalize to -180..180
+    while (pagerRotation > 180) pagerRotation -= 360;
+    while (pagerRotation < -180) pagerRotation += 360;
+    applyPagerRotation();
+  }
+
+  function endDrag() {
+    isDragging = false;
+    wrap.classList.remove('rotating');
+  }
+
+  // Mouse
+  wrap.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    startDrag(e.clientX, e.clientY);
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (isDragging) moveDrag(e.clientX, e.clientY);
+  });
+  document.addEventListener('mouseup', endDrag);
+
+  // Touch
+  wrap.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      e.preventDefault();
+      startDrag(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: false });
+  document.addEventListener('touchmove', (e) => {
+    if (isDragging && e.touches.length === 1) {
+      e.preventDefault();
+      moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: false });
+  document.addEventListener('touchend', endDrag);
+
+  // Mouse wheel = fine rotation in 5° steps
+  wrap.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    pagerRotation += e.deltaY > 0 ? 5 : -5;
+    while (pagerRotation > 180) pagerRotation -= 360;
+    while (pagerRotation < -180) pagerRotation += 360;
+    applyPagerRotation();
+  }, { passive: false });
 }
 
 function updateSchemaLarge() {
