@@ -1,0 +1,60 @@
+name: 'nano-zyrkel: Helix Data Pipeline'
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Pipeline mode: pipeline | fetch | index | quiz'
+        default: 'pipeline'
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get nano-zyrkel
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          CHANNEL="${{ vars.NANO_CHANNEL || 'stable' }}"
+          gh release download "$CHANNEL" \
+            --repo schlein-lab/nano-zyrkel \
+            --pattern "nano-zyrkel-*-linux*" --dir /tmp/bin || \
+          gh release download latest \
+            --repo schlein-lab/nano-zyrkel \
+            --pattern "nano-zyrkel-*-linux*" --dir /tmp/bin
+          chmod +x /tmp/bin/nano-zyrkel*
+          BINARY=$(ls /tmp/bin/nano-zyrkel* | head -1)
+          ln -sf "$BINARY" ./nano-zyrkel
+
+      - name: Run pipeline
+        env:
+          RUN_MODE: ${{ github.event.inputs.mode || 'pipeline' }}
+        run: ./nano-zyrkel --config hats/config.json --mode "${RUN_MODE}" --verbose
+
+      - name: Write health
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          VERSION=$(./nano-zyrkel --version 2>/dev/null || echo "unknown")
+          LATEST=$(gh release view stable --repo schlein-lab/nano-zyrkel --json tagName -q .tagName 2>/dev/null || echo "unknown")
+          mkdir -p staging/nano-zyrkel-helix
+          cat > staging/nano-zyrkel-helix/health.json <<HEALTH
+          {"runner_version":"$VERSION","latest_stable":"$LATEST","checked_at":"$(date -u +%Y-%m-%dT%H:%M:%SZ)"}
+          HEALTH
+
+      - name: Commit results
+        run: |
+          git config user.name "nano-zyrkel"
+          git config user.email "nano@zyrkel.local"
+          git add staging/
+          git diff --staged --quiet || \
+            git commit -m "data: helix $(date -u +%Y-%m-%dT%H:%M)"
+          git push || true
