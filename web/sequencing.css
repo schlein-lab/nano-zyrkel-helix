@@ -391,6 +391,37 @@
 }
 .acmg-crit.selected .crit-desc { color: inherit; opacity: 0.7; }
 
+.acmg-explain-box {
+  padding: 0.5rem 0.6rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg-card);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+.acmg-explain-title {
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 0.2rem;
+}
+.acmg-explain-text {
+  color: var(--text-muted);
+}
+.acmg-explain-text strong { color: var(--text); }
+
+/* Filter causal variant tracker */
+.funnel-causal {
+  font-size: 0.6rem;
+  margin-left: 0.3rem;
+}
+.funnel-causal.survived { color: var(--success); }
+.funnel-causal.filtered { color: var(--danger); }
+
+.funnel-removed {
+  font-size: 0.58rem;
+  color: var(--text-dim);
+  margin-left: 0.2rem;
+}
+
 .acmg-result {
   padding: 0.5rem 0.6rem;
   border-top: 1px solid var(--border);

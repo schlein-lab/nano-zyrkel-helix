@@ -129,7 +129,7 @@
             <div class="sc-stats">
               <span class="sc-genes">50 <small data-i18n="seq_genes">genes</small></span>
               <span class="sc-cov">500x</span>
-              <span class="sc-cost">~300 €</span>
+              <span class="sc-cost">~500–800 €</span>
             </div>
           </div>
           <div class="strategy-card" data-strategy="exome">
@@ -138,7 +138,7 @@
             <div class="sc-stats">
               <span class="sc-genes">20.000 <small data-i18n="seq_genes">genes</small></span>
               <span class="sc-cov">100x</span>
-              <span class="sc-cost">~800 €</span>
+              <span class="sc-cost">~1.200–2.000 €</span>
             </div>
           </div>
           <div class="strategy-card" data-strategy="genome">
@@ -147,7 +147,7 @@
             <div class="sc-stats">
               <span class="sc-genes">3.2 Gb</span>
               <span class="sc-cov">30x</span>
-              <span class="sc-cost">~1500 €</span>
+              <span class="sc-cost">~3.000–5.000 €</span>
             </div>
           </div>
         </div>
@@ -244,6 +244,10 @@
             <button class="acmg-crit" data-crit="BP4" data-points="-1">BP4<span class="crit-desc" data-i18n="acmg_bp4">In silico benign</span></button>
           </div>
         </div>
+        <div class="acmg-explain-box" id="acmg-explain-box" style="display:none">
+          <div class="acmg-explain-title" id="acmg-explain-title"></div>
+          <div class="acmg-explain-text" id="acmg-explain-text"></div>
+        </div>
         <div class="acmg-result" id="acmg-result">
           <div class="acmg-points-bar" id="acmg-points-bar">
             <div class="acmg-bar-fill" id="acmg-bar-fill"></div>
@@ -264,12 +268,12 @@
       <div class="step-intro" data-i18n-html="seq_s7_intro"></div>
       <div class="split-viewer" id="split-viewer">
         <div class="split-pane">
-          <div class="split-label">Illumina (Short-Read, 150 bp)</div>
+          <div class="split-label">Illumina (Short-Read, 2×150 bp)</div>
           <canvas id="split-short-canvas" width="245" height="200"></canvas>
         </div>
         <div class="split-divider"></div>
         <div class="split-pane">
-          <div class="split-label">ONT (Long-Read, ~10 kb)</div>
+          <div class="split-label">PacBio HiFi / ONT (Long-Read, 10–25 kb)</div>
           <canvas id="split-long-canvas" width="245" height="200"></canvas>
         </div>
       </div>
