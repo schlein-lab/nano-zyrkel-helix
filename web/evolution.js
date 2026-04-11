@@ -17,31 +17,31 @@ async function loadWasm() {
 const SCENARIOS = {
   sickle: {
     name: 'Malaria Resistance (HBB rs334)', gene: 'HBB',
-    info: 'A classic example of environment-dependent selection. In regions with endemic malaria, carriers of the sickle cell variant have increased resistance to Plasmodium falciparum infection. This survival advantage in a specific environment (not an inherent quality of the allele) maintains the variant at ~5-20% in affected regions. In non-endemic areas, the same variant confers no advantage and homozygotes have sickle cell disease — demonstrating that "beneficial" and "harmful" are always relative to environment.',
+    info: 'A classic example of environment-dependent selection. In regions with endemic malaria, heterozygous carriers of the sickle cell variant have increased resistance to Plasmodium falciparum — a survival advantage that maintains the variant at ~5-20% in affected regions despite severe disease in homozygotes. In non-endemic areas the same variant confers no advantage, illustrating how the fitness of an allele depends entirely on its environmental context.',
     params: { p0: 0.06, n: 10000, s: 0.1, h: 1.5, gen: 500 },
     popFreqs: { AFR: 0.023, EUR: 0.0002, SAS: 0.0017, EAS: 0.0001, AMR: 0.0005 },
   },
   lactose: {
     name: 'Dairy Culture Co-evolution (LCT rs4988235)', gene: 'LCT',
-    info: 'A textbook example of gene-culture co-evolution, not genetic superiority. Populations that domesticated cattle and consumed dairy ~8000 years ago independently evolved lactase persistence — in Europe, East Africa, and the Middle East through different mutations. This shows parallel adaptation to a shared cultural practice, not a hierarchy of populations. The "ancestral" state (lactose intolerance in adulthood) is the global majority and is completely normal.',
+    info: 'A textbook example of gene-culture co-evolution. After cattle domestication ~8000 years ago, several populations that consumed dairy independently evolved lactase persistence through different mutations — in Europe, East Africa, and the Middle East. The ancestral state (lactose intolerance in adulthood) remains the global majority. A clear case of parallel adaptation to a shared cultural practice.',
     params: { p0: 0.01, n: 10000, s: 0.04, h: 0.5, gen: 400 },
     popFreqs: { EUR: 0.75, AFR: 0.07, SAS: 0.30, EAS: 0.05, AMR: 0.40 },
   },
   skin: {
     name: 'UV Adaptation (SLC24A5 rs1426654)', gene: 'SLC24A5',
-    info: 'Skin pigmentation varies as an adaptation to UV radiation intensity — not as a meaningful biological category. Darker pigmentation protects against UV damage and folate degradation near the equator. Lighter pigmentation allows more vitamin D synthesis at higher latitudes with less UV. Both are optimal adaptations to different environments. Multiple genes are involved, and the variation is clinal (gradual), not categorical. This variant explains only a fraction of pigmentation variation.',
+    info: 'Skin pigmentation is an adaptation to UV radiation intensity. Darker pigmentation protects against UV damage and folate degradation near the equator; lighter pigmentation allows vitamin D synthesis at higher latitudes with less UV. Both are optimal in their respective environments. Pigmentation is determined by many genes and varies clinally with geography — this single variant explains only a fraction of the total variation.',
     params: { p0: 0.01, n: 10000, s: 0.05, h: 0.5, gen: 500 },
     popFreqs: { EUR: 0.98, AFR: 0.02, SAS: 0.65, EAS: 0.02, AMR: 0.50 },
   },
   aldh2: {
     name: 'Acetaldehyde Metabolism (ALDH2 rs671)', gene: 'ALDH2',
-    info: 'This variant causes the "alcohol flush reaction" and is common in East Asian populations (~20%). Its high frequency is debated: was there positive selection (possibly protective against alcoholism?), or is it the result of genetic drift in a population bottleneck? This illustrates an important principle: not every population difference is due to selection. Random drift in small founding populations can produce large frequency differences without any selective advantage.',
+    info: 'This variant causes the "alcohol flush reaction" and reaches ~20% in East Asian populations. Its high frequency is debated: possible positive selection (linked by some hypotheses to rice cultivation and fermented beverages) or genetic drift in a founder population. It illustrates that not every population-specific variant reflects selection — random drift in small ancestral populations can produce substantial frequency differences on its own.',
     params: { p0: 0.20, n: 5000, s: 0.0, h: 0.5, gen: 300 },
     popFreqs: { EAS: 0.20, EUR: 0.0, AFR: 0.0, SAS: 0.01, AMR: 0.02 },
   },
   founder: {
     name: 'Founder Effect (BRCA1 rs80357906)', gene: 'BRCA1',
-    info: 'This cancer-predisposing variant is enriched in certain communities due to a population bottleneck — a small founding group happened to carry the variant, and random drift (not selection) increased its frequency. This demonstrates that population-specific variant frequencies reflect migration history and chance, not adaptation or fitness. Any small isolated population can accumulate disease-causing variants by drift alone.',
+    info: 'This cancer-predisposing variant is enriched in certain communities due to a population bottleneck — a small founding group carried the variant, and random drift amplified its frequency. It demonstrates how population-specific variant frequencies reflect migration history and chance. Any small isolated population can accumulate disease-causing variants through drift alone, without any selective pressure.',
     params: { p0: 0.001, n: 500, s: 0.0, h: 0.5, gen: 40 },
     popFreqs: { EUR: 0.0009, AFR: 0.0001, SAS: 0.0001, EAS: 0.0001, AMR: 0.0009 },
   },
