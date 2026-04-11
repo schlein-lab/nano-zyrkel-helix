@@ -18,20 +18,63 @@ const I18N = {
   de: {
     compare: 'Vergleich', build: 'Sortieren', aberrations: 'Aberrationen', quiz: 'Quiz',
     schematic: 'Schema (UCSC GRCh38)', real: 'Real (Lin et al. 2023)',
-    dragRotate: 'Ziehen zum Drehen', reset: 'Zurueck',
+    dragRotate: 'Ziehen zum Drehen', reset: 'Zurücksetzen',
     hint: 'Hilfe', submit: 'Auswerten', assign: '-- Zuordnen --',
     correct: 'Richtig!', wrong: 'Falsch', chrLabel: 'Chromosom',
     studium: 'Studium', facharzt: 'Facharzt',
-    prevChr: 'Vorheriges Chromosom', nextChr: 'Naechstes Chromosom',
-    prevSpec: 'Vorheriges Specimen', nextSpec: 'Naechstes Specimen',
+    prevChr: 'Vorheriges Chromosom', nextChr: 'Nächstes Chromosom',
+    prevSpec: 'Vorheriges Specimen', nextSpec: 'Nächstes Specimen',
     clickChr: 'Klicke ein Chromosom zum Laden.',
     arrowHint: 'Pfeiltasten: Links/Rechts = Specimens, Oben/Unten = Chromosom.',
     diagnose: 'Diagnose', klinik: 'Klinik', diagnostik: 'Diagnostik', genetik: 'Genetik', beratung: 'Beratung',
     all: 'Alle', single: 'Einzeln', easy: '24', hard: '46',
     score: 'Punkte', time: 'Zeit', hints: 'Hilfen',
-    noExpert: 'Noch keine Facharzt-Fragen fuer diesen Fall',
-    resetStats: 'Stats zuruecksetzen', prev: 'Zurueck', next: 'Weiter',
+    noExpert: 'Noch keine Facharzt-Fragen für diesen Fall',
+    resetStats: 'Stats zurücksetzen', prev: 'Zurück', next: 'Weiter',
     fall: 'Fall',
+    bands: 'Banden', quizNotLoaded: 'Quizdaten nicht geladen.',
+    selectSyndrome: 'Wähle oben ein Syndrom, um Details anzuzeigen.',
+    cat_numerical: 'Numerisch', cat_structural: 'Deletionen', cat_translocation: 'Translokationen',
+    meioticSegTitle: 'Meiotische Segregation — 6 mögliche Gametentypen',
+    robCarriersNote: 'Robertsonsche Träger sind phänotypisch normal, produzieren aber unbalancierte Gameten. Das empirische Risiko einer lebendgeborenen Trisomie ist deutlich niedriger als das theoretische (die meisten unbalancierten Konzeptionen enden in Frühaborten). Für rob(13;14): ~1 % Risiko für Patau-Syndrom bei Nachkommen.',
+    disclaimer: 'Zytoband-Daten: UCSC GRCh38 (cytoBand.txt, öffentlich). Karyotyp-Bild: NHGRI (gemeinfrei). Dosierungs-Kuration: ClinGen Dosage Sensitivity Map. Klinische Merkmale und Häufigkeiten sind zu Lehrzwecken vereinfacht — für diagnostische Arbeit Standardreferenzen konsultieren (ISCN 2020, Thompson & Thompson, OMIM).',
+    allModules: '← Alle Module',
+    // Segregation table
+    seg_alternate: 'Alternierend', seg_adjacent: 'Benachbart (adjacent)',
+    seg_normal: 'Normal', seg_balanced: 'Balancierter Träger',
+    seg_healthy: 'Gesund', seg_healthy_parent: 'Gesund (wie Elternteil)',
+    seg_lethal: 'Letal (Abort)', seg_patau: 'Patau-Syndrom',
+    // Syndrome features/mechanisms (DE)
+    down_features: 'Intellektuelle Beeinträchtigung, charakteristische Fazies (Epicanthusfalten, flache Nasenwurzel), angeborene Herzfehler (~50 %, v. a. AVSD), Muskelhypotonie, erhöhtes Risiko für Leukämie und Alzheimer.',
+    down_mechanism: 'Meiotische Non-Disjunction (95 %), maternaler Alterseffekt. ~4 % Translokations-Down (Robertsonsch), ~1 % Mosaik.',
+    edwards_features: 'Schwere IUGR, geballte Fäuste mit überlappenden Fingern, Tintenlöscherfüße, Mikrozephalie, Herzfehler (VSD, ASD). 90 % Mortalität im ersten Lebensjahr.',
+    edwards_mechanism: 'Maternale meiotische Non-Disjunction.',
+    patau_features: 'Holoprosenzephalie, Lippen-Kiefer-Gaumenspalte, Polydaktylie, schwere Herzfehler, Kopfhautdefekte (Cutis aplasia). >80 % sterben im ersten Lebensjahr.',
+    patau_mechanism: 'Maternale meiotische Non-Disjunction. ~20 % durch Robertsonsche Translokation.',
+    turner_features: 'Kleinwuchs, Gonadendysgenesie (Streak-Gonaden), Pterygium colli, Lymphödem, Aortenisthmusstenose, normale Intelligenz. Meist sporadisch.',
+    turner_mechanism: 'Verlust des paternalen Geschlechtschromosoms (~80 %). 99 % der Turner-Konzeptionen enden in Spontanabort.',
+    klinefelter_features: 'Hochwuchs, Hypogonadismus, Gynäkomastie, Infertilität (Azoospermie), leichte Lernschwierigkeiten. Oft erst bei Fertilitätsabklärung diagnostiziert.',
+    klinefelter_mechanism: 'Non-Disjunction des X-Chromosoms bei einem Elternteil (50/50 paternal/maternal).',
+    triple_x_features: 'Hochwuchs, leichte Lern-/Sprachverzögerung, normale Fertilität. Häufig nicht diagnostiziert (milder Phänotyp).',
+    triple_x_mechanism: 'Maternale meiotische Non-Disjunction (meistens).',
+    digeorge_features: 'Konotrunkale Herzfehler (TOF, IAA-B, Truncus arteriosus), Thymushypoplasie (T-Zell-Mangel), Hypokalzämie (Nebenschilddrüse), Gaumenspalte, charakteristische Fazies, Lernbehinderungen.',
+    digeorge_mechanism: '3-Mb-Deletion über NAHR zwischen Low-Copy-Repeats (LCR22). Enthält TBX1 (Herz/Nebenschilddrüse).',
+    williams_features: 'Supravalvuläre Aortenstenose (ELN-Deletion), Elfenfazies, Hyperkalzämie, „Cocktailparty"-Persönlichkeit, milde intellektuelle Beeinträchtigung, Hypersozialität.',
+    williams_mechanism: '~1,5-Mb-Deletion über NAHR. Reziproke Duplikation (7q11.23-dup) = schwere expressive Sprachentwicklungsverzögerung.',
+    prader_willi_features: 'Neonatale Hypotonie und Trinkschwäche → Hyperphagie und Adipositas, Kleinwuchs, Hypogonadismus, milde intellektuelle Beeinträchtigung, Verhaltensauffälligkeiten.',
+    prader_willi_mechanism: 'Imprinting-Störung. Verlust des paternalen 15q11-q13 (Deletion 70 %, maternale UPD 25 %, Imprinting-Defekt 5 %).',
+    angelman_features: 'Schwere intellektuelle Beeinträchtigung, fehlende Sprache, ataktischer „marionettenartiger" Gang, unangemessenes Lachen, Krampfanfälle, Mikrozephalie, charakteristisches EEG.',
+    angelman_mechanism: 'Imprinting-Störung. Verlust des maternalen UBE3A (Deletion 70 %, paternale UPD 5 %, UBE3A-Mutation 10 %, Imprinting-Defekt 5 %).',
+    cri_du_chat_features: 'Hoher katzenartiger Schrei (Larynxhypoplasie), Mikrozephalie, schwere intellektuelle Beeinträchtigung, Hypertelorismus, Gedeihstörung.',
+    cri_du_chat_mechanism: 'Terminale 5p-Deletion, variable Größe. Meist de novo paternal.',
+    wolf_hirschhorn_features: 'Griechischer-Helm-Fazies, schwere IUGR, Mikrozephalie, schwere intellektuelle Beeinträchtigung, Krampfanfälle, Herzfehler. WHSC1 (NSD2) ist das kritische Gen.',
+    wolf_hirschhorn_mechanism: 'Terminale 4p-Deletion, ~1–30 Mb. Meist de novo.',
+    philadelphia_features: 'Chronisch-myeloische Leukämie. BCR-ABL1-Fusion → konstitutiv aktive Tyrosinkinase. Zielgerichtet durch Imatinib (Gleevec) — erste molekulare Krebstherapie.',
+    philadelphia_mechanism: 'Reziproke Translokation. Erworben (somatisch) in hämatopoetischen Stammzellen.',
+    rob_13_14_features: 'TRÄGER: phänotypisch normal, 45 Chromosomen (verlorene kurze Arme — nur rRNA, redundant). FERTILITÄT: ~1 % Lebendgeburtrisiko für Trisomie 13 (Patau) bei Nachkommen, rezidivierende Aborte häufig.',
+    rob_13_14_mechanism: 'Ganzarm-Fusion akrozentrischer Chromosomen am Zentromer. Meiotische Segregation ergibt 6 Gametentypen (siehe unten).',
+    rob_14_21_features: 'TRÄGER: normaler Phänotyp. NACHKOMMEN: ~10–15 % Translokations-Down-Syndrom-Risiko (deutlich höher als allein durch maternales Alter). Indikation zur genetischen Beratung.',
+    rob_14_21_mechanism: 'Robertsonsche Fusion. Betroffenes Kind erbt rob(14;21) PLUS ein normales 21 → effektiv trisomisch für 21q.',
   },
   en: {
     compare: 'Compare', build: 'Sort', aberrations: 'Aberrations', quiz: 'Quiz',
@@ -50,9 +93,26 @@ const I18N = {
     noExpert: 'No board exam questions for this case yet',
     resetStats: 'Reset stats', prev: 'Prev', next: 'Next',
     fall: 'Case',
+    bands: 'bands', quizNotLoaded: 'Quiz data not loaded.',
+    selectSyndrome: 'Select a syndrome above to view details.',
+    cat_numerical: 'Numerical', cat_structural: 'Deletions', cat_translocation: 'Translocations',
+    meioticSegTitle: 'Meiotic segregation — 6 possible gamete types',
+    robCarriersNote: 'Robertsonian carriers are phenotypically normal but produce unbalanced gametes. Empirical risk of liveborn trisomy is much lower than theoretical (most unbalanced conceptions miscarry early). For rob(13;14): ~1% risk of Patau in offspring.',
+    disclaimer: 'Cytoband data: UCSC GRCh38 (cytoBand.txt, public). Real karyotype image: NHGRI (public domain). Dosage curation: ClinGen Dosage Sensitivity Map. Clinical features and frequencies are simplified for teaching — consult standard references (ISCN 2020, Thompson & Thompson, OMIM) for diagnostic work.',
+    allModules: '← All modules',
+    seg_alternate: 'Alternate', seg_adjacent: 'Adjacent',
+    seg_normal: 'Normal', seg_balanced: 'Balanced carrier',
+    seg_healthy: 'Healthy', seg_healthy_parent: 'Healthy (like parent)',
+    seg_lethal: 'Lethal (miscarriage)', seg_patau: 'Patau syndrome',
   }
 };
 function t(key) { return (I18N[uiLang] || I18N.de)[key] || key; }
+// Syndrome text helper: returns DE or EN text for a given syndrome field
+function synText(syndromeKey, field) {
+  const deKey = syndromeKey + '_' + field;
+  if (uiLang === 'de' && I18N.de[deKey]) return I18N.de[deKey];
+  return null; // caller falls back to English default in SYNDROMES
+}
 
 // Acrocentric chromosomes (small p-arms with rRNA stalks/satellites)
 const ACROCENTRIC = ['13', '14', '15', '21', '22'];
@@ -853,18 +913,20 @@ function renderSyndromeInfo() {
   const info = document.getElementById('aberration-info');
   if (!info) return;
   if (!activeSyndrome) {
-    info.innerHTML = '<div style="color:var(--text-dim);font-size:0.72rem;">Select a syndrome above to view details.</div>';
+    info.innerHTML = `<div style="color:var(--text-dim);font-size:0.72rem;">${t('selectSyndrome')}</div>`;
     return;
   }
   const syn = findSyndrome(activeSyndrome);
   if (!syn) return;
+  const features = synText(activeSyndrome, 'features') || syn.features;
+  const mechanism = synText(activeSyndrome, 'mechanism') || syn.mechanism;
   let html = `<h3>${syn.name}`;
   if (syn.clingen) html += `<span class="clingen-badge">ClinGen ${syn.clingen}</span>`;
   html += `</h3>`;
   html += `<div class="iscn-line">${syn.iscn}</div>`;
-  html += `<div><strong>Frequency:</strong> ${syn.freq}</div>`;
-  html += `<div class="features"><strong>Features:</strong> ${syn.features}</div>`;
-  html += `<div class="features"><strong>Mechanism:</strong> ${syn.mechanism}</div>`;
+  html += `<div><strong>${uiLang === 'de' ? 'Häufigkeit' : 'Frequency'}:</strong> ${syn.freq}</div>`;
+  html += `<div class="features"><strong>${uiLang === 'de' ? 'Merkmale' : 'Features'}:</strong> ${features}</div>`;
+  html += `<div class="features"><strong>${uiLang === 'de' ? 'Mechanismus' : 'Mechanism'}:</strong> ${mechanism}</div>`;
   info.innerHTML = html;
 
   // Show segregation animation for Robertsonian
@@ -882,12 +944,19 @@ function renderSyndromeInfo() {
 function renderSegregation() {
   const container = document.getElementById('gametes-row');
   if (!container) return;
+  // Map from EN labels to i18n keys
+  const labelKey = { 'Alternate': 'seg_alternate', 'Adjacent': 'seg_adjacent' };
+  const resultKey = { 'Normal': 'seg_normal', 'Balanced carrier': 'seg_balanced',
+    'Trisomy 14': 'Trisomy 14', 'Trisomy 13': 'Trisomy 13',
+    'Monosomy 14': 'Monosomy 14', 'Monosomy 13': 'Monosomy 13' };
+  const phenoKey = { 'Healthy': 'seg_healthy', 'Healthy (like parent)': 'seg_healthy_parent',
+    'Lethal (miscarriage)': 'seg_lethal', 'Patau syndrome': 'seg_patau' };
   let html = '';
   for (const g of ROB_SEGREGATION) {
     html += `<div class="gamete ${g.class}">
-      <div class="g-label">${g.label}</div>
-      <div class="g-result">${g.result}</div>
-      <div class="g-pheno">${g.pheno}</div>
+      <div class="g-label">${t(labelKey[g.label] || g.label)}</div>
+      <div class="g-result">${t(resultKey[g.result] || g.result) || g.result}</div>
+      <div class="g-pheno">${t(phenoKey[g.pheno] || g.pheno) || g.pheno}</div>
     </div>`;
   }
   container.innerHTML = html;
@@ -1486,19 +1555,31 @@ async function init() {
 
   initTheme();
 
-  // Language toggle
+  // Language toggle — use shared i18n.js if available, but keep local uiLang in sync
   try { uiLang = localStorage.getItem('helix_lang') || 'de'; } catch (e) {}
-  const langBtn = document.getElementById('lang-toggle');
-  if (langBtn) {
-    langBtn.textContent = uiLang.toUpperCase();
-    langBtn.addEventListener('click', () => {
-      uiLang = uiLang === 'de' ? 'en' : 'de';
-      langBtn.textContent = uiLang.toUpperCase();
-      try { localStorage.setItem('helix_lang', uiLang); } catch (e) {}
-      // Re-render current mode
+  if (window.helixI18n) {
+    // Let i18n.js handle the toggle button
+    uiLang = window.helixI18n.getLang();
+    window.addEventListener('helix:lang-changed', (e) => {
+      uiLang = e.detail.lang;
+      applyKaryoI18n();
       switchMode(currentMode);
     });
+  } else {
+    // Standalone fallback
+    const langBtn = document.getElementById('lang-toggle');
+    if (langBtn) {
+      langBtn.textContent = uiLang.toUpperCase();
+      langBtn.addEventListener('click', () => {
+        uiLang = uiLang === 'de' ? 'en' : 'de';
+        langBtn.textContent = uiLang.toUpperCase();
+        try { localStorage.setItem('helix_lang', uiLang); } catch (e) {}
+        applyKaryoI18n();
+        switchMode(currentMode);
+      });
+    }
   }
+  applyKaryoI18n();
 
   // Tab listeners
   document.querySelectorAll('.mode-tab').forEach(tab => {
@@ -1518,6 +1599,18 @@ async function init() {
 
   // Default mode
   switchMode('compare');
+}
+
+function applyKaryoI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = t(el.dataset.i18n);
+    if (v !== el.dataset.i18n) el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.dataset.i18nHtml;
+    const v = (I18N[uiLang] || {})[key];
+    if (v) el.innerHTML = v;
+  });
 }
 
 init();
