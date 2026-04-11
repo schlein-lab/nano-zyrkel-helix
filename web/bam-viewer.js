@@ -698,8 +698,9 @@ export function renderReadDemo(canvas, readLength, coverage) {
   const regionLen = 500;
   const bpWidth = W / regionLen;
 
-  // Number of reads is derived from coverage: coverage = (numReads * readLength) / regionLen
-  const numReads = Math.max(1, Math.round((coverage * regionLen) / readLength));
+  // Coverage slider = number of reads directly (independent of read length).
+  // The actual resulting coverage is shown as a computed stat.
+  const numReads = coverage;
 
   // Fixed read height of ~5px
   const readH = 5;

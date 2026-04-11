@@ -26,7 +26,7 @@ const I18N = {
     seq_s1_intro: 'Genomische Daten beginnen als <strong>Reads</strong> — kurze Fragmente der DNA, die von einem Sequenziergerät gelesen werden. Jeder Read ist typischerweise <strong>150 bp</strong> lang (Illumina Short-Read) oder <strong>10.000+ bp</strong> (PacBio HiFi / ONT Long-Read). Viele Reads übereinander ergeben die <strong>Coverage</strong> — die Abdeckungstiefe. Stell dir vor: Wir suchen die Ursache einer PKU bei einem Neugeborenen.',
     seq_s2_intro: 'Hier siehst du echte Reads in einem <strong>BAM-Viewer</strong>. Jeder horizontale Balken ist ein Read. Wenn an einer Position etwa die Hälfte der Reads ein <strong>alternatives Allel</strong> zeigt, ist der Patient dort <strong>heterozygot</strong>. Wähle verschiedene Fälle und lerne, echte Varianten von Artefakten zu unterscheiden.',
     seq_s3_intro: 'Bei einer <strong>Copy Number Variation</strong> (CNV) fehlen oder verdoppeln sich ganze Genomabschnitte. Im BAM sieht man das als plötzlichen <strong>Coverage-Abfall</strong> (Deletion) oder <strong>Coverage-Anstieg</strong> (Duplikation). Long-Reads können den Breakpoint direkt überspannen.',
-    seq_s4_intro: 'Drei Strategien, ein Patient: <strong>Panel</strong> (50 Gene, 500x, ~500–800 €), <strong>Exom</strong> (20.000 Gene, 100x, ~1.200–2.000 €), <strong>Genom</strong> (alles, 30x, ~3.000–5.000 €). Jede findet andere Varianten. Eine tief-intronische Splice-Variante? Nur das Genom sieht sie.',
+    seq_s4_intro: 'Drei Strategien, ein Patient: <strong>Panel</strong> (50 Gene, 500x, ), <strong>Exom</strong> (20.000 Gene, 100x, ), <strong>Genom</strong> (alles, 30x, ). Jede findet andere Varianten. Eine tief-intronische Splice-Variante? Nur das Genom sieht sie.',
     seq_s5_intro: 'Ein Genom liefert <strong>4,5 Millionen Varianten</strong>. Die meisten sind harmlos. Durch systematische Filter engt man die Kandidaten ein: Qualität, Allel-Frequenz, Protein-Effekt, Gen-Liste, Segregation. <strong>Achtung:</strong> Bei MCADD hat die häufigste pathogene Variante eine MAF von 1,4% — ein zu strenger MAF-Filter wirft sie raus!',
     seq_s6_intro: 'Das <strong>ACMG-Klassifikationssystem</strong> bewertet Varianten anhand von Evidenz-Kriterien. Jedes Kriterium gibt Punkte — die Summe bestimmt die Klasse: <strong>Pathogenic, Likely Pathogenic, VUS, Likely Benign, Benign</strong>. Probiere es aus: Wähle Kriterien an und beobachte, wie sich die Klassifikation ändert.',
     seq_s7_intro: '<strong>Links:</strong> Illumina Short-Read (150 bp, niedrige Fehlerrate). <strong>Rechts:</strong> Long-Read (PacBio HiFi / ONT) (~10 kb, PacBio HiFi mit Q30+ Genauigkeit, ONT mit höherer Fehlerrate). Gleiche Region, gleicher Patient — aber beachte: In der repetitiven Alu-Region kann Short-Read den Breakpoint nicht auflösen. Ein einzelner Long-Read überspannt den gesamten Bereich. PacBio HiFi liefert dabei die höchste Genauigkeit unter den Long-Read-Plattformen.',
@@ -141,7 +141,7 @@ const I18N = {
     seq_s1_intro: 'Genomic data starts as <strong>reads</strong> — short fragments of DNA read by a sequencing machine. Each read is typically <strong>150 bp</strong> (Illumina short-read) or <strong>10,000+ bp</strong> (PacBio HiFi / ONT long-read). Many overlapping reads create <strong>coverage</strong> — the depth of sequencing. Imagine: we are looking for the cause of PKU in a newborn.',
     seq_s2_intro: 'Here you see actual reads in a <strong>BAM viewer</strong>. Each horizontal bar is a read. When about half the reads show an <strong>alternate allele</strong> at a position, the patient is <strong>heterozygous</strong> there. Select different cases and learn to distinguish real variants from artifacts.',
     seq_s3_intro: 'In a <strong>Copy Number Variation</strong> (CNV), entire genomic segments are deleted or duplicated. In the BAM you see a sudden <strong>coverage drop</strong> (deletion) or <strong>coverage increase</strong> (duplication). Long reads can span the breakpoint directly.',
-    seq_s4_intro: 'Three strategies, one patient: <strong>Panel</strong> (50 genes, 500x, ~€500–800), <strong>Exome</strong> (20,000 genes, 100x, ~€1,200–2,000), <strong>Genome</strong> (everything, 30x, ~€3,000–5,000). Each finds different variants. A deep-intronic splice variant? Only the genome sees it.',
+    seq_s4_intro: 'Three strategies, one patient: <strong>Panel</strong> (50 genes, 500x, ), <strong>Exome</strong> (20,000 genes, 100x, ), <strong>Genome</strong> (everything, 30x, ). Each finds different variants. A deep-intronic splice variant? Only the genome sees it.',
     seq_s5_intro: 'A genome yields <strong>4.5 million variants</strong>. Most are harmless. Systematic filters narrow down candidates: quality, allele frequency, protein effect, gene list, segregation. <strong>Watch out:</strong> In MCADD, the most common pathogenic variant has a MAF of 1.4% — a strict MAF filter will discard it!',
     seq_s6_intro: 'The <strong>ACMG classification system</strong> evaluates variants based on evidence criteria. Each criterion gives points — the sum determines the class: <strong>Pathogenic, Likely Pathogenic, VUS, Likely Benign, Benign</strong>. Try it: select criteria and watch the classification change.',
     seq_s7_intro: '<strong>Left:</strong> Illumina short-read (150 bp, low error rate). <strong>Right:</strong> Long-read (PacBio HiFi / ONT) (~10 kb, PacBio HiFi with Q30+ accuracy, ONT with higher error rate). Same region, same patient — but note: in the repetitive Alu region, short-read cannot resolve the breakpoint. A single long read spans the entire region. PacBio HiFi provides the highest accuracy among long-read platforms.',
@@ -379,18 +379,26 @@ function initStep1() {
   const covVal = document.getElementById('coverage-val');
   const explainEl = document.getElementById('seq-explain-1');
 
+  const statsEl = document.getElementById('seq-computed-stats');
+
   function update() {
     const readLen = parseInt(lenSlider.value);
-    const coverage = parseInt(covSlider.value);
+    const numReads = parseInt(covSlider.value);
     lenVal.textContent = readLen >= 1000 ? `${(readLen / 1000).toFixed(1)} kb` : `${readLen} bp`;
-    covVal.textContent = `${coverage}x`;
-    renderReadDemo(canvas, readLen, coverage);
+    covVal.textContent = `${numReads}`;
+    renderReadDemo(canvas, readLen, numReads);
 
-    const t = helixI18n.t;
+    // Compute resulting coverage
+    const regionLen = 500;
+    const avgCov = (numReads * readLen) / regionLen;
+    if (statsEl) {
+      statsEl.innerHTML = `<span style="font-size:0.7rem;color:var(--text-dim)">→ Resultierende Coverage: <strong style="color:var(--accent)">${avgCov.toFixed(1)}x</strong> (${numReads} Reads × ${readLen >= 1000 ? (readLen/1000).toFixed(1)+'kb' : readLen+'bp'} / ${regionLen}bp Region)</span>`;
+    }
+
     const isLong = readLen > 500;
     const tech = isLong ? 'Long-Read (PacBio HiFi / ONT)' : 'Short-Read (Illumina)';
     explainEl.innerHTML = isLong
-      ? `<strong>${tech}</strong>: ${readLen >= 1000 ? (readLen/1000).toFixed(1) + ' kb' : readLen + ' bp'} Reads. Weniger Reads nötig, aber höhere Fehlerrate (~5-15% ONT, <1% PacBio HiFi). Ideal für Strukturvarianten und repetitive Regionen.`
+      ? `<strong>${tech}</strong>: ${readLen >= 1000 ? (readLen/1000).toFixed(1) + ' kb' : readLen + ' bp'} Reads. Weniger Reads nötig für gleiche Coverage, aber höhere Fehlerrate (~5-15% ONT, <1% PacBio HiFi). Ideal für Strukturvarianten und repetitive Regionen.`
       : `<strong>${tech}</strong>: ${readLen} bp Reads. Hohe Genauigkeit (~0.1% Fehlerrate), aber kurze Fragmente. Standard für SNV- und kleine Indel-Detektion.`;
   }
 
@@ -485,30 +493,30 @@ function initStep4() {
     if (s === 'panel') {
       c.dataset.cost = '500-800';
       const costEl = c.querySelector('.strategy-cost');
-      if (costEl) costEl.textContent = '~500–800 €';
+      if (costEl) costEl.textContent = '';
     } else if (s === 'exome') {
       c.dataset.cost = '1200-2000';
       const costEl = c.querySelector('.strategy-cost');
-      if (costEl) costEl.textContent = '~1.200–2.000 €';
+      if (costEl) costEl.textContent = '';
     } else if (s === 'genome') {
       c.dataset.cost = '3000-5000';
       const costEl = c.querySelector('.strategy-cost');
-      if (costEl) costEl.textContent = '~3.000–5.000 €';
+      if (costEl) costEl.textContent = '';
     }
   });
 
   const findings = {
     panel: {
-      de: '<strong>Panel (50 Gene, 500x, ~500–800 €):</strong> Hohe Coverage in Ziel-Genen → sehr sensitive SNV-Detektion. Aber: nur bekannte Gene. Neue Gen-Entdeckung unmöglich. Deep-intronische Varianten unsichtbar. Schnell, günstig, ideal als Erstlinien-Diagnostik.',
-      en: '<strong>Panel (50 genes, 500x, ~€500–800):</strong> High coverage in target genes → very sensitive SNV detection. But: only known genes. New gene discovery impossible. Deep-intronic variants invisible. Fast, affordable, ideal as first-line diagnostics.',
+      de: '<strong>Panel (50 Gene, 500x, ):</strong> Hohe Coverage in Ziel-Genen → sehr sensitive SNV-Detektion. Aber: nur bekannte Gene. Neue Gen-Entdeckung unmöglich. Deep-intronische Varianten unsichtbar. Schnell, günstig, ideal als Erstlinien-Diagnostik.',
+      en: '<strong>Panel (50 genes, 500x, ):</strong> High coverage in target genes → very sensitive SNV detection. But: only known genes. New gene discovery impossible. Deep-intronic variants invisible. Fast, affordable, ideal as first-line diagnostics.',
     },
     exome: {
-      de: '<strong>Exom (20.000 Gene, 100x, ~1.200–2.000 €):</strong> Breite Abdeckung aller kodierenden Regionen. Kann neue Kandidatengene finden. Aber: GC-reiche Exons können schlecht abgedeckt sein. Intronische Varianten fehlen. Repetitive Regionen problematisch.',
-      en: '<strong>Exome (20,000 genes, 100x, ~€1,200–2,000):</strong> Broad coverage of all coding regions. Can discover new candidate genes. But: GC-rich exons may have poor coverage. Intronic variants missed. Repetitive regions problematic.',
+      de: '<strong>Exom (20.000 Gene, 100x, ):</strong> Breite Abdeckung aller kodierenden Regionen. Kann neue Kandidatengene finden. Aber: GC-reiche Exons können schlecht abgedeckt sein. Intronische Varianten fehlen. Repetitive Regionen problematisch.',
+      en: '<strong>Exome (20,000 genes, 100x, ):</strong> Broad coverage of all coding regions. Can discover new candidate genes. But: GC-rich exons may have poor coverage. Intronic variants missed. Repetitive regions problematic.',
     },
     genome: {
-      de: '<strong>Genom (alles, 30x, ~3.000–5.000 €):</strong> Findet ALLES — SNVs, CNVs, SVs, deep-intronische Varianten, regulatorische Elemente. Aber: 4,5 Mio Varianten zu filtern. Niedrigere Coverage pro Position. Teurer. Der MSUD-Fall hier: Die deep-intronische BCKDHA-Variante wäre NUR im Genom sichtbar.',
-      en: '<strong>Genome (everything, 30x, ~€3,000–5,000):</strong> Finds EVERYTHING — SNVs, CNVs, SVs, deep-intronic variants, regulatory elements. But: 4.5M variants to filter. Lower coverage per position. More expensive. The MSUD case here: the deep-intronic BCKDHA variant would ONLY be visible in the genome.',
+      de: '<strong>Genom (alles, 30x, ):</strong> Findet ALLES — SNVs, CNVs, SVs, deep-intronische Varianten, regulatorische Elemente. Aber: 4,5 Mio Varianten zu filtern. Niedrigere Coverage pro Position. Teurer. Der MSUD-Fall hier: Die deep-intronische BCKDHA-Variante wäre NUR im Genom sichtbar.',
+      en: '<strong>Genome (everything, 30x, ):</strong> Finds EVERYTHING — SNVs, CNVs, SVs, deep-intronic variants, regulatory elements. But: 4.5M variants to filter. Lower coverage per position. More expensive. The MSUD case here: the deep-intronic BCKDHA variant would ONLY be visible in the genome.',
     },
   };
 
@@ -606,9 +614,9 @@ function renderStrategyCanvas(ctx, canvas, strategy) {
   ctx.textAlign = 'left';
 
   const strategyLabels = {
-    panel: 'PANEL | 50 Gene, 500x | ~500–800 €',
-    exome: 'EXOM | 20.000 Gene, 100x | ~1.200–2.000 €',
-    genome: 'GENOM | alles, 30x | ~3.000–5.000 €',
+    panel: 'PANEL | 50 Gene, 500x | ',
+    exome: 'EXOM | 20.000 Gene, 100x | ',
+    genome: 'GENOM | alles, 30x | ',
   };
   ctx.fillText(`${strategyLabels[strategy]} | max: ${maxCov.toFixed(0)}x`, 4, 11);
 }
@@ -1794,13 +1802,13 @@ function generateQuizQuestions(level) {
       {
         q: lang === 'de' ? 'Ein Patient mit V.a. Stoffwechselerkrankung. Neugeborenenscreening auffällig (C8↑). Welche Sequenzierungsstrategie empfehlen Sie als Erstlinien-Diagnostik?' : 'A patient with suspected metabolic disease. Abnormal newborn screening (C8↑). Which sequencing strategy do you recommend as first-line diagnostics?',
         options: [
-          lang === 'de' ? 'Genomsequenzierung (30x, ~3.000–5.000 €)' : 'Genome sequencing (30x, ~€3,000–5,000)',
-          lang === 'de' ? 'Stoffwechsel-Gen-Panel (50 Gene, 500x, ~500–800 €)' : 'Metabolic gene panel (50 genes, 500x, ~€500–800)',
-          lang === 'de' ? 'Exomsequenzierung (100x, ~1.200–2.000 €)' : 'Exome sequencing (100x, ~€1,200–2,000)',
+          lang === 'de' ? 'Genomsequenzierung (30x, )' : 'Genome sequencing (30x, )',
+          lang === 'de' ? 'Stoffwechsel-Gen-Panel (50 Gene, 500x, )' : 'Metabolic gene panel (50 genes, 500x, )',
+          lang === 'de' ? 'Exomsequenzierung (100x, )' : 'Exome sequencing (100x, )',
           lang === 'de' ? 'Sanger-Sequenzierung von ACADM' : 'Sanger sequencing of ACADM',
         ],
         correct: 1,
-        feedback: lang === 'de' ? 'Bei klarem klinischem Verdacht (C8↑ → V.a. MCADD) ist ein zielgerichtetes Panel die Erstlinien-Wahl: hohe Coverage (500x), schnell, günstig (~500–800 €). Sanger wäre zu eng (nur 1 Gen). Exom/Genom sind Reserve für unklare Fälle.' : 'With clear clinical suspicion (C8↑ → suspected MCADD), a targeted panel is first-line: high coverage (500x), fast, affordable (~€500–800). Sanger would be too narrow (1 gene only). Exome/genome are reserved for unclear cases.',
+        feedback: lang === 'de' ? 'Bei klarem klinischem Verdacht (C8↑ → V.a. MCADD) ist ein zielgerichtetes Panel die Erstlinien-Wahl: hohe Coverage (500x), schnell, günstig (). Sanger wäre zu eng (nur 1 Gen). Exom/Genom sind Reserve für unklare Fälle.' : 'With clear clinical suspicion (C8↑ → suspected MCADD), a targeted panel is first-line: high coverage (500x), fast, affordable (). Sanger would be too narrow (1 gene only). Exome/genome are reserved for unclear cases.',
       },
       {
         q: lang === 'de' ? 'Die MCADD-Variante c.985A>G (p.Lys329Glu) hat eine gnomAD-MAF von 1,4% bei Europäern. Ihr MAF-Filter ist auf <1% gesetzt. Was passiert?' : 'The MCADD variant c.985A>G (p.Lys329Glu) has a gnomAD MAF of 1.4% in Europeans. Your MAF filter is set to <1%. What happens?',
