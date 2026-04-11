@@ -15,50 +15,51 @@
       <img src="helix-banner.png" alt="" class="banner-img" style="height:100px;">
       <div class="banner-overlay">
         <h1>Helix <span class="badge live">live</span></h1>
-        <p class="banner-sub">A Teaching Toolkit for Human Genetics — real data, interactive modules</p>
+        <p class="banner-sub" data-i18n="tagline">A Teaching Toolkit for Human Genetics — real data, interactive modules</p>
       </div>
+      <button id="lang-toggle" class="lang-toggle" title="DE / EN">DE</button>
     </div>
-    <h2 class="chooser-heading">Teaching modules</h2>
+    <h2 class="chooser-heading" data-i18n="chooser_heading">Teaching modules</h2>
     <div class="chooser-grid">
       <a class="chooser-card" href="#hwe" onclick="showModule('hwe')">
         <div class="cc-icon">p&sup2;+2pq+q&sup2;</div>
         <div class="cc-title">Hardy-Weinberg</div>
-        <div class="cc-desc">Allele frequencies, HWE testing, gnomAD data</div>
+        <div class="cc-desc" data-i18n="card_hwe">Allele frequencies, HWE testing, gnomAD data</div>
         <span class="badge live">live</span>
       </a>
       <a class="chooser-card" href="mendel.html">
         <div class="cc-icon">Aa&times;Aa</div>
-        <div class="cc-title">Mendel Lab</div>
-        <div class="cc-desc">Crosses, pedigrees, inheritance patterns</div>
+        <div class="cc-title" data-i18n="card_mendel_title">Mendel Lab</div>
+        <div class="cc-desc" data-i18n="card_mendel">Crosses, pedigrees, inheritance patterns</div>
         <span class="badge live">live</span>
       </a>
       <a class="chooser-card" href="evolution.html">
         <div class="cc-icon">&#127758;</div>
-        <div class="cc-title">Evolution Sandbox</div>
-        <div class="cc-desc">Drift, selection, migration, bottleneck — WASM-powered</div>
+        <div class="cc-title" data-i18n="card_evo_title">Evolution Sandbox</div>
+        <div class="cc-desc" data-i18n="card_evo">Drift, selection, migration, bottleneck — WASM-powered</div>
         <span class="badge live">live</span>
       </a>
       <a class="chooser-card" href="mutations.html">
         <div class="cc-icon">&Delta;DNA</div>
-        <div class="cc-title">Mutations</div>
-        <div class="cc-desc">Point mutations, frameshifts, protein effects</div>
+        <div class="cc-title" data-i18n="card_mut_title">Mutations</div>
+        <div class="cc-desc" data-i18n="card_mut">Point mutations, frameshifts, protein effects</div>
         <span class="badge live">live</span>
       </a>
       <a class="chooser-card cc-soon">
         <div class="cc-icon">&#9763;</div>
-        <div class="cc-title">Tumor Genetics</div>
-        <div class="cc-desc">Multi-hit model, Knudson, COSMIC data</div>
-        <span class="badge soon">soon</span>
+        <div class="cc-title" data-i18n="card_tumor_title">Tumor Genetics</div>
+        <div class="cc-desc" data-i18n="card_tumor">Multi-hit model, Knudson, COSMIC data</div>
+        <span class="badge soon" data-i18n="badge_soon">soon</span>
       </a>
       <a class="chooser-card" href="karyotype.html">
         <div class="cc-icon">&#9883;</div>
-        <div class="cc-title">Karyotype</div>
-        <div class="cc-desc">Cytogenetics, aberrations, 50-case exam mode</div>
+        <div class="cc-title" data-i18n="card_karyo_title">Karyotype</div>
+        <div class="cc-desc" data-i18n="card_karyo">Cytogenetics, aberrations, 50-case exam mode</div>
         <span class="badge live">live</span>
       </a>
     </div>
     <div class="footer">
-      <span>powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
+      <span data-i18n-html="powered_by">powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
     </div>
   </div>
 
@@ -71,7 +72,7 @@
     <div class="banner-overlay">
       <a href="#" onclick="showChooser()" class="back-link">&larr;</a>
       <div>
-        <h1>Hardy-Weinberg Explorer</h1>
+        <h1 data-i18n="hwe_header">Hardy-Weinberg Explorer</h1>
       </div>
     </div>
   </div>
@@ -79,11 +80,11 @@
   <!-- Manual Controls -->
   <div class="manual-controls">
     <div class="slider-group">
-      <label>Allele frequency (p) <span class="val" id="p-val">0.500</span></label>
+      <label><span data-i18n="allele_freq">Allele frequency (p)</span> <span class="val" id="p-val">0.500</span></label>
       <input type="range" id="p-slider" min="0.001" max="0.999" step="0.001" value="0.5">
     </div>
     <div class="slider-group">
-      <label>Inbreeding (F) <span class="val" id="f-val">0.000</span></label>
+      <label><span data-i18n="inbreeding">Inbreeding (F)</span> <span class="val" id="f-val">0.000</span></label>
       <input type="range" id="f-slider" min="0" max="0.5" step="0.005" value="0">
     </div>
     <div class="formula" id="formula"></div>
@@ -99,7 +100,7 @@
 
   <!-- Real Variants Section -->
   <div class="variants-section">
-    <div class="section-label">Compare with real variants <span class="hint">(click to load gnomAD data)</span></div>
+    <div class="section-label"><span data-i18n="section_compare">Compare with real variants</span> <span class="hint" data-i18n="section_hint">(click to load gnomAD data)</span></div>
     <div class="preset-row">
       <button class="preset" data-variant="rs334">HBB rs334 <small>Sickle Cell</small></button>
       <button class="preset" data-variant="rs1801133">MTHFR C677T</button>
@@ -108,7 +109,7 @@
       <button class="preset" data-variant="rs80357906">BRCA1 5382insC</button>
     </div>
     <div class="search-row">
-      <input type="text" id="gene-search" placeholder="Search gene (e.g. TP53, BRCA2)..." autocomplete="off">
+      <input type="text" id="gene-search" data-i18n-placeholder="search_placeholder" placeholder="Search gene (e.g. TP53, BRCA2)…" autocomplete="off">
       <div class="autocomplete" id="autocomplete"></div>
     </div>
   </div>
@@ -134,18 +135,88 @@
     <div class="obs-vs-exp" id="obs-vs-exp"></div>
   </div>
 
-  <div class="science-disclaimer">Population labels (AFR, EUR, etc.) refer to the geographic sampling regions used by gnomAD. Human genetic variation is continuous, and these labels are a pragmatic summary — not a biological classification. <a href="https://www.cell.com/ajhg/fulltext/S0002-9297(18)30363-X" target="_blank" rel="noopener">ASHG 2018</a></div>
+  <div class="science-disclaimer"><span data-i18n="science_disclaimer_hwe">Population labels (AFR, EUR, etc.) refer to the geographic sampling regions used by gnomAD. Human genetic variation is continuous, and these labels are a pragmatic summary — not a biological classification.</span> <a href="https://www.cell.com/ajhg/fulltext/S0002-9297(18)30363-X" target="_blank" rel="noopener">ASHG 2018</a></div>
 
   <!-- Footer -->
   <div class="footer">
-    <a href="#" onclick="showChooser()">&larr; All modules</a>
-    <span>powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
+    <a href="#" onclick="showChooser()" data-i18n="all_modules">← All modules</a>
+    <span data-i18n-html="powered_by">powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
   </div>
 
   </div><!-- /module-hwe -->
 </div>
 
+<script src="i18n.js"></script>
 <script>
+// Module chooser & HWE i18n
+helixI18n.registerI18n({
+  de: {
+    tagline: 'Lehr-Toolkit für Humangenetik — echte Daten, interaktive Module',
+    chooser_heading: 'Lehrmodule',
+    card_hwe: 'Allelfrequenzen, HWE-Test, gnomAD-Daten',
+    card_mendel_title: 'Mendel-Labor',
+    card_mendel: 'Kreuzungen, Stammbäume, Erbgänge',
+    card_evo_title: 'Evolution Sandbox',
+    card_evo: 'Drift, Selektion, Migration, Bottleneck — WASM-basiert',
+    card_mut_title: 'Mutationen',
+    card_mut: 'Punktmutationen, Frameshifts, Protein-Effekte',
+    card_tumor_title: 'Tumorgenetik',
+    card_tumor: 'Multi-Hit-Modell, Knudson, COSMIC-Daten',
+    card_karyo_title: 'Karyotyp',
+    card_karyo: 'Zytogenetik, Aberrationen, 50-Fälle-Prüfungsmodus',
+    badge_soon: 'bald',
+    powered_by: 'powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a>',
+    section_compare: 'Vergleich mit echten Varianten',
+    section_hint: '(Klick um gnomAD-Daten zu laden)',
+    search_placeholder: 'Gen suchen (z. B. TP53, BRCA2)…',
+    hwe_header: 'Hardy-Weinberg Explorer',
+    allele_freq: 'Allelfrequenz (p)',
+    inbreeding: 'Inzucht (F)',
+    all_modules: '← Alle Module',
+    science_disclaimer_hwe: 'Populationslabels (AFR, EUR usw.) beziehen sich auf die geografischen Probengruppen von gnomAD. Menschliche genetische Variation ist kontinuierlich; diese Labels sind eine pragmatische Zusammenfassung — keine biologische Klassifikation.',
+  },
+  en: {
+    tagline: 'A Teaching Toolkit for Human Genetics — real data, interactive modules',
+    chooser_heading: 'Teaching modules',
+    card_hwe: 'Allele frequencies, HWE testing, gnomAD data',
+    card_mendel_title: 'Mendel Lab',
+    card_mendel: 'Crosses, pedigrees, inheritance patterns',
+    card_evo_title: 'Evolution Sandbox',
+    card_evo: 'Drift, selection, migration, bottleneck — WASM-powered',
+    card_mut_title: 'Mutations',
+    card_mut: 'Point mutations, frameshifts, protein effects',
+    card_tumor_title: 'Tumor Genetics',
+    card_tumor: 'Multi-hit model, Knudson, COSMIC data',
+    card_karyo_title: 'Karyotype',
+    card_karyo: 'Cytogenetics, aberrations, 50-case exam mode',
+    badge_soon: 'soon',
+    powered_by: 'powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a>',
+    section_compare: 'Compare with real variants',
+    section_hint: '(click to load gnomAD data)',
+    search_placeholder: 'Search gene (e.g. TP53, BRCA2)…',
+    hwe_header: 'Hardy-Weinberg Explorer',
+    allele_freq: 'Allele frequency (p)',
+    inbreeding: 'Inbreeding (F)',
+    all_modules: '← All modules',
+    science_disclaimer_hwe: 'Population labels (AFR, EUR, etc.) refer to the geographic sampling regions used by gnomAD. Human genetic variation is continuous, and these labels are a pragmatic summary — not a biological classification.',
+  },
+});
+
+function applyI18n() {
+  const t = helixI18n.t;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    el.innerHTML = t(el.dataset.i18nHtml);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+}
+applyI18n();
+window.addEventListener('helix:lang-changed', applyI18n);
+
 function showModule(id) {
   document.getElementById('module-chooser').style.display = 'none';
   document.getElementById('module-' + id).style.display = '';

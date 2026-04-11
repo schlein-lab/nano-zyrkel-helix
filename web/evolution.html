@@ -6,6 +6,7 @@
 <title>Helix — Evolution Sandbox</title>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="evolution.css">
+<script src="i18n.js"></script>
 </head>
 <body>
 <div class="widget evo-widget">
@@ -15,67 +16,69 @@
     <div class="banner-overlay">
       <a href="index.html" class="back-link">&larr;</a>
       <div>
-        <h1>Evolution Sandbox <span class="badge live">live</span></h1>
-        <p class="banner-sub">Drift, Selection, Migration — simulated in real time</p>
+        <h1><span data-i18n="evo_title">Evolution Sandbox</span> <span class="badge live">live</span></h1>
+        <p class="banner-sub" data-i18n="evo_subtitle">Drift, Selection, Migration — simulated in real time</p>
       </div>
     </div>
+    <button id="lang-toggle" class="lang-toggle" title="DE / EN">DE</button>
   </div>
 
   <!-- Scientific context banner -->
   <div class="science-banner">
-    <strong>Scientific context:</strong> All humans share &gt;99.9% of their DNA, and genetic differences between geographic populations are smaller than differences between individuals within any population. "Selection" in this model describes reproductive success in a specific environment — a variant that is advantageous in one context may be neutral or harmful in another.
-    <a href="https://www.cell.com/ajhg/fulltext/S0002-9297(18)30363-X" target="_blank" rel="noopener">ASHG Statement on Genetics and Race (2018)</a>
+    <strong data-i18n="sci_context_label">Scientific context:</strong>
+    <span data-i18n="sci_context_body">All humans share &gt;99.9% of their DNA, and genetic differences between geographic populations are smaller than differences between individuals within any population. "Selection" in this model describes reproductive success in a specific environment — a variant that is advantageous in one context may be neutral or harmful in another.</span>
+    <a href="https://www.cell.com/ajhg/fulltext/S0002-9297(18)30363-X" target="_blank" rel="noopener" data-i18n="ashg_link">ASHG Statement on Genetics and Race (2018)</a>
   </div>
 
   <!-- Mode Tabs -->
   <div class="mode-bar">
-    <button class="mode-tab active" data-mode="trajectory">Trajectory</button>
-    <button class="mode-tab" data-mode="migration">Migration</button>
-    <button class="mode-tab" data-mode="scenarios">Scenarios</button>
+    <button class="mode-tab active" data-mode="trajectory" data-i18n="evo_trajectory">Trajectory</button>
+    <button class="mode-tab" data-mode="migration" data-i18n="evo_migration">Migration</button>
+    <button class="mode-tab" data-mode="scenarios" data-i18n="evo_scenarios">Scenarios</button>
   </div>
 
   <!-- ═══ TRAJECTORY MODE ═══ -->
   <div id="mode-trajectory" class="mode-panel active">
     <div class="controls-grid">
       <div class="slider-group">
-        <label>Start frequency (p₀) <span class="val" id="v-p0">0.500</span></label>
+        <label><span data-i18n="start_freq">Start frequency (p₀)</span> <span class="val" id="v-p0">0.500</span></label>
         <input type="range" id="s-p0" min="0.01" max="0.99" step="0.01" value="0.5">
       </div>
       <div class="slider-group">
-        <label>Population size (N) <span class="val" id="v-n">500</span></label>
+        <label><span data-i18n="pop_size">Population size (N)</span> <span class="val" id="v-n">500</span></label>
         <input type="range" id="s-n" min="1" max="5" step="0.01" value="2.7">
       </div>
       <div class="slider-group">
-        <label>Selection (s) <span class="val" id="v-s">0.000</span></label>
+        <label><span data-i18n="selection">Selection (s)</span> <span class="val" id="v-s">0.000</span></label>
         <input type="range" id="s-s" min="-0.1" max="0.1" step="0.001" value="0">
       </div>
       <div class="slider-group">
-        <label>Dominance (h) <span class="val" id="v-h">0.50</span></label>
+        <label><span data-i18n="dominance">Dominance (h)</span> <span class="val" id="v-h">0.50</span></label>
         <input type="range" id="s-h" min="0" max="1" step="0.01" value="0.5">
       </div>
       <div class="slider-group">
-        <label>Generations <span class="val" id="v-gen">200</span></label>
+        <label><span data-i18n="generations">Generations</span> <span class="val" id="v-gen">200</span></label>
         <input type="range" id="s-gen" min="1" max="4" step="0.01" value="2.3">
       </div>
       <div class="slider-group">
-        <label>Parallel runs <span class="val" id="v-runs">10</span></label>
+        <label><span data-i18n="parallel_runs">Parallel runs</span> <span class="val" id="v-runs">10</span></label>
         <input type="range" id="s-runs" min="1" max="50" step="1" value="10">
       </div>
     </div>
 
     <!-- Bottleneck -->
     <div class="bottleneck-row">
-      <label><input type="checkbox" id="bn-enable"> Bottleneck</label>
+      <label><input type="checkbox" id="bn-enable"> <span data-i18n="bottleneck">Bottleneck</span></label>
       <span class="bn-params" id="bn-params" style="display:none">
-        at gen <input type="number" id="bn-at" value="50" min="1" max="9999" class="mini-input">
-        size <input type="number" id="bn-size" value="10" min="2" max="9999" class="mini-input">
-        for <input type="number" id="bn-dur" value="5" min="1" max="999" class="mini-input"> gen
+        <span data-i18n="bn_at">at gen</span> <input type="number" id="bn-at" value="50" min="1" max="9999" class="mini-input">
+        <span data-i18n="bn_size">size</span> <input type="number" id="bn-size" value="10" min="2" max="9999" class="mini-input">
+        <span data-i18n="bn_for">for</span> <input type="number" id="bn-dur" value="5" min="1" max="999" class="mini-input"> <span data-i18n="bn_gen">gen</span>
       </span>
     </div>
 
     <div class="btn-row">
-      <button class="run-btn" id="btn-run">&#9654; Run</button>
-      <button class="reset-btn" id="btn-reset">Reset</button>
+      <button class="run-btn" id="btn-run">&#9654; <span data-i18n="run">Run</span></button>
+      <button class="reset-btn" id="btn-reset" data-i18n="reset">Reset</button>
     </div>
 
     <div class="chart-area">
@@ -87,41 +90,41 @@
 
   <!-- ═══ MIGRATION MODE ═══ -->
   <div id="mode-migration" class="mode-panel">
-    <div class="mig-info">A genetic variant emerges in one geographic region and may spread via gene flow between neighboring populations. This models how human migration and admixture distribute genetic variation — <em>not</em> how populations "replace" each other. All populations shown are part of one continuous human species with constant gene flow throughout history.</div>
+    <div class="mig-info" data-i18n-html="mig_info">A genetic variant emerges in one geographic region and may spread via gene flow between neighboring populations. This models how human migration and admixture distribute genetic variation — <em>not</em> how populations "replace" each other. All populations shown are part of one continuous human species with constant gene flow throughout history.</div>
 
     <div class="controls-grid">
       <div class="slider-group">
-        <label>Population size (each) <span class="val" id="v-n-mig">1000</span></label>
+        <label><span data-i18n="pop_size_each">Population size (each)</span> <span class="val" id="v-n-mig">1000</span></label>
         <input type="range" id="s-n-mig" min="1" max="5" step="0.01" value="3">
       </div>
       <div class="slider-group">
-        <label>Generations <span class="val" id="v-gen-mig">200</span></label>
+        <label><span data-i18n="generations">Generations</span> <span class="val" id="v-gen-mig">200</span></label>
         <input type="range" id="s-gen-mig" min="1" max="4" step="0.01" value="2.3">
       </div>
       <div class="slider-group">
-        <label>Origin frequency <span class="val" id="v-origin">0.300</span></label>
+        <label><span data-i18n="origin_freq">Origin frequency</span> <span class="val" id="v-origin">0.300</span></label>
         <input type="range" id="s-origin" min="0.001" max="0.99" step="0.001" value="0.3">
       </div>
       <div class="slider-group">
-        <label>Migration rate (m) <span class="val" id="v-mig">0.010</span></label>
+        <label><span data-i18n="mig_rate">Migration rate (m)</span> <span class="val" id="v-mig">0.010</span></label>
         <input type="range" id="s-mig" min="0" max="0.1" step="0.001" value="0.01">
       </div>
       <div class="slider-group">
-        <label>Selection in origin <span class="val" id="v-s-origin">0.000</span></label>
+        <label><span data-i18n="sel_origin">Selection in origin</span> <span class="val" id="v-s-origin">0.000</span></label>
         <input type="range" id="s-s-origin" min="-0.1" max="0.1" step="0.001" value="0">
       </div>
       <div class="slider-group">
-        <label>Selection elsewhere <span class="val" id="v-s-other">0.000</span></label>
+        <label><span data-i18n="sel_elsewhere">Selection elsewhere</span> <span class="val" id="v-s-other">0.000</span></label>
         <input type="range" id="s-s-other" min="-0.1" max="0.1" step="0.001" value="0">
       </div>
       <div class="slider-group">
-        <label>Dominance (h) <span class="val" id="v-h-mig">0.50</span></label>
+        <label><span data-i18n="dominance">Dominance (h)</span> <span class="val" id="v-h-mig">0.50</span></label>
         <input type="range" id="s-h-mig" min="0" max="1" step="0.01" value="0.5">
       </div>
     </div>
 
     <div class="btn-row">
-      <button class="run-btn" id="btn-run-mig">&#9654; Simulate spread</button>
+      <button class="run-btn" id="btn-run-mig">&#9654; <span data-i18n="simulate_spread">Simulate spread</span></button>
     </div>
 
     <!-- World Map -->
@@ -135,7 +138,7 @@
       <input type="range" id="mig-time" min="0" max="100" step="1" value="0" class="time-slider">
       <span class="time-label" id="v-time">gen 0</span>
       <div class="speed-controls">
-        <label class="speed-label">Speed</label>
+        <label class="speed-label" data-i18n="speed">Speed</label>
         <button class="speed-btn" data-speed="0.2">0.2x</button>
         <button class="speed-btn active" data-speed="1">1x</button>
         <button class="speed-btn" data-speed="3">3x</button>
@@ -154,11 +157,11 @@
   <!-- ═══ SCENARIO MODE ═══ -->
   <div id="mode-scenarios" class="mode-panel">
     <div class="preset-row">
-      <button class="preset" data-sc="sickle">HBB Sickle Cell <small>balanced selection</small></button>
-      <button class="preset" data-sc="lactose">LCT Lactose <small>positive selection</small></button>
-      <button class="preset" data-sc="skin">SLC24A5 Skin <small>UV selection</small></button>
-      <button class="preset" data-sc="aldh2">ALDH2 Flush <small>drift vs selection?</small></button>
-      <button class="preset" data-sc="founder">BRCA1 Founder <small>bottleneck</small></button>
+      <button class="preset" data-sc="sickle">HBB Sickle Cell <small data-i18n="sc_sickle_sub">balanced selection</small></button>
+      <button class="preset" data-sc="lactose">LCT Lactose <small data-i18n="sc_lactose_sub">positive selection</small></button>
+      <button class="preset" data-sc="skin">SLC24A5 Skin <small data-i18n="sc_skin_sub">UV adaptation</small></button>
+      <button class="preset" data-sc="aldh2">ALDH2 Flush <small data-i18n="sc_aldh2_sub">drift vs selection?</small></button>
+      <button class="preset" data-sc="founder">BRCA1 Founder <small data-i18n="sc_founder_sub">bottleneck</small></button>
     </div>
 
     <div class="scenario-detail" id="scenario-detail"></div>
@@ -167,14 +170,95 @@
     </div>
   </div>
 
-  <div class="science-disclaimer">These simulations model simplified population genetics for educational purposes. Real human populations are not discrete units — gene flow is continuous, and geographic frequency differences reflect migration history and environmental adaptation. <a href="https://www.cell.com/ajhg/fulltext/S0002-9297(18)30363-X" target="_blank" rel="noopener">ASHG 2018</a></div>
+  <div class="science-disclaimer"><span data-i18n="evo_disclaimer">These simulations model simplified population genetics for educational purposes. Real human populations are not discrete units — gene flow is continuous, and geographic frequency differences reflect migration history and environmental adaptation.</span> <a href="https://www.cell.com/ajhg/fulltext/S0002-9297(18)30363-X" target="_blank" rel="noopener">ASHG 2018</a></div>
 
   <div class="footer">
-    <a href="index.html">&larr; All modules</a>
-    <span>powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
+    <a href="index.html" data-i18n="all_modules">← All modules</a>
+    <span data-i18n-html="powered_by">powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
   </div>
 </div>
 
+<script>
+helixI18n.registerI18n({
+  de: {
+    evo_title: 'Evolution Sandbox',
+    evo_subtitle: 'Drift, Selektion, Migration — in Echtzeit simuliert',
+    sci_context_label: 'Wissenschaftlicher Kontext:',
+    sci_context_body: 'Alle Menschen teilen über 99,9 % ihrer DNA, und genetische Unterschiede zwischen geografischen Populationen sind kleiner als Unterschiede zwischen Individuen innerhalb einer Population. "Selektion" beschreibt in diesem Modell den Fortpflanzungserfolg in einer bestimmten Umwelt — eine Variante, die in einem Kontext vorteilhaft ist, kann in einem anderen neutral oder schädlich sein.',
+    ashg_link: 'ASHG Statement on Genetics and Race (2018)',
+    evo_trajectory: 'Verlauf', evo_migration: 'Migration', evo_scenarios: 'Szenarien',
+    start_freq: 'Startfrequenz (p₀)',
+    pop_size: 'Populationsgröße (N)',
+    pop_size_each: 'Populationsgröße (pro Region)',
+    selection: 'Selektion (s)',
+    dominance: 'Dominanz (h)',
+    generations: 'Generationen',
+    parallel_runs: 'Parallele Läufe',
+    bottleneck: 'Bottleneck',
+    bn_at: 'bei Gen', bn_size: 'Größe', bn_for: 'über', bn_gen: 'Gen',
+    run: 'Start', reset: 'Zurücksetzen',
+    origin_freq: 'Ursprungsfrequenz',
+    mig_rate: 'Migrationsrate (m)',
+    sel_origin: 'Selektion im Ursprung',
+    sel_elsewhere: 'Selektion anderswo',
+    simulate_spread: 'Ausbreitung simulieren',
+    mig_info: 'Eine genetische Variante entsteht in einer geografischen Region und kann sich durch Genfluss zwischen benachbarten Populationen ausbreiten. Das Modell zeigt, wie menschliche Migration und Vermischung genetische Variation verteilen — <em>nicht</em>, wie Populationen einander "ersetzen". Alle gezeigten Populationen sind Teil einer kontinuierlichen menschlichen Spezies mit konstantem Genfluss über die gesamte Geschichte.',
+    speed: 'Geschwindigkeit',
+    sc_sickle_sub: 'balancierte Selektion',
+    sc_lactose_sub: 'positive Selektion',
+    sc_skin_sub: 'UV-Anpassung',
+    sc_aldh2_sub: 'Drift vs. Selektion?',
+    sc_founder_sub: 'Bottleneck',
+    evo_disclaimer: 'Diese Simulationen modellieren vereinfachte Populationsgenetik zu Lehrzwecken. Reale menschliche Populationen sind keine diskreten Einheiten — Genfluss ist kontinuierlich, und geografische Frequenzunterschiede spiegeln Migrationsgeschichte und Umweltanpassung wider.',
+    all_modules: '← Alle Module',
+    powered_by: 'powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a>',
+  },
+  en: {
+    evo_title: 'Evolution Sandbox',
+    evo_subtitle: 'Drift, Selection, Migration — simulated in real time',
+    sci_context_label: 'Scientific context:',
+    sci_context_body: 'All humans share >99.9% of their DNA, and genetic differences between geographic populations are smaller than differences between individuals within any population. "Selection" in this model describes reproductive success in a specific environment — a variant that is advantageous in one context may be neutral or harmful in another.',
+    ashg_link: 'ASHG Statement on Genetics and Race (2018)',
+    evo_trajectory: 'Trajectory', evo_migration: 'Migration', evo_scenarios: 'Scenarios',
+    start_freq: 'Start frequency (p₀)',
+    pop_size: 'Population size (N)',
+    pop_size_each: 'Population size (each)',
+    selection: 'Selection (s)',
+    dominance: 'Dominance (h)',
+    generations: 'Generations',
+    parallel_runs: 'Parallel runs',
+    bottleneck: 'Bottleneck',
+    bn_at: 'at gen', bn_size: 'size', bn_for: 'for', bn_gen: 'gen',
+    run: 'Run', reset: 'Reset',
+    origin_freq: 'Origin frequency',
+    mig_rate: 'Migration rate (m)',
+    sel_origin: 'Selection in origin',
+    sel_elsewhere: 'Selection elsewhere',
+    simulate_spread: 'Simulate spread',
+    mig_info: 'A genetic variant emerges in one geographic region and may spread via gene flow between neighboring populations. This models how human migration and admixture distribute genetic variation — <em>not</em> how populations "replace" each other. All populations shown are part of one continuous human species with constant gene flow throughout history.',
+    speed: 'Speed',
+    sc_sickle_sub: 'balanced selection',
+    sc_lactose_sub: 'positive selection',
+    sc_skin_sub: 'UV adaptation',
+    sc_aldh2_sub: 'drift vs selection?',
+    sc_founder_sub: 'bottleneck',
+    evo_disclaimer: 'These simulations model simplified population genetics for educational purposes. Real human populations are not discrete units — gene flow is continuous, and geographic frequency differences reflect migration history and environmental adaptation.',
+    all_modules: '← All modules',
+    powered_by: 'powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a>',
+  },
+});
+function applyEvoI18n() {
+  const t = helixI18n.t;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+}
+applyEvoI18n();
+window.addEventListener('helix:lang-changed', () => {
+  applyEvoI18n();
+  // Re-render scenario detail if one is shown
+  if (typeof renderScenarioDetail === 'function' && window.currentScenario) renderScenarioDetail(window.currentScenario);
+});
+</script>
 <script src="landpaths.js"></script>
 <script src="worldmap.js"></script>
 <script src="evolution.js"></script>

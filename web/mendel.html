@@ -6,6 +6,7 @@
 <title>Helix — Mendel Lab</title>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="mendel.css">
+<script src="i18n.js"></script>
 </head>
 <body>
 <div class="widget">
@@ -13,24 +14,26 @@
   <div class="header-banner">
     <img src="helix-banner.png" alt="" class="banner-img">
     <div class="banner-overlay">
+      <a href="index.html" class="back-link">&larr;</a>
       <h1>Helix <span class="badge live">live</span></h1>
-      <p class="banner-sub">Mendel Lab — Inheritance Explorer</p>
+      <p class="banner-sub" data-i18n="mendel_subtitle">Mendel Lab — Inheritance Explorer</p>
     </div>
+    <button id="lang-toggle" class="lang-toggle" title="DE / EN">DE</button>
   </div>
 
   <!-- Mode & Inheritance -->
   <div class="mode-bar">
     <div class="mode-tabs">
-      <button class="mode-tab active" data-mode="cross">Cross</button>
-      <button class="mode-tab" data-mode="pedigree">Pedigree</button>
-      <button class="mode-tab" data-mode="quiz">Quiz</button>
+      <button class="mode-tab active" data-mode="cross" data-i18n="mendel_cross">Cross</button>
+      <button class="mode-tab" data-mode="pedigree" data-i18n="mendel_pedigree">Pedigree</button>
+      <button class="mode-tab" data-mode="quiz" data-i18n="mendel_quiz">Quiz</button>
     </div>
     <select id="inheritance" class="inheritance-select">
-      <option value="ad">Autosomal Dominant</option>
-      <option value="ar" selected>Autosomal Recessive</option>
-      <option value="xr">X-linked Recessive</option>
-      <option value="xd">X-linked Dominant</option>
-      <option value="mito">Mitochondrial</option>
+      <option value="ad" data-i18n="inh_ad">Autosomal Dominant</option>
+      <option value="ar" selected data-i18n="inh_ar">Autosomal Recessive</option>
+      <option value="xr" data-i18n="inh_xr">X-linked Recessive</option>
+      <option value="xd" data-i18n="inh_xd">X-linked Dominant</option>
+      <option value="mito" data-i18n="inh_mito">Mitochondrial</option>
     </select>
   </div>
 
@@ -39,7 +42,7 @@
     <!-- Parent genotypes -->
     <div class="parents-row">
       <div class="parent-card" id="parent1">
-        <div class="parent-label">Parent 1</div>
+        <div class="parent-label" data-i18n="parent1">Parent 1</div>
         <div class="parent-geno">
           <button class="geno-btn active" data-g="AA">AA</button>
           <button class="geno-btn" data-g="Aa">Aa</button>
@@ -49,7 +52,7 @@
       </div>
       <div class="cross-symbol">&times;</div>
       <div class="parent-card" id="parent2">
-        <div class="parent-label">Parent 2</div>
+        <div class="parent-label" data-i18n="parent2">Parent 2</div>
         <div class="parent-geno">
           <button class="geno-btn" data-g="AA">AA</button>
           <button class="geno-btn active" data-g="Aa">Aa</button>
@@ -61,7 +64,7 @@
 
     <!-- Penetrance -->
     <div class="slider-row">
-      <label>Penetrance <span class="val" id="pen-val">100%</span></label>
+      <label><span data-i18n="penetrance">Penetrance</span> <span class="val" id="pen-val">100%</span></label>
       <input type="range" id="pen-slider" min="0" max="100" step="1" value="100">
     </div>
 
@@ -75,7 +78,7 @@
 
     <!-- Variant presets -->
     <div class="variants-section">
-      <div class="section-label">Real variant examples <span class="hint">(sets inheritance + parents)</span></div>
+      <div class="section-label"><span data-i18n="real_variants_label">Real variant examples</span> <span class="hint" data-i18n="sets_parents_hint">(sets inheritance + parents)</span></div>
       <div class="preset-row">
         <button class="vpreset" data-v="cf">CF (CFTR) <small>AR</small></button>
         <button class="vpreset" data-v="sickle">Sickle Cell <small>AR</small></button>
@@ -93,8 +96,8 @@
       <svg id="pedigree-svg" viewBox="0 0 500 320" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
     <div class="pedigree-controls">
-      <button class="ped-btn" id="ped-add">+ Add child</button>
-      <button class="ped-btn" id="ped-reset">Reset</button>
+      <button class="ped-btn" id="ped-add" data-i18n="add_child">+ Add child</button>
+      <button class="ped-btn" id="ped-reset" data-i18n="reset">Reset</button>
       <div class="ped-info" id="ped-info"></div>
     </div>
   </div>
@@ -104,15 +107,66 @@
     <div class="quiz-area" id="quiz-area"></div>
   </div>
 
-  <div class="science-disclaimer">Genetic risk calculations are simplified models for teaching. Clinical genetic counseling requires professional evaluation considering family history, penetrance variability, and environmental factors. Inheritance patterns shown here are Mendelian simplifications — most traits involve complex genetics.</div>
+  <div class="science-disclaimer" data-i18n="mendel_disclaimer">Genetic risk calculations are simplified models for teaching. Clinical genetic counseling requires professional evaluation considering family history, penetrance variability, and environmental factors. Inheritance patterns shown here are Mendelian simplifications — most traits involve complex genetics.</div>
 
   <!-- Footer -->
   <div class="footer">
-    <a href="index.html">&#8592; All modules</a>
-    <span>powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
+    <a href="index.html" data-i18n="all_modules">← All modules</a>
+    <span data-i18n-html="powered_by">powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
   </div>
 </div>
 
+<script>
+helixI18n.registerI18n({
+  de: {
+    mendel_subtitle: 'Mendel-Labor — Erbgänge interaktiv',
+    mendel_cross: 'Kreuzung',
+    mendel_pedigree: 'Stammbaum',
+    mendel_quiz: 'Quiz',
+    inh_ad: 'Autosomal dominant',
+    inh_ar: 'Autosomal rezessiv',
+    inh_xr: 'X-chromosomal rezessiv',
+    inh_xd: 'X-chromosomal dominant',
+    inh_mito: 'Mitochondrial',
+    parent1: 'Elternteil 1', parent2: 'Elternteil 2',
+    penetrance: 'Penetranz',
+    real_variants_label: 'Echte Varianten',
+    sets_parents_hint: '(setzt Erbgang + Eltern)',
+    add_child: '+ Kind hinzufügen',
+    reset: 'Zurücksetzen',
+    all_modules: '← Alle Module',
+    powered_by: 'powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a>',
+    mendel_disclaimer: 'Die gezeigten genetischen Risikoberechnungen sind vereinfachte Lehrmodelle. Eine klinische genetische Beratung erfordert eine professionelle Bewertung unter Berücksichtigung der Familienanamnese, variabler Penetranz und Umweltfaktoren. Die hier dargestellten Erbgänge sind mendelsche Vereinfachungen — die meisten Merkmale haben eine komplexe Genetik.',
+  },
+  en: {
+    mendel_subtitle: 'Mendel Lab — Inheritance Explorer',
+    mendel_cross: 'Cross',
+    mendel_pedigree: 'Pedigree',
+    mendel_quiz: 'Quiz',
+    inh_ad: 'Autosomal Dominant',
+    inh_ar: 'Autosomal Recessive',
+    inh_xr: 'X-linked Recessive',
+    inh_xd: 'X-linked Dominant',
+    inh_mito: 'Mitochondrial',
+    parent1: 'Parent 1', parent2: 'Parent 2',
+    penetrance: 'Penetrance',
+    real_variants_label: 'Real variant examples',
+    sets_parents_hint: '(sets inheritance + parents)',
+    add_child: '+ Add child',
+    reset: 'Reset',
+    all_modules: '← All modules',
+    powered_by: 'powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a>',
+    mendel_disclaimer: 'Genetic risk calculations are simplified models for teaching. Clinical genetic counseling requires professional evaluation considering family history, penetrance variability, and environmental factors. Inheritance patterns shown here are Mendelian simplifications — most traits involve complex genetics.',
+  },
+});
+function applyMendelI18n() {
+  const t = helixI18n.t;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+}
+applyMendelI18n();
+window.addEventListener('helix:lang-changed', applyMendelI18n);
+</script>
 <script src="mendel.js"></script>
 </body>
 </html>

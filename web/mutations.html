@@ -6,6 +6,7 @@
 <title>Helix — Mutations Lab</title>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="mutations.css">
+<script src="i18n.js"></script>
 </head>
 <body>
 <div class="widget">
@@ -16,23 +17,24 @@
     <div class="banner-overlay">
       <a href="index.html" class="back-link">&larr;</a>
       <div>
-        <h1>Mutations Lab <span class="badge live">live</span></h1>
-        <p class="banner-sub">Point mutations &middot; frameshifts &middot; protein effects</p>
+        <h1><span data-i18n="mut_header">Mutations Lab</span> <span class="badge live">live</span></h1>
+        <p class="banner-sub" data-i18n="mut_subtitle">Point mutations · frameshifts · protein effects</p>
       </div>
     </div>
+    <button id="lang-toggle" class="lang-toggle" title="DE / EN">DE</button>
   </div>
 
   <!-- Mode tabs + depth selector -->
   <div class="mode-bar">
     <div class="mode-tabs">
-      <button class="mode-tab active" data-mode="learn">Learn</button>
-      <button class="mode-tab" data-mode="explore">Explore</button>
-      <button class="mode-tab" data-mode="quiz">Quiz</button>
+      <button class="mode-tab active" data-mode="learn" data-i18n="mode_learn">Learn</button>
+      <button class="mode-tab" data-mode="explore" data-i18n="mode_explore">Explore</button>
+      <button class="mode-tab" data-mode="quiz" data-i18n="mode_quiz">Quiz</button>
     </div>
-      <select id="depth-select" class="depth-select" title="Tiefengrad — Basis, Klinisch, Experte">
-      <option value="basis">Basis</option>
-      <option value="klinisch" selected>Klinisch</option>
-      <option value="experte">Experte</option>
+    <select id="depth-select" class="depth-select" data-i18n-title="depth_title" title="Depth — Basic, Clinical, Expert">
+      <option value="basis" data-i18n="depth_basic">Basic</option>
+      <option value="klinisch" selected data-i18n="depth_clinical">Clinical</option>
+      <option value="experte" data-i18n="depth_expert">Expert</option>
     </select>
   </div>
 
@@ -41,89 +43,73 @@
 
     <!-- Step indicator -->
     <div class="step-indicator">
-      <div class="step active" data-step="1"><span class="step-num">1</span><span class="step-label">Translate</span></div>
-      <div class="step" data-step="2"><span class="step-num">2</span><span class="step-label">Mutate</span></div>
-      <div class="step" data-step="3"><span class="step-num">3</span><span class="step-label">Indels</span></div>
-      <div class="step" data-step="4"><span class="step-num">4</span><span class="step-label">Real cases</span></div>
+      <div class="step active" data-step="1"><span class="step-num">1</span><span class="step-label" data-i18n="step1_label">Translate</span></div>
+      <div class="step" data-step="2"><span class="step-num">2</span><span class="step-label" data-i18n="step2_label">Mutate</span></div>
+      <div class="step" data-step="3"><span class="step-num">3</span><span class="step-label" data-i18n="step3_label">Indels</span></div>
+      <div class="step" data-step="4"><span class="step-num">4</span><span class="step-label" data-i18n="step4_label">Real cases</span></div>
     </div>
 
     <!-- Step 1: Translation -->
     <div class="learn-step active" data-step="1">
-      <div class="step-intro">
-        Jede Aminosäure im Protein wird durch ein <strong>Codon</strong> aus 3 DNA-Basen codiert.
-        Klick auf ein <strong>Codon in der Sequenz</strong> — oder benutze den Button unten —
-        um die Translation Schritt für Schritt mitzuverfolgen.
-      </div>
+      <div class="step-intro" data-i18n-html="step1_intro"></div>
       <div class="cds-viewer" id="learn-cds-viewer"></div>
       <div class="protein-viewer" id="learn-protein-viewer"></div>
       <div class="step-controls">
-        <button id="translate-step-btn" class="ghost-btn">Nächstes Codon &rarr;</button>
-        <button id="translate-all-btn" class="ghost-btn">Alle übersetzen</button>
-        <button id="translate-reset-btn" class="ghost-btn">Reset</button>
+        <button id="translate-step-btn" class="ghost-btn" data-i18n="next_codon">Next codon →</button>
+        <button id="translate-all-btn" class="ghost-btn" data-i18n="translate_all">Translate all</button>
+        <button id="translate-reset-btn" class="ghost-btn" data-i18n="reset">Reset</button>
       </div>
       <div class="step-explain" id="learn-explain-1"></div>
       <div class="step-nav">
-        <button class="next-step-btn" data-go="2">Weiter zu Mutationen &rarr;</button>
+        <button class="next-step-btn" data-go="2" data-i18n="to_mutations">To mutations →</button>
       </div>
     </div>
 
     <!-- Step 2: Point mutations -->
     <div class="learn-step" data-step="2">
-      <div class="step-intro">
-        Jetzt ändere einzelne Basen. Klick auf eine beliebige <strong>Base</strong> in der Sequenz
-        und wähle eine Alternative. Jede Änderung wird sofort kommentiert — probier verschiedene
-        Positionen und schau, was passiert (Silent? Missense? Stop-Codon?).
-      </div>
+      <div class="step-intro" data-i18n-html="step2_intro"></div>
       <div class="cds-viewer interactive" id="mutate-cds-viewer"></div>
       <div class="protein-comparison">
-        <div class="protein-row"><span class="protein-label">Original</span><span class="protein-seq" id="mutate-protein-orig"></span></div>
-        <div class="protein-row"><span class="protein-label">Mutiert</span><span class="protein-seq" id="mutate-protein-mut"></span></div>
+        <div class="protein-row"><span class="protein-label" data-i18n="original">Original</span><span class="protein-seq" id="mutate-protein-orig"></span></div>
+        <div class="protein-row"><span class="protein-label" data-i18n="mutated">Mutated</span><span class="protein-seq" id="mutate-protein-mut"></span></div>
       </div>
       <div class="effect-card" id="mutate-effect-card"></div>
       <div class="step-nav">
-        <button class="prev-step-btn" data-go="1">&larr; Zurück</button>
-        <button class="next-step-btn" data-go="3">Weiter zu Indels &rarr;</button>
+        <button class="prev-step-btn" data-go="1" data-i18n="back">← Back</button>
+        <button class="next-step-btn" data-go="3" data-i18n="to_indels">To indels →</button>
       </div>
     </div>
 
     <!-- Step 3: Indels & frameshifts -->
     <div class="learn-step" data-step="3">
-      <div class="step-intro">
-        Was passiert, wenn Basen <strong>eingefügt oder gelöscht</strong> werden?
-        Vergleiche eine 3-Base-Deletion (in-frame) mit einer 1-Base-Deletion (Frameshift) —
-        der Unterschied ist entscheidend.
-      </div>
+      <div class="step-intro" data-i18n-html="step3_intro"></div>
       <div class="indel-controls">
-        <button class="indel-btn" data-action="del1">1 Base löschen</button>
-        <button class="indel-btn" data-action="del3">3 Basen löschen</button>
-        <button class="indel-btn" data-action="ins1">1 Base einfügen</button>
-        <button class="indel-btn" data-action="ins3">3 Basen einfügen</button>
-        <button class="indel-btn ghost" data-action="reset">Reset</button>
+        <button class="indel-btn" data-action="del1" data-i18n="indel_del1">Delete 1 base</button>
+        <button class="indel-btn" data-action="del3" data-i18n="indel_del3">Delete 3 bases</button>
+        <button class="indel-btn" data-action="ins1" data-i18n="indel_ins1">Insert 1 base</button>
+        <button class="indel-btn" data-action="ins3" data-i18n="indel_ins3">Insert 3 bases</button>
+        <button class="indel-btn ghost" data-action="reset" data-i18n="reset">Reset</button>
       </div>
       <div class="cds-viewer" id="indel-cds-viewer"></div>
       <div class="protein-comparison">
-        <div class="protein-row"><span class="protein-label">Original</span><span class="protein-seq" id="indel-protein-orig"></span></div>
-        <div class="protein-row"><span class="protein-label">Mutiert</span><span class="protein-seq" id="indel-protein-mut"></span></div>
+        <div class="protein-row"><span class="protein-label" data-i18n="original">Original</span><span class="protein-seq" id="indel-protein-orig"></span></div>
+        <div class="protein-row"><span class="protein-label" data-i18n="mutated">Mutated</span><span class="protein-seq" id="indel-protein-mut"></span></div>
       </div>
       <div class="effect-card" id="indel-effect-card"></div>
       <div class="step-nav">
-        <button class="prev-step-btn" data-go="2">&larr; Zurück</button>
-        <button class="next-step-btn" data-go="4">Echte Fälle &rarr;</button>
+        <button class="prev-step-btn" data-go="2" data-i18n="back">← Back</button>
+        <button class="next-step-btn" data-go="4" data-i18n="to_real_cases">Real cases →</button>
       </div>
     </div>
 
     <!-- Step 4: Real teaching cases -->
     <div class="learn-step" data-step="4">
-      <div class="step-intro">
-        Du hast die Grundlagen verstanden. Hier sind echte Mutationen, die genau das tun,
-        was du gerade ausprobiert hast — jede mit klinischem Kontext und einstellbarer Tiefe
-        (Basis / Klinisch / Experte).
-      </div>
+      <div class="step-intro" data-i18n-html="step4_intro"></div>
       <div class="case-grid" id="learn-case-grid"></div>
       <div class="case-detail" id="learn-case-detail" style="display:none"></div>
       <div class="step-nav">
-        <button class="prev-step-btn" data-go="3">&larr; Zurück</button>
-        <a href="#explore" class="next-step-btn" id="goto-explore">Echte Daten erkunden &rarr;</a>
+        <button class="prev-step-btn" data-go="3" data-i18n="back">← Back</button>
+        <a href="#explore" class="next-step-btn" id="goto-explore" data-i18n="explore_real_data">Explore real data →</a>
       </div>
     </div>
 
@@ -134,11 +120,11 @@
 
     <div class="explore-search">
       <div class="search-row">
-        <input type="text" id="explore-gene-input" placeholder="Gen suchen (z.B. CFTR, BRCA1, TP53)..." autocomplete="off">
+        <input type="text" id="explore-gene-input" data-i18n-placeholder="gene_search_placeholder" placeholder="Search gene (e.g. CFTR, BRCA1, TP53)…" autocomplete="off">
         <div class="autocomplete" id="explore-autocomplete"></div>
       </div>
       <div class="quick-genes">
-        <span class="quick-label">Schnellauswahl:</span>
+        <span class="quick-label" data-i18n="quick_select">Quick select:</span>
         <button class="quick-gene" data-gene="CFTR">CFTR</button>
         <button class="quick-gene" data-gene="BRCA1">BRCA1</button>
         <button class="quick-gene" data-gene="TP53">TP53</button>
@@ -151,8 +137,8 @@
     <div class="explore-content" id="explore-content">
       <div class="explore-empty">
         <div class="empty-icon">&Delta;DNA</div>
-        <div class="empty-title">Wähle ein Gen, um echte Varianten zu erkunden</div>
-        <div class="empty-sub">Live-Daten von ClinVar (via VUS Tracker), gnomAD und UniProt</div>
+        <div class="empty-title" data-i18n="explore_empty_title">Pick a gene to explore real variants</div>
+        <div class="empty-sub" data-i18n="explore_empty_sub">Live data from ClinVar (via VUS Tracker), gnomAD and UniProt</div>
       </div>
     </div>
 
@@ -163,31 +149,31 @@
 
     <div id="quiz-start" class="quiz-start">
       <div class="quiz-intro">
-        <h2>Prüfe dein Verständnis</h2>
-        <p>Drei Schwierigkeitsstufen mit echten Fällen aus der klinischen Praxis.</p>
+        <h2 data-i18n="quiz_intro_title">Test your understanding</h2>
+        <p data-i18n="quiz_intro_sub">Three difficulty levels with real cases from clinical practice.</p>
       </div>
       <div class="quiz-levels">
         <button class="quiz-level" data-level="1">
           <div class="ql-num">1</div>
-          <div class="ql-title">Grundlagen</div>
-          <div class="ql-desc">Mutations-Typ erkennen, Codon-Änderung verstehen</div>
+          <div class="ql-title" data-i18n="quiz_lvl1_title">Fundamentals</div>
+          <div class="ql-desc" data-i18n="quiz_lvl1_desc">Recognize mutation types, understand codon changes</div>
         </button>
         <button class="quiz-level" data-level="2">
           <div class="ql-num">2</div>
-          <div class="ql-title">Klinische Fälle</div>
-          <div class="ql-desc">HGVS lesen, Pathomechanismen, NMD, Splice-Mutationen</div>
+          <div class="ql-title" data-i18n="quiz_lvl2_title">Clinical cases</div>
+          <div class="ql-desc" data-i18n="quiz_lvl2_desc">Read HGVS, pathomechanisms, NMD, splice mutations</div>
         </button>
         <button class="quiz-level" data-level="3">
           <div class="ql-num">3</div>
-          <div class="ql-title">Interpretation</div>
-          <div class="ql-desc">ACMG-Klassifikation, Genotype-Phenotype, klinische Entscheidungen</div>
+          <div class="ql-title" data-i18n="quiz_lvl3_title">Interpretation</div>
+          <div class="ql-desc" data-i18n="quiz_lvl3_desc">ACMG classification, genotype-phenotype, clinical decisions</div>
         </button>
       </div>
     </div>
 
     <div id="quiz-game" class="quiz-game" style="display:none">
       <div class="quiz-progress">
-        <span id="quiz-progress-text">Frage 1 von 10</span>
+        <span id="quiz-progress-text">–</span>
         <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
         <span id="quiz-score-text">Score: 0</span>
       </div>
@@ -195,24 +181,24 @@
       <div class="quiz-options" id="quiz-options"></div>
       <div class="quiz-feedback" id="quiz-feedback"></div>
       <div class="quiz-nav">
-        <button id="quiz-next-btn" class="ghost-btn" style="display:none">Nächste Frage &rarr;</button>
-        <button id="quiz-quit-btn" class="ghost-btn">Quiz beenden</button>
+        <button id="quiz-next-btn" class="ghost-btn" style="display:none" data-i18n="quiz_next">Next question →</button>
+        <button id="quiz-quit-btn" class="ghost-btn" data-i18n="quiz_quit">End quiz</button>
       </div>
     </div>
 
     <div id="quiz-result" class="quiz-result" style="display:none">
-      <h2>Quiz beendet!</h2>
+      <h2 data-i18n="quiz_finished">Quiz finished!</h2>
       <div class="quiz-final-score" id="quiz-final-score"></div>
       <div class="quiz-final-feedback" id="quiz-final-feedback"></div>
-      <button class="ghost-btn" id="quiz-restart-btn">Neues Quiz</button>
+      <button class="ghost-btn" id="quiz-restart-btn" data-i18n="quiz_restart">New quiz</button>
     </div>
 
   </div>
 
   <!-- Footer -->
   <div class="footer">
-    <a href="index.html">&larr; Alle Module</a>
-    <span>powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
+    <a href="index.html" data-i18n="all_modules">← All modules</a>
+    <span data-i18n-html="powered_by">powered by <a href="https://github.com/schlein-lab/nano-zyrkel-helix" target="_blank">nano-zyrkel</a></span>
   </div>
 
 </div>

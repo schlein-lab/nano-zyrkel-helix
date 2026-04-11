@@ -14,34 +14,72 @@ async function loadWasm() {
 }
 
 // ── Scenario Presets ────────────────────────────────────────────
+const SCENARIO_TEXT = {
+  en: {
+    sickle_name: 'Malaria Resistance (HBB rs334)',
+    sickle_info: 'A classic example of environment-dependent selection. In regions with endemic malaria, heterozygous carriers of the sickle cell variant have increased resistance to Plasmodium falciparum — a survival advantage that maintains the variant at ~5-20% in affected regions despite severe disease in homozygotes. In non-endemic areas the same variant confers no advantage, illustrating how the fitness of an allele depends entirely on its environmental context.',
+    lactose_name: 'Dairy Culture Co-evolution (LCT rs4988235)',
+    lactose_info: 'A textbook example of gene-culture co-evolution. After cattle domestication ~8000 years ago, several populations that consumed dairy independently evolved lactase persistence through different mutations — in Europe, East Africa, and the Middle East. The ancestral state (lactose intolerance in adulthood) remains the global majority. A clear case of parallel adaptation to a shared cultural practice.',
+    skin_name: 'UV Adaptation (SLC24A5 rs1426654)',
+    skin_info: 'Skin pigmentation is an adaptation to UV radiation intensity. Darker pigmentation protects against UV damage and folate degradation near the equator; lighter pigmentation allows vitamin D synthesis at higher latitudes with less UV. Both are optimal in their respective environments. Pigmentation is determined by many genes and varies clinally with geography — this single variant explains only a fraction of the total variation.',
+    aldh2_name: 'Acetaldehyde Metabolism (ALDH2 rs671)',
+    aldh2_info: 'This variant causes the "alcohol flush reaction" and reaches ~20% in East Asian populations. Its high frequency is debated: possible positive selection (linked by some hypotheses to rice cultivation and fermented beverages) or genetic drift in a founder population. It illustrates that not every population-specific variant reflects selection — random drift in small ancestral populations can produce substantial frequency differences on its own.',
+    founder_name: 'Founder Effect (BRCA1 rs80357906)',
+    founder_info: 'This cancer-predisposing variant is enriched in certain communities due to a population bottleneck — a small founding group carried the variant, and random drift amplified its frequency. It demonstrates how population-specific variant frequencies reflect migration history and chance. Any small isolated population can accumulate disease-causing variants through drift alone, without any selective pressure.',
+  },
+  de: {
+    sickle_name: 'Malaria-Resistenz (HBB rs334)',
+    sickle_info: 'Ein klassisches Beispiel für umweltabhängige Selektion. In Regionen mit endemischer Malaria haben heterozygote Träger der Sichelzell-Variante eine erhöhte Resistenz gegen Plasmodium falciparum — ein Überlebensvorteil, der die Variante trotz schwerer Erkrankung bei Homozygoten in betroffenen Regionen bei ~5–20 % hält. In nicht-endemischen Gebieten bietet dieselbe Variante keinen Vorteil — ein Beispiel dafür, wie die Fitness eines Allels vollständig vom Umweltkontext abhängt.',
+    lactose_name: 'Milchkultur-Koevolution (LCT rs4988235)',
+    lactose_info: 'Ein Lehrbuchbeispiel für Gen-Kultur-Koevolution. Nach der Rinderdomestizierung vor ~8000 Jahren entwickelten mehrere milchkonsumierende Populationen unabhängig voneinander Laktase-Persistenz — in Europa, Ostafrika und im Nahen Osten durch verschiedene Mutationen. Der ursprüngliche Zustand (Laktoseintoleranz im Erwachsenenalter) bleibt global die Mehrheit. Ein klarer Fall paralleler Anpassung an eine geteilte kulturelle Praxis.',
+    skin_name: 'UV-Anpassung (SLC24A5 rs1426654)',
+    skin_info: 'Hautpigmentierung ist eine Anpassung an die Intensität der UV-Strahlung. Dunklere Pigmentierung schützt in Äquatornähe vor UV-Schäden und Folat-Abbau; hellere Pigmentierung ermöglicht in höheren Breiten mit weniger UV die Vitamin-D-Synthese. Beide sind in ihrer jeweiligen Umwelt optimal. Pigmentierung wird von vielen Genen bestimmt und variiert klinal mit der Geografie — diese eine Variante erklärt nur einen Bruchteil der Gesamtvariation.',
+    aldh2_name: 'Acetaldehyd-Metabolismus (ALDH2 rs671)',
+    aldh2_info: 'Diese Variante verursacht den "Alcohol-Flush-Reflex" und erreicht in ostasiatischen Populationen ~20 %. Die hohe Frequenz wird diskutiert: mögliche positive Selektion (von manchen Hypothesen mit Reisanbau und fermentierten Getränken verknüpft) oder genetischer Drift in einer Gründerpopulation. Ein Beispiel dafür, dass nicht jede populationsspezifische Variante auf Selektion zurückgeht — zufälliger Drift in kleinen Ahnen-Populationen kann allein erhebliche Frequenzunterschiede erzeugen.',
+    founder_name: 'Gründereffekt (BRCA1 rs80357906)',
+    founder_info: 'Diese krebsprädisponierende Variante ist in bestimmten Gemeinschaften aufgrund eines Populations-Bottlenecks angereichert — eine kleine Gründergruppe trug die Variante, und zufälliger Drift verstärkte ihre Frequenz. Dies zeigt, wie populationsspezifische Varianten-Frequenzen Migrationsgeschichte und Zufall widerspiegeln. Jede kleine isolierte Population kann allein durch Drift krankheitsverursachende Varianten anreichern, ganz ohne Selektionsdruck.',
+  },
+};
+function scLang() {
+  return (window.helixI18n && window.helixI18n.getLang() === 'de') ? 'de' : 'en';
+}
+function scText(key) {
+  const lang = scLang();
+  return (SCENARIO_TEXT[lang] && SCENARIO_TEXT[lang][key]) || SCENARIO_TEXT.en[key] || '';
+}
 const SCENARIOS = {
   sickle: {
-    name: 'Malaria Resistance (HBB rs334)', gene: 'HBB',
-    info: 'A classic example of environment-dependent selection. In regions with endemic malaria, heterozygous carriers of the sickle cell variant have increased resistance to Plasmodium falciparum — a survival advantage that maintains the variant at ~5-20% in affected regions despite severe disease in homozygotes. In non-endemic areas the same variant confers no advantage, illustrating how the fitness of an allele depends entirely on its environmental context.',
+    get name() { return scText('sickle_name'); },
+    gene: 'HBB',
+    get info() { return scText('sickle_info'); },
     params: { p0: 0.06, n: 10000, s: 0.1, h: 1.5, gen: 500 },
     popFreqs: { AFR: 0.023, EUR: 0.0002, SAS: 0.0017, EAS: 0.0001, AMR: 0.0005 },
   },
   lactose: {
-    name: 'Dairy Culture Co-evolution (LCT rs4988235)', gene: 'LCT',
-    info: 'A textbook example of gene-culture co-evolution. After cattle domestication ~8000 years ago, several populations that consumed dairy independently evolved lactase persistence through different mutations — in Europe, East Africa, and the Middle East. The ancestral state (lactose intolerance in adulthood) remains the global majority. A clear case of parallel adaptation to a shared cultural practice.',
+    get name() { return scText('lactose_name'); },
+    gene: 'LCT',
+    get info() { return scText('lactose_info'); },
     params: { p0: 0.01, n: 10000, s: 0.04, h: 0.5, gen: 400 },
     popFreqs: { EUR: 0.75, AFR: 0.07, SAS: 0.30, EAS: 0.05, AMR: 0.40 },
   },
   skin: {
-    name: 'UV Adaptation (SLC24A5 rs1426654)', gene: 'SLC24A5',
-    info: 'Skin pigmentation is an adaptation to UV radiation intensity. Darker pigmentation protects against UV damage and folate degradation near the equator; lighter pigmentation allows vitamin D synthesis at higher latitudes with less UV. Both are optimal in their respective environments. Pigmentation is determined by many genes and varies clinally with geography — this single variant explains only a fraction of the total variation.',
+    get name() { return scText('skin_name'); },
+    gene: 'SLC24A5',
+    get info() { return scText('skin_info'); },
     params: { p0: 0.01, n: 10000, s: 0.05, h: 0.5, gen: 500 },
     popFreqs: { EUR: 0.98, AFR: 0.02, SAS: 0.65, EAS: 0.02, AMR: 0.50 },
   },
   aldh2: {
-    name: 'Acetaldehyde Metabolism (ALDH2 rs671)', gene: 'ALDH2',
-    info: 'This variant causes the "alcohol flush reaction" and reaches ~20% in East Asian populations. Its high frequency is debated: possible positive selection (linked by some hypotheses to rice cultivation and fermented beverages) or genetic drift in a founder population. It illustrates that not every population-specific variant reflects selection — random drift in small ancestral populations can produce substantial frequency differences on its own.',
+    get name() { return scText('aldh2_name'); },
+    gene: 'ALDH2',
+    get info() { return scText('aldh2_info'); },
     params: { p0: 0.20, n: 5000, s: 0.0, h: 0.5, gen: 300 },
     popFreqs: { EAS: 0.20, EUR: 0.0, AFR: 0.0, SAS: 0.01, AMR: 0.02 },
   },
   founder: {
-    name: 'Founder Effect (BRCA1 rs80357906)', gene: 'BRCA1',
-    info: 'This cancer-predisposing variant is enriched in certain communities due to a population bottleneck — a small founding group carried the variant, and random drift amplified its frequency. It demonstrates how population-specific variant frequencies reflect migration history and chance. Any small isolated population can accumulate disease-causing variants through drift alone, without any selective pressure.',
+    get name() { return scText('founder_name'); },
+    gene: 'BRCA1',
+    get info() { return scText('founder_info'); },
     params: { p0: 0.001, n: 500, s: 0.0, h: 0.5, gen: 40 },
     popFreqs: { EUR: 0.0009, AFR: 0.0001, SAS: 0.0001, EAS: 0.0001, AMR: 0.0009 },
   },
