@@ -1,6 +1,6 @@
 use wasm_bindgen::prelude::*;
 
-use crate::genetics::{codon, hardy_weinberg, mutation, population};
+use crate::genetics::{acmg, cnv, codon, hardy_weinberg, mutation, population, reads, variant_filter};
 
 // ── Hardy-Weinberg ──────────────────────────────────────────────
 
@@ -188,4 +188,135 @@ pub fn evo_fixation_stats(batch_json: &str) -> String {
         "fixed": fixed, "lost": lost, "polymorphic": poly,
         "total": fixed + lost + poly,
     })).unwrap()
+}
+
+// ── Sequencing Module: Reads ───────────────────────────────────
+
+#[wasm_bindgen]
+pub fn layout_reads(reads_json: &str) -> String {
+    let parsed: Vec<reads::Read> = serde_json::from_str(reads_json).unwrap_or_default();
+    let layout = reads::layout_reads(&parsed);
+    serde_json::to_string(&layout).unwrap()
+}
+
+#[wasm_bindgen]
+pub fn compute_coverage(reads_json: &str, region_length: usize) -> String {
+    let parsed: Vec<reads::Read> = serde_json::from_str(reads_json).unwrap_or_default();
+    let cov = reads::compute_coverage(&parsed, region_length);
+    serde_json::to_string(&cov).unwrap()
+}
+
+// ── Sequencing Module: Variant Filtering ───────────────────────
+
+#[wasm_bindgen]
+pub fn filter_variants(variants_json: &str, config_json: &str) -> String {
+    let variants: Vec<variant_filter::Variant> =
+        serde_json::from_str(variants_json).unwrap_or_default();
+    let config: variant_filter::FilterConfig =
+        serde_json::from_str(config_json).unwrap_or_default();
+    let result = variant_filter::filter_variants(&variants, &config);
+    serde_json::to_string(&result).unwrap()
+}
+
+// ── Sequencing Module: ACMG Classification ─────────────────────
+
+#[wasm_bindgen]
+pub fn classify_acmg(criteria_json: &str) -> String {
+    let criteria: Vec<String> = serde_json::from_str(criteria_json).unwrap_or_default();
+    let result = acmg::classify(&criteria);
+    serde_json::to_string(&result).unwrap()
+}
+
+// ── Sequencing Module: CNV Detection ───────────────────────────
+
+#[wasm_bindgen]
+pub fn detect_cnv(
+    coverage_json: &str,
+    window_size: usize,
+    del_threshold: f64,
+    dup_threshold: f64,
+) -> String {
+    let coverage: Vec<u32> = serde_json::from_str(coverage_json).unwrap_or_default();
+    let calls = cnv::detect_cnv(&coverage, window_size, del_threshold, dup_threshold);
+    serde_json::to_string(&calls).unwrap()
+}
+
+// ── Sequencing Module: Pathway Simulation ──────────────────────
+
+#[wasm_bindgen]
+pub fn simulate_pathway(pathway_json: &str, blocked_enzyme: usize, steps: u32) -> String {
+    // Simple Michaelis-Menten pathway simulation
+    #[derive(serde::Deserialize)]
+    struct PathwayNode {
+        name: String,
+        #[serde(default = "default_concentration")]
+        initial_concentration: f64,
+        #[serde(default = "default_vmax")]
+        vmax: f64,
+        #[serde(default = "default_km")]
+        km: f64,
+    }
+    fn default_concentration() -> f64 { 1.0 }
+    fn default_vmax() -> f64 { 1.0 }
+    fn default_km() -> f64 { 0.5 }
+
+    let nodes: Vec<PathwayNode> = serde_json::from_str(pathway_json).unwrap_or_default();
+    if nodes.is_empty() {
+        return "[]".to_string();
+    }
+
+    let n = nodes.len();
+    let mut concentrations: Vec<Vec<f64>> = vec![vec![0.0; steps as usize + 1]; n];
+
+    // Initialize
+    for i in 0..n {
+        concentrations[i][0] = nodes[i].initial_concentration;
+    }
+
+    // Simulate
+    let dt = 0.1;
+    for t in 0..steps as usize {
+        for i in 0..n {
+            let mut dc = 0.0;
+
+            // Production from upstream (enzyme i converts node i to node i+1)
+            if i > 0 {
+                let upstream = concentrations[i - 1][t];
+                let enzyme_idx = i - 1;
+                let activity = if enzyme_idx == blocked_enzyme { 0.0 } else { 1.0 };
+                let rate = activity * nodes[enzyme_idx].vmax * upstream
+                    / (nodes[enzyme_idx].km + upstream);
+                dc += rate * dt;
+            }
+
+            // Consumption (enzyme i converts node i to node i+1)
+            if i < n - 1 {
+                let substrate = concentrations[i][t];
+                let activity = if i == blocked_enzyme { 0.0 } else { 1.0 };
+                let rate = activity * nodes[i].vmax * substrate / (nodes[i].km + substrate);
+                dc -= rate * dt;
+            }
+
+            // Influx for first node
+            if i == 0 {
+                dc += 0.5 * dt; // constant dietary influx
+            }
+
+            concentrations[i][t + 1] = (concentrations[i][t] + dc).max(0.0);
+        }
+    }
+
+    // Return as {name, values} array
+    let result: Vec<serde_json::Value> = nodes
+        .iter()
+        .enumerate()
+        .map(|(i, node)| {
+            serde_json::json!({
+                "name": node.name,
+                "values": concentrations[i],
+            })
+        })
+        .collect();
+
+    serde_json::to_string(&result).unwrap()
 }
