@@ -187,46 +187,52 @@ export class BamViewer {
         ctx.strokeRect(x, y, w, rowHeight - readGap);
       }
 
-      // ── Mismatches: ALWAYS visible regardless of zoom ──
+      // ── Mismatches: IGV-style — only variant positions are prominent ──
       if (read.seq) {
+        // Precompute which genomic positions are known variant sites
+        const variantPositions = new Set();
+        for (const v of this.variants) {
+          const vEnd = v.end || (v.pos + (v.ref ? v.ref.length : 1));
+          for (let p = v.pos; p < vEnd; p++) variantPositions.add(p);
+        }
+
         for (let i = 0; i < read.seq.length; i++) {
           const base = read.seq[i];
-          const refBase = this.reference[read.start + i];
-          const bx = (read.start + i) * bpWidth;
+          const genomicPos = read.start + i;
+          const refBase = this.reference[genomicPos];
+          const bx = genomicPos * bpWidth;
 
           if (refBase && base !== refBase) {
-            const color = this.baseColors[base] || '#fff';
+            const isAtVariant = variantPositions.has(genomicPos);
 
-            if (bpWidth >= 4) {
-              // Zoomed in: fill full base width, show letter
-              ctx.fillStyle = color;
+            if (isAtVariant) {
+              // ── Variant-position mismatch: PROMINENT (like IGV) ──
+              const color = this.baseColors[base] || '#fff';
+              if (bpWidth >= 4) {
+                ctx.fillStyle = color;
+                ctx.fillRect(bx, y, bpWidth, rowHeight - readGap);
+                if (bpWidth >= 6) {
+                  ctx.fillStyle = '#000';
+                  ctx.font = `bold ${Math.min(9, bpWidth)}px monospace`;
+                  ctx.textAlign = 'center';
+                  ctx.fillText(base, bx + bpWidth / 2, y + rowHeight - 2);
+                }
+              } else {
+                // Zoomed out: colored tick always visible
+                ctx.fillStyle = color;
+                ctx.fillRect(bx, y, Math.max(2, bpWidth), rowHeight - readGap);
+              }
+            }
+            // Non-variant mismatches (sequencing errors): ignore at normal zoom,
+            // only show as very faint dots at high zoom
+            else if (bpWidth >= 8) {
+              ctx.fillStyle = 'rgba(150, 150, 150, 0.3)';
               ctx.fillRect(bx, y, bpWidth, rowHeight - readGap);
-              if (bpWidth >= 6) {
-                ctx.fillStyle = '#000';
-                ctx.font = `${Math.min(9, bpWidth)}px monospace`;
-                ctx.textAlign = 'center';
-                ctx.fillText(base, bx + bpWidth / 2, y + rowHeight - 2);
-              }
-            } else {
-              // Zoomed out: draw a colored dot/rectangle that is always visible
-              const dotW = Math.max(2, bpWidth);
-              const dotH = rowHeight - readGap;
-              ctx.fillStyle = color;
-              ctx.fillRect(bx, y, dotW, dotH);
             }
-
-            // Quality shading for mismatches
-            if (this.showQuality && read.qual && read.qual[i] !== undefined) {
-              const q = read.qual[i];
-              if (q < 20) {
-                ctx.fillStyle = `rgba(239, 68, 68, ${0.3 * (1 - q / 20)})`;
-                ctx.fillRect(bx, y, Math.max(bpWidth, 2), rowHeight - readGap);
-              }
-            }
-          } else if (bpWidth >= 6) {
-            // Match at high zoom: show base letter
-            ctx.fillStyle = this.colors.match;
-            ctx.font = `${Math.min(8, bpWidth - 1)}px monospace`;
+          } else if (bpWidth >= 8) {
+            // Match at very high zoom: show base letter in muted gray
+            ctx.fillStyle = 'rgba(148, 163, 184, 0.4)';
+            ctx.font = `${Math.min(7, bpWidth - 1)}px monospace`;
             ctx.textAlign = 'center';
             ctx.fillText(base, bx + bpWidth / 2, y + rowHeight - 2);
           }
