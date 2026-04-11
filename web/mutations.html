@@ -29,7 +29,7 @@
       <button class="mode-tab" data-mode="explore">Explore</button>
       <button class="mode-tab" data-mode="quiz">Quiz</button>
     </div>
-    <select id="depth-select" class="depth-select" title="Tiefengrad / depth">
+      <select id="depth-select" class="depth-select" title="Tiefengrad — Basis, Klinisch, Experte">
       <option value="basis">Basis</option>
       <option value="klinisch" selected>Klinisch</option>
       <option value="experte">Experte</option>
@@ -50,14 +50,15 @@
     <!-- Step 1: Translation -->
     <div class="learn-step active" data-step="1">
       <div class="step-intro">
-        Jede Aminosaeure im Protein wird durch ein <strong>Codon</strong> aus 3 DNA-Basen codiert.
-        Klick auf das gruene Start-Codon (ATG), um die Translation zu starten.
+        Jede Aminosäure im Protein wird durch ein <strong>Codon</strong> aus 3 DNA-Basen codiert.
+        Klick auf ein <strong>Codon in der Sequenz</strong> — oder benutze den Button unten —
+        um die Translation Schritt für Schritt mitzuverfolgen.
       </div>
       <div class="cds-viewer" id="learn-cds-viewer"></div>
       <div class="protein-viewer" id="learn-protein-viewer"></div>
       <div class="step-controls">
-        <button id="translate-step-btn" class="ghost-btn">Naechstes Codon &rarr;</button>
-        <button id="translate-all-btn" class="ghost-btn">Alle uebersetzen</button>
+        <button id="translate-step-btn" class="ghost-btn">Nächstes Codon &rarr;</button>
+        <button id="translate-all-btn" class="ghost-btn">Alle übersetzen</button>
         <button id="translate-reset-btn" class="ghost-btn">Reset</button>
       </div>
       <div class="step-explain" id="learn-explain-1"></div>
@@ -69,8 +70,9 @@
     <!-- Step 2: Point mutations -->
     <div class="learn-step" data-step="2">
       <div class="step-intro">
-        Jetzt aendere eine einzelne Base. Klick auf eine beliebige <strong>Base</strong> in der Sequenz
-        und waehle eine Alternative. Beobachte, wie sich das Protein veraendert.
+        Jetzt ändere einzelne Basen. Klick auf eine beliebige <strong>Base</strong> in der Sequenz
+        und wähle eine Alternative. Jede Änderung wird sofort kommentiert — probier verschiedene
+        Positionen und schau, was passiert (Silent? Missense? Stop-Codon?).
       </div>
       <div class="cds-viewer interactive" id="mutate-cds-viewer"></div>
       <div class="protein-comparison">
@@ -79,7 +81,7 @@
       </div>
       <div class="effect-card" id="mutate-effect-card"></div>
       <div class="step-nav">
-        <button class="prev-step-btn" data-go="1">&larr; Zurueck</button>
+        <button class="prev-step-btn" data-go="1">&larr; Zurück</button>
         <button class="next-step-btn" data-go="3">Weiter zu Indels &rarr;</button>
       </div>
     </div>
@@ -87,14 +89,15 @@
     <!-- Step 3: Indels & frameshifts -->
     <div class="learn-step" data-step="3">
       <div class="step-intro">
-        Was passiert, wenn Basen <strong>eingefuegt oder geloescht</strong> werden?
-        Vergleiche eine 3-Base-Deletion (in-frame) mit einer 1-Base-Deletion (frameshift).
+        Was passiert, wenn Basen <strong>eingefügt oder gelöscht</strong> werden?
+        Vergleiche eine 3-Base-Deletion (in-frame) mit einer 1-Base-Deletion (Frameshift) —
+        der Unterschied ist entscheidend.
       </div>
       <div class="indel-controls">
-        <button class="indel-btn" data-action="del1">1 Base loeschen</button>
-        <button class="indel-btn" data-action="del3">3 Basen loeschen</button>
-        <button class="indel-btn" data-action="ins1">1 Base einfuegen</button>
-        <button class="indel-btn" data-action="ins3">3 Basen einfuegen</button>
+        <button class="indel-btn" data-action="del1">1 Base löschen</button>
+        <button class="indel-btn" data-action="del3">3 Basen löschen</button>
+        <button class="indel-btn" data-action="ins1">1 Base einfügen</button>
+        <button class="indel-btn" data-action="ins3">3 Basen einfügen</button>
         <button class="indel-btn ghost" data-action="reset">Reset</button>
       </div>
       <div class="cds-viewer" id="indel-cds-viewer"></div>
@@ -104,21 +107,22 @@
       </div>
       <div class="effect-card" id="indel-effect-card"></div>
       <div class="step-nav">
-        <button class="prev-step-btn" data-go="2">&larr; Zurueck</button>
-        <button class="next-step-btn" data-go="4">Echte Faelle &rarr;</button>
+        <button class="prev-step-btn" data-go="2">&larr; Zurück</button>
+        <button class="next-step-btn" data-go="4">Echte Fälle &rarr;</button>
       </div>
     </div>
 
     <!-- Step 4: Real teaching cases -->
     <div class="learn-step" data-step="4">
       <div class="step-intro">
-        Du hast jetzt die Grundlagen verstanden. Hier sind echte Mutationen, die genau das tun,
-        was du gerade ausprobiert hast.
+        Du hast die Grundlagen verstanden. Hier sind echte Mutationen, die genau das tun,
+        was du gerade ausprobiert hast — jede mit klinischem Kontext und einstellbarer Tiefe
+        (Basis / Klinisch / Experte).
       </div>
       <div class="case-grid" id="learn-case-grid"></div>
       <div class="case-detail" id="learn-case-detail" style="display:none"></div>
       <div class="step-nav">
-        <button class="prev-step-btn" data-go="3">&larr; Zurueck</button>
+        <button class="prev-step-btn" data-go="3">&larr; Zurück</button>
         <a href="#explore" class="next-step-btn" id="goto-explore">Echte Daten erkunden &rarr;</a>
       </div>
     </div>
@@ -147,7 +151,7 @@
     <div class="explore-content" id="explore-content">
       <div class="explore-empty">
         <div class="empty-icon">&Delta;DNA</div>
-        <div class="empty-title">Waehle ein Gen, um echte Varianten zu erkunden</div>
+        <div class="empty-title">Wähle ein Gen, um echte Varianten zu erkunden</div>
         <div class="empty-sub">Live-Daten von ClinVar (via VUS Tracker), gnomAD und UniProt</div>
       </div>
     </div>
@@ -159,18 +163,18 @@
 
     <div id="quiz-start" class="quiz-start">
       <div class="quiz-intro">
-        <h2>Pruefe dein Verstaendnis</h2>
-        <p>Drei Schwierigkeitsstufen mit echten Faellen aus der klinischen Praxis.</p>
+        <h2>Prüfe dein Verständnis</h2>
+        <p>Drei Schwierigkeitsstufen mit echten Fällen aus der klinischen Praxis.</p>
       </div>
       <div class="quiz-levels">
         <button class="quiz-level" data-level="1">
           <div class="ql-num">1</div>
           <div class="ql-title">Grundlagen</div>
-          <div class="ql-desc">Mutations-Typ erkennen, Codon-Aenderung verstehen</div>
+          <div class="ql-desc">Mutations-Typ erkennen, Codon-Änderung verstehen</div>
         </button>
         <button class="quiz-level" data-level="2">
           <div class="ql-num">2</div>
-          <div class="ql-title">Klinische Faelle</div>
+          <div class="ql-title">Klinische Fälle</div>
           <div class="ql-desc">HGVS lesen, Pathomechanismen, NMD, Splice-Mutationen</div>
         </button>
         <button class="quiz-level" data-level="3">
@@ -191,7 +195,7 @@
       <div class="quiz-options" id="quiz-options"></div>
       <div class="quiz-feedback" id="quiz-feedback"></div>
       <div class="quiz-nav">
-        <button id="quiz-next-btn" class="ghost-btn" style="display:none">Naechste Frage &rarr;</button>
+        <button id="quiz-next-btn" class="ghost-btn" style="display:none">Nächste Frage &rarr;</button>
         <button id="quiz-quit-btn" class="ghost-btn">Quiz beenden</button>
       </div>
     </div>

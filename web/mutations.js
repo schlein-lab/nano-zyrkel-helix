@@ -73,6 +73,7 @@ const state = {
   translateProgress: 0,           // for step 1 animated translation
   // Step 2 mutation state
   mutateCds: 'ATGGAGTGGGCCTACATCGCCAAGCTGTAA',
+  lastMutatedPos: null,           // position of the most recent click (for focused effect card)
   // Step 3 indel state
   indelOriginal: 'ATGGAGTGGGCCTACATCGCCAAGCTGTAA',
   indelMutated:  'ATGGAGTGGGCCTACATCGCCAAGCTGTAA',
@@ -204,6 +205,16 @@ function renderLearnStep1() {
       baseEl.textContent = b;
       group.appendChild(baseEl);
     });
+
+    // Make codon group clickable — clicking advances translation to (and including) this codon
+    group.style.cursor = 'pointer';
+    group.title = 'Klick um bis hier zu übersetzen';
+    group.addEventListener('click', () => {
+      // Translate up to and including this codon, capped at stop
+      const target = idx + 1;
+      translateTo(target);
+    });
+
     viewer.appendChild(group);
   });
 
@@ -222,15 +233,27 @@ function renderLearnStep1() {
 
   // Explanation text
   if (state.translateProgress === 0) {
-    explain.textContent = 'Klick "Naechstes Codon" um die Translation zu starten. Das erste Codon (ATG) markiert den Start jedes Proteins und codiert Methionin.';
+    explain.innerHTML = 'Klick auf das grüne Start-Codon (oder auf "Nächstes Codon") um die Translation zu starten. Das Start-Codon <strong>ATG</strong> markiert den Anfang jedes Proteins und codiert Methionin.';
     explain.classList.remove('empty');
   } else if (state.translateProgress < codons.length) {
     const lastCodon = codons[state.translateProgress - 1];
     const aa = CODON_TABLE[lastCodon];
-    explain.textContent = `Codon ${state.translateProgress}: ${lastCodon} → ${aa} (${AA_FULL_NAME[aa] || aa}). ${state.translateProgress === 1 ? 'Methionin ist die erste Aminosaeure jedes Proteins.' : ''}`;
+    const extra = state.translateProgress === 1 ? ' Methionin ist die erste Aminosäure jedes Proteins — nach der Translation wird es bei vielen Proteinen wieder abgespalten.' : '';
+    explain.innerHTML = `Codon ${state.translateProgress}: <strong>${lastCodon}</strong> → <strong>${aa}</strong> (${AA_FULL_NAME[aa] || aa}).${extra}`;
   } else {
-    explain.textContent = 'Translation komplett! Du hast aus 30 DNA-Basen ein 9-Aminosaeuren langes Protein gebaut. Das Stop-Codon (TAA) wird nicht in eine Aminosaeure uebersetzt — es signalisiert dem Ribosom: "Stopp, fertig hier."';
+    explain.innerHTML = 'Translation komplett! Du hast aus 30 DNA-Basen ein 9-Aminosäuren langes Protein gebaut. Das <strong>Stop-Codon</strong> (TAA) wird nicht in eine Aminosäure übersetzt — es signalisiert dem Ribosom: "Stopp, fertig hier."';
   }
+}
+
+function translateTo(targetCount) {
+  const codons = chunkCdsToCodons(state.baseCds);
+  let t = Math.min(targetCount, codons.length);
+  // If the target crosses a stop codon, cap at the stop
+  for (let i = 0; i < t; i++) {
+    if (CODON_TABLE[codons[i]] === '*') { t = i + 1; break; }
+  }
+  state.translateProgress = t;
+  renderLearnStep1();
 }
 
 function translateNext() {
@@ -305,7 +328,7 @@ function renderLearnStep2() {
   const mutProtein = translate(cds).replace(/\*.*$/, '*');
   renderProteinComparison('mutate-protein-orig', 'mutate-protein-mut', origProtein, mutProtein);
 
-  renderEffectCard('mutate-effect-card', original, cds);
+  renderEffectCard('mutate-effect-card', original, cds, state.lastMutatedPos);
 }
 
 function openBasePicker(event, cdsPos) {
@@ -350,6 +373,7 @@ function changeMutateBase(pos, newBase) {
   const arr = state.mutateCds.split('');
   arr[pos] = newBase;
   state.mutateCds = arr.join('');
+  state.lastMutatedPos = pos;
   renderLearnStep2();
 }
 
@@ -377,10 +401,11 @@ function renderProteinComparison(origElId, mutElId, origProtein, mutProtein) {
   }
 }
 
-function renderEffectCard(targetId, originalCds, mutatedCds) {
+function renderEffectCard(targetId, originalCds, mutatedCds, focusPos) {
   const card = document.getElementById(targetId);
   if (originalCds === mutatedCds) {
-    card.classList.remove('show');
+    card.innerHTML = '<span class="effect-badge silent">Keine Mutation</span><span class="effect-explain">Die Sequenz entspricht dem Original. Klick auf eine Base um eine Mutation einzuführen.</span>';
+    card.classList.add('show');
     return;
   }
 
@@ -389,45 +414,61 @@ function renderEffectCard(targetId, originalCds, mutatedCds) {
   let html = '';
 
   if (lenDiff === 0) {
-    // Substitution(s)
-    let firstDiff = -1;
-    for (let i = 0; i < originalCds.length; i++) {
-      if (originalCds[i] !== mutatedCds[i]) { firstDiff = i; break; }
+    // Substitution(s). Focus on the position the user most recently clicked,
+    // or fall back to the first diff.
+    let targetPos = focusPos;
+    if (targetPos == null || originalCds[targetPos] === mutatedCds[targetPos]) {
+      targetPos = -1;
+      for (let i = 0; i < originalCds.length; i++) {
+        if (originalCds[i] !== mutatedCds[i]) { targetPos = i; break; }
+      }
     }
-    if (firstDiff < 0) { card.classList.remove('show'); return; }
+    if (targetPos < 0) { card.classList.remove('show'); return; }
 
-    const codonStart = Math.floor(firstDiff / 3) * 3;
+    const codonStart = Math.floor(targetPos / 3) * 3;
     const origCodon = originalCds.substr(codonStart, 3);
     const mutCodon = mutatedCds.substr(codonStart, 3);
     const origAA = CODON_TABLE[origCodon];
     const mutAA = CODON_TABLE[mutCodon];
 
+    // Count total substitutions for context
+    let totalSubs = 0;
+    for (let i = 0; i < originalCds.length; i++) {
+      if (originalCds[i] !== mutatedCds[i]) totalSubs++;
+    }
+
     let badge = 'silent';
     let title = 'Silent';
     let body = '';
 
-    if (origAA === mutAA) {
+    if (origCodon === mutCodon) {
+      // User reverted this position back
+      badge = 'silent';
+      title = 'Rückgängig';
+      body = `Du hast diese Position wieder auf das Original gesetzt. Dieses Codon ist jetzt identisch zum Wildtyp: <strong>${origCodon}</strong> (${AA_FULL_NAME[origAA] || origAA}).`;
+    } else if (origAA === mutAA) {
       badge = 'silent';
       title = 'Silent (synonyme Mutation)';
-      body = `Das Codon <strong>${origCodon}</strong> wurde zu <strong>${mutCodon}</strong>. Beide codieren <strong>${AA_FULL_NAME[origAA]} (${origAA})</strong>. Die Aminosaeure aendert sich nicht — der genetische Code ist redundant (Wobble).`;
+      body = `Das Codon <strong>${origCodon}</strong> wurde zu <strong>${mutCodon}</strong>. Beide codieren <strong>${AA_FULL_NAME[origAA]} (${origAA})</strong>. Die Aminosäure ändert sich nicht — der genetische Code ist redundant (Wobble-Position).`;
     } else if (mutAA === '*') {
       badge = 'nonsense';
-      title = 'Nonsense';
-      body = `Das Codon <strong>${origCodon}</strong> wurde zu <strong>${mutCodon}</strong> = Stop-Codon! Die Translation bricht hier ab — das Protein ist verkuerzt. Solche Mutationen fuehren oft zu komplettem Funktionsverlust und koennen NMD ausloesen.`;
+      title = 'Nonsense (vorzeitiges Stop)';
+      body = `Das Codon <strong>${origCodon}</strong> (${AA_FULL_NAME[origAA]}) wurde zu <strong>${mutCodon}</strong> — ein <strong>Stop-Codon</strong>! Die Translation bricht hier ab, das Protein ist verkürzt. Solche Mutationen führen oft zu komplettem Funktionsverlust und können Nonsense-Mediated-Decay (NMD) auslösen.`;
     } else if (origAA === '*') {
       badge = 'in-frame';
       title = 'Stop-Loss';
-      body = `Du hast das Stop-Codon ${origCodon} zerstoert! Statt zu stoppen, wird jetzt <strong>${AA_FULL_NAME[mutAA]} (${mutAA})</strong> eingebaut und die Translation laeuft ueber die normale Grenze hinaus.`;
+      body = `Du hast das Stop-Codon <strong>${origCodon}</strong> zerstört! Statt zu stoppen, wird jetzt <strong>${AA_FULL_NAME[mutAA]} (${mutAA})</strong> eingebaut — die Translation läuft über die normale Grenze hinaus, bis das Ribosom zufällig auf ein anderes Stop-Codon trifft.`;
     } else {
       badge = 'missense';
       title = 'Missense';
-      body = `Das Codon <strong>${origCodon}</strong> wurde zu <strong>${mutCodon}</strong>. Statt <strong>${AA_FULL_NAME[origAA]} (${origAA})</strong> wird nun <strong>${AA_FULL_NAME[mutAA]} (${mutAA})</strong> eingebaut. Ob das pathogen ist, haengt davon ab, wie aehnlich die Aminosaeuren sind und wo sie im Protein liegen.`;
+      body = `Das Codon <strong>${origCodon}</strong> wurde zu <strong>${mutCodon}</strong>. Statt <strong>${AA_FULL_NAME[origAA]} (${origAA})</strong> wird nun <strong>${AA_FULL_NAME[mutAA]} (${mutAA})</strong> eingebaut. Ob das pathogen ist, hängt davon ab, wie ähnlich die Aminosäuren sind (Ladung, Größe, Hydrophobizität) und wo sie im Protein liegen (Funktionsdomäne? Aktives Zentrum?).`;
     }
 
     html = `<span class="effect-badge ${badge}">${title}</span><span class="effect-explain">${body}</span>`;
     html += `<div class="effect-meta">
-      <span>Codon-Position: <strong>${Math.floor(firstDiff/3)+1}</strong></span>
-      <span>CDS-Position: <strong>c.${firstDiff+1}</strong></span>
+      <span>Codon: <strong>${Math.floor(targetPos/3)+1}</strong></span>
+      <span>CDS-Position: <strong>c.${targetPos+1}</strong></span>
+      ${totalSubs > 1 ? `<span>Gesamt: <strong>${totalSubs} Substitutionen</strong></span>` : ''}
     </div>`;
   } else {
     // Indel — use WASM if possible
@@ -437,18 +478,18 @@ function renderEffectCard(targetId, originalCds, mutatedCds) {
     let body;
 
     if (indelInfo.is_frameshift) {
-      body = `Du hast den Leserahmen verschoben! Ab der Mutation wird die ganze nachfolgende Sequenz falsch abgelesen. Nach <strong>${(indelInfo.mutated_protein_len - (indelInfo.first_changed_aa_pos || 0))}</strong> falschen Aminosaeuren entsteht ein vorzeitiges Stop-Codon. Das Protein ist von <strong>${indelInfo.original_protein_len}</strong> auf <strong>${indelInfo.mutated_protein_len}</strong> Aminosaeuren verkuerzt.`;
+      body = `Du hast den <strong>Leserahmen verschoben</strong>! Ab der Mutation wird die ganze nachfolgende Sequenz falsch abgelesen. Nach <strong>${(indelInfo.mutated_protein_len - (indelInfo.first_changed_aa_pos || 0))}</strong> falschen Aminosäuren entsteht ein vorzeitiges Stop-Codon. Das Protein ist von <strong>${indelInfo.original_protein_len}</strong> auf <strong>${indelInfo.mutated_protein_len}</strong> Aminosäuren verkürzt.`;
     } else if (lenDiff < 0) {
-      body = `Du hast <strong>${-lenDiff} Basen</strong> geloescht — das sind ${-lenDiff/3} Codons. Der Leserahmen bleibt erhalten (in-frame), aber das Protein hat <strong>${-lenDiff/3} Aminosaeure(n) weniger</strong>.`;
+      body = `Du hast <strong>${-lenDiff} Basen</strong> gelöscht — das sind ${-lenDiff/3} Codon(s). Der Leserahmen bleibt erhalten (in-frame), aber das Protein hat <strong>${-lenDiff/3} Aminosäure(n) weniger</strong>. Ob das pathogen ist, hängt davon ab, ob die fehlende Aminosäure strukturell wichtig ist (klassisches Beispiel: CFTR p.Phe508del).`;
     } else {
-      body = `Du hast <strong>${lenDiff} Basen</strong> eingefuegt — das sind ${lenDiff/3} Codons. Der Leserahmen bleibt erhalten (in-frame), aber das Protein hat <strong>${lenDiff/3} Aminosaeure(n) mehr</strong>.`;
+      body = `Du hast <strong>${lenDiff} Basen</strong> eingefügt — das sind ${lenDiff/3} Codon(s). Der Leserahmen bleibt erhalten (in-frame), das Protein hat <strong>${lenDiff/3} Aminosäure(n) mehr</strong>. Solche Insertionen können die Proteinstruktur stören (Beispiel: Polyalanin-Expansionen in HOX-Genen).`;
     }
 
     html = `<span class="effect-badge ${badge}">${title}</span><span class="effect-explain">${body}</span>`;
     html += `<div class="effect-meta">
-      <span>Original-Laenge: <strong>${indelInfo.original_protein_len} AA</strong></span>
+      <span>Original-Länge: <strong>${indelInfo.original_protein_len} AA</strong></span>
       <span>Mutiertes Protein: <strong>${indelInfo.mutated_protein_len} AA</strong></span>
-      <span>Net change: <strong>${indelInfo.net_change > 0 ? '+' : ''}${indelInfo.net_change} bp</strong></span>
+      <span>Netto: <strong>${indelInfo.net_change > 0 ? '+' : ''}${indelInfo.net_change} bp</strong></span>
     </div>`;
   }
 
@@ -640,7 +681,7 @@ async function searchGene(query) {
       const data = await res.json();
       state.exploreGeneIndex = data.gene_breakdowns || {};
     } catch (e) {
-      ac.innerHTML = '<div class="ac-item"><span class="gene" style="color:var(--text-dim)">Gen-Index nicht verfuegbar</span></div>';
+      ac.innerHTML = '<div class="ac-item"><span class="gene" style="color:var(--text-dim)">Gen-Index nicht verfügbar</span></div>';
       ac.classList.add('open');
       return;
     }
@@ -681,9 +722,9 @@ async function loadGene(gene) {
   content.innerHTML = `
     <div class="gene-header">
       <span class="gh-name">${gene}</span>
-      <span class="gh-count">Lade Varianten...</span>
+      <span class="gh-count">Lade Varianten…</span>
     </div>
-    <div class="vdp-loading">Hole ClinVar-Daten von VUS Tracker...</div>
+    <div class="vdp-loading">Hole ClinVar-Daten vom VUS Tracker…</div>
   `;
 
   try {
@@ -714,13 +755,13 @@ function renderGenePage(gene) {
       <span class="gh-count">${state.currentVariants.length} Varianten</span>
     </div>
     <div class="variants-filter">
-      <input type="text" id="variant-filter" placeholder="Filter (c./p./Klassifikation)...">
+      <input type="text" id="variant-filter" placeholder="Filter (c./p./Klassifikation)…">
       <select id="class-filter">
         <option value="">Alle Klassen</option>
         <option value="pathogenic">Pathogen</option>
-        <option value="likely_pathogenic">Likely Pathogen</option>
+        <option value="likely_pathogenic">Wahrscheinlich pathogen</option>
         <option value="uncertain_significance">VUS</option>
-        <option value="likely_benign">Likely Benign</option>
+        <option value="likely_benign">Wahrscheinlich benign</option>
         <option value="benign">Benign</option>
       </select>
     </div>
@@ -788,7 +829,7 @@ async function showVariantDetail(v) {
         </div>
       </div>
       <div class="vdp-section" id="vdp-explain"></div>
-      <div class="vdp-section" id="vdp-gnomad"><div class="vdp-loading">Lade gnomAD-Frequenzen...</div></div>
+      <div class="vdp-section" id="vdp-gnomad"><div class="vdp-loading">Lade gnomAD-Frequenzen…</div></div>
     </div>
   `;
   container.querySelector('.vdp-close').addEventListener('click', () => {
@@ -802,7 +843,7 @@ async function showVariantDetail(v) {
   } else {
     document.getElementById('vdp-gnomad').innerHTML = `
       <div class="vdp-section-title">gnomAD</div>
-      <div class="vdp-section-body" style="color:var(--text-dim)">Keine genomischen Koordinaten verfuegbar</div>
+      <div class="vdp-section-body" style="color:var(--text-dim)">Keine genomischen Koordinaten verfügbar</div>
     `;
   }
 }
@@ -825,53 +866,54 @@ function renderVariantExplanation(v) {
   if (hgvs.match(/[acgt]>[acgt]/)) {
     if (hgvs.includes('p.') && hgvs.match(/p\.[a-z]+\d+\*/)) {
       mutationType = 'Nonsense';
-      basisExplain = 'Eine einzelne Base aendert sich und erzeugt ein vorzeitiges Stop-Codon. Die Translation bricht ab → das Protein ist verkuerzt und meist funktionslos.';
-      klinischExplain = 'Nonsense-Mutationen fuehren zu Loss-of-Function. Wenn die Mutation NMD ausloest, wird die mRNA abgebaut → Haploinsuffizienz. Wenn nicht, wird ein trunkiertes Protein produziert (manchmal dominant-negativ).';
-      experteExplain = 'NMD-Vorhersage essentiell: PTC mehr als 50nt upstream der letzten Exon-Exon-Junction → NMD wahrscheinlich. Letztes Exon oder Single-Exon-Gen → NMD-Escape, trunkiertes Protein wird produziert.';
+      basisExplain = 'Eine einzelne Base ändert sich und erzeugt ein vorzeitiges Stop-Codon. Die Translation bricht ab → das Protein ist verkürzt und meist funktionslos.';
+      klinischExplain = 'Nonsense-Mutationen führen zu Loss-of-Function. Wenn die Mutation NMD auslöst, wird die mRNA abgebaut → Haploinsuffizienz. Wenn nicht, wird ein trunkiertes Protein produziert (manchmal dominant-negativ).';
+      experteExplain = 'NMD-Vorhersage essentiell: PTC mehr als 50 nt upstream der letzten Exon-Exon-Junction → NMD wahrscheinlich. Letztes Exon oder Single-Exon-Gen → NMD-Escape, trunkiertes Protein wird produziert.';
     } else if (hgvs.includes('p.') && !hgvs.match(/p\..*=$/)) {
       mutationType = 'Missense';
-      basisExplain = 'Eine einzelne Base aendert sich, dadurch wird eine andere Aminosaeure eingebaut. Das Protein hat die gleiche Laenge, aber an einer Stelle eine andere Aminosaeure.';
-      klinischExplain = 'Ob eine Missense-Mutation pathogen ist, haengt davon ab: Wo im Protein? In einer Funktionsdomaene? Aehnlichkeit der Aminosaeuren? Konservierung? Computational Predictions (CADD, REVEL, AlphaMissense) helfen bei der Einschaetzung.';
-      experteExplain = 'ACMG-Kriterien fuer Missense: PM1 (Mutational Hotspot), PM5 (gleiche Position bekannt pathogen), PP3 (computational evidence), BP4 (computational benign). Funktionsstudien (PS3) sind der Goldstandard, aber selten verfuegbar.';
+      basisExplain = 'Eine einzelne Base ändert sich, dadurch wird eine andere Aminosäure eingebaut. Das Protein hat die gleiche Länge, aber an einer Stelle eine andere Aminosäure.';
+      klinischExplain = 'Ob eine Missense-Mutation pathogen ist, hängt davon ab: Wo im Protein? In einer Funktionsdomäne? Ähnlichkeit der Aminosäuren (Ladung, Größe, Hydrophobizität)? Konservierung? Computational Predictions (CADD, REVEL, AlphaMissense) helfen bei der Einschätzung.';
+      experteExplain = 'ACMG-Kriterien für Missense: PM1 (Mutational Hotspot), PM5 (gleiche Position bekannt pathogen), PP3 (computational evidence), BP4 (computational benign). Funktionsstudien (PS3) sind der Goldstandard, aber selten verfügbar.';
     } else if (hgvs.match(/p\..*=$/) || hgvs.match(/p\.\([^)]*\)/)) {
       mutationType = 'Silent';
-      basisExplain = 'Die DNA-Base aendert sich, aber wegen der Redundanz des genetischen Codes (Wobble-Position) bleibt die Aminosaeure gleich. Klinisch meist irrelevant.';
-      klinischExplain = 'Vorsicht: Manche scheinbar stillen Mutationen veraendern Splice-Enhancer/Silencer-Motive und koennen Exon-Skipping ausloesen. SpliceAI-Vorhersage empfohlen.';
-      experteExplain = 'Codon Usage Bias kann theoretisch die Translationsgeschwindigkeit beeinflussen → veraenderte Protein-Faltung. In der Praxis fast nie klinisch relevant. ACMG: BP7 (synonyme Variante mit niedrigem Splice-Impact).';
+      basisExplain = 'Die DNA-Base ändert sich, aber wegen der Redundanz des genetischen Codes (Wobble-Position) bleibt die Aminosäure gleich. Klinisch meist irrelevant.';
+      klinischExplain = 'Vorsicht: Manche scheinbar stillen Mutationen verändern Splice-Enhancer/Silencer-Motive und können Exon-Skipping auslösen. SpliceAI-Vorhersage empfohlen.';
+      experteExplain = 'Codon Usage Bias kann theoretisch die Translationsgeschwindigkeit beeinflussen → veränderte Protein-Faltung. In der Praxis fast nie klinisch relevant. ACMG: BP7 (synonyme Variante mit niedrigem Splice-Impact).';
     }
   } else if (hgvs.includes('del')) {
     if (hgvs.includes('fs') || hgvs.includes('frameshift')) {
       mutationType = 'Frameshift (Deletion)';
-      basisExplain = 'Eine oder mehrere Basen werden geloescht, und die Anzahl ist nicht durch 3 teilbar → der Leserahmen verschiebt sich. Ab der Mutation wird alles falsch abgelesen, bis ein neues Stop-Codon kommt.';
-      klinischExplain = 'Frameshift-Mutationen sind fast immer pathogen (Loss-of-Function). NMD wird haeufig ausgeloest → Haploinsuffizienz. Bei Genen, in denen Haploinsuffizienz nicht zu Krankheit fuehrt, koennen sie aber tolerabel sein.';
-      experteExplain = 'PVS1 (Very Strong Pathogenic) gilt fuer Null-Varianten in Genen, in denen LoF der bekannte Pathomechanismus ist. PVS1 muss auf Strong/Moderate herabgestuft werden, wenn: PTC im letzten Exon (kein NMD), NMD-Escape, alternative Spleissvarianten den Bereich umgehen.';
+      basisExplain = 'Eine oder mehrere Basen werden gelöscht, und die Anzahl ist nicht durch 3 teilbar → der Leserahmen verschiebt sich. Ab der Mutation wird alles falsch abgelesen, bis ein neues Stop-Codon kommt.';
+      klinischExplain = 'Frameshift-Mutationen sind fast immer pathogen (Loss-of-Function). NMD wird häufig ausgelöst → Haploinsuffizienz. Bei Genen, in denen Haploinsuffizienz nicht zu Krankheit führt, können sie aber tolerabel sein.';
+      experteExplain = 'PVS1 (Very Strong Pathogenic) gilt für Null-Varianten in Genen, in denen LoF der bekannte Pathomechanismus ist. PVS1 muss auf Strong/Moderate herabgestuft werden, wenn: PTC im letzten Exon (kein NMD), NMD-Escape, alternative Spleißvarianten den Bereich umgehen.';
     } else {
       mutationType = 'In-frame Deletion';
-      basisExplain = 'Eine oder mehrere Basen werden geloescht, aber die Anzahl ist durch 3 teilbar → der Leserahmen bleibt erhalten. Das Protein ist um eine oder mehrere Aminosaeuren verkuerzt, behaelt aber seine Grundstruktur.';
-      klinischExplain = 'In-frame Deletionen koennen pathogen (z.B. CFTR p.Phe508del) oder benign sein, abhaengig davon, ob die fehlende Region funktionell wichtig ist. Pathomechanismus oft Protein-Misfolding statt kompletter LoF.';
-      experteExplain = 'PM4 (Protein-Laenge veraendert in non-repeat Region) bei in-frame Indels in funktionellen Domaenen. Funktionelle Studien besonders wichtig, da die Pathogenitaet nicht aus der Sequenz allein vorhersagbar ist.';
+      basisExplain = 'Eine oder mehrere Basen werden gelöscht, aber die Anzahl ist durch 3 teilbar → der Leserahmen bleibt erhalten. Das Protein ist um eine oder mehrere Aminosäuren verkürzt, behält aber seine Grundstruktur.';
+      klinischExplain = 'In-frame Deletionen können pathogen (z. B. CFTR p.Phe508del) oder benign sein, abhängig davon, ob die fehlende Region funktionell wichtig ist. Pathomechanismus oft Protein-Misfolding statt kompletter LoF.';
+      experteExplain = 'PM4 (Protein-Länge verändert in non-repeat Region) bei in-frame Indels in funktionellen Domänen. Funktionelle Studien besonders wichtig, da die Pathogenität nicht aus der Sequenz allein vorhersagbar ist.';
     }
   } else if (hgvs.includes('ins') || hgvs.includes('dup')) {
     if (hgvs.includes('fs')) {
       mutationType = 'Frameshift (Insertion)';
-      basisExplain = 'Basen werden eingefuegt, und die Anzahl ist nicht durch 3 teilbar → Frameshift. Der Leserahmen verschiebt sich, downstream alles falsch.';
+      basisExplain = 'Basen werden eingefügt, und die Anzahl ist nicht durch 3 teilbar → Frameshift. Der Leserahmen verschiebt sich, downstream alles falsch.';
       klinischExplain = 'Wie bei Deletions-Frameshifts: meist Loss-of-Function durch NMD oder Protein-Trunkierung.';
-      experteExplain = 'Duplikationen sind haeufig durch Slippage in repetitiven Regionen. ACMG-Bewertung wie bei anderen Frameshifts (PVS1).';
+      experteExplain = 'Duplikationen sind häufig durch Slippage in repetitiven Regionen. ACMG-Bewertung wie bei anderen Frameshifts (PVS1).';
     } else {
       mutationType = 'In-frame Insertion';
-      basisExplain = 'Basen werden eingefuegt, Anzahl durch 3 teilbar → in-frame. Das Protein wird um eine oder mehrere Aminosaeuren laenger.';
-      klinischExplain = 'In-frame Insertionen in funktionellen Domaenen koennen die Proteinstruktur stoeren. Beispiel: Polyalanin-Expansionen in Transkriptionsfaktoren (HOX-Gene).';
-      experteExplain = 'PM4 anwendbar. Bei Duplikationen ganzer Exons: Pruefen ob Reading Frame erhalten bleibt.';
+      basisExplain = 'Basen werden eingefügt, Anzahl durch 3 teilbar → in-frame. Das Protein wird um eine oder mehrere Aminosäuren länger.';
+      klinischExplain = 'In-frame Insertionen in funktionellen Domänen können die Proteinstruktur stören. Beispiel: Polyalanin-Expansionen in Transkriptionsfaktoren (HOX-Gene).';
+      experteExplain = 'PM4 anwendbar. Bei Duplikationen ganzer Exons: Prüfen ob Reading Frame erhalten bleibt.';
     }
   } else if (hgvs.includes('+1') || hgvs.includes('-1') || hgvs.includes('+2') || hgvs.includes('-2')) {
     mutationType = 'Splice-Site (kanonisch)';
-    basisExplain = 'Die Mutation liegt direkt an der Splice-Site (GT-Donor oder AG-Akzeptor). Diese Stellen sind essentiell fuer korrektes Spleissen — eine Mutation hier zerstoert das Splicen fast immer.';
-    klinischExplain = 'Folgen: Exon-Skipping, kryptischer Splice-Site oder Intron-Retention. Wenn das skipping einen Frameshift erzeugt → wahrscheinlich NMD. Wenn in-frame → verkuerztes Protein.';
-    experteExplain = 'PVS1_Strong fuer kanonische Splice-Sites (+/-1, +/-2). Die genaue Konsequenz auf RNA-Ebene haengt vom Kontext ab — RNA-Analyse aus Patientenblut ist der Goldstandard.';
+    basisExplain = 'Die Mutation liegt direkt an der Splice-Site (GT-Donor oder AG-Akzeptor). Diese Stellen sind essentiell für korrektes Spleißen — eine Mutation hier zerstört das Splicen fast immer.';
+    klinischExplain = 'Folgen: Exon-Skipping, kryptischer Splice-Site oder Intron-Retention. Wenn das Skipping einen Frameshift erzeugt → wahrscheinlich NMD. Wenn in-frame → verkürztes Protein.';
+    experteExplain = 'PVS1_Strong für kanonische Splice-Sites (±1, ±2). Die genaue Konsequenz auf RNA-Ebene hängt vom Kontext ab — RNA-Analyse aus Patientenblut ist der Goldstandard.';
   }
 
+  const depthLabel = { basis: 'Basis', klinisch: 'Klinisch', experte: 'Experte' }[state.depth] || state.depth;
   el.innerHTML = `
-    <div class="vdp-section-title">Erklaerung (${state.depth})</div>
+    <div class="vdp-section-title">Erklärung · ${depthLabel}</div>
     <div class="vdp-section-body">
       <strong>${mutationType}</strong><br>
       ${state.depth === 'basis' ? basisExplain : state.depth === 'klinisch' ? klinischExplain : experteExplain}
@@ -900,7 +942,7 @@ async function fetchGnomadFrequencies(variantId) {
     const data = await res.json();
     const v = data?.data?.variant;
     if (!v) {
-      el.innerHTML = `<div class="vdp-section-title">gnomAD v4</div><div class="vdp-section-body" style="color:var(--text-dim)">Variante zu selten oder nicht in gnomAD</div>`;
+      el.innerHTML = `<div class="vdp-section-title">gnomAD v4</div><div class="vdp-section-body" style="color:var(--text-dim)">Variante zu selten oder nicht in gnomAD vorhanden.</div>`;
       return;
     }
 
@@ -1018,8 +1060,8 @@ function buildQuizQuestions(level) {
         : (c.clinvar || '').toLowerCase().includes('benign') ? 2
         : 1;
       out.push({
-        context: `<strong>${c.gene}</strong> · ${c.hgvs_c}<br>${c.condition || ''}<br><em style="font-size:0.7rem">${(c.teaching.experte || c.teaching.klinisch || '').substring(0, 200)}...</em>`,
-        q: 'Wie wuerdest du diese Variante nach ACMG klassifizieren?',
+        context: `<strong>${c.gene}</strong> · ${c.hgvs_c}<br>${c.condition || ''}<br><em style="font-size:0.7rem">${(c.teaching.experte || c.teaching.klinisch || '').substring(0, 200)}…</em>`,
+        q: 'Wie würdest du diese Variante nach ACMG klassifizieren?',
         options: ['Pathogen / Likely Pathogen', 'VUS', 'Benign / Likely Benign'],
         correct: correctClass,
         explanation: `ClinVar: <strong>${c.clinvar}</strong>. ${c.teaching.experte || c.teaching.klinisch || ''}`,
@@ -1109,7 +1151,7 @@ function finishQuiz() {
   document.getElementById('quiz-final-score').textContent = `${score} / ${total}`;
   let feedback;
   if (pct >= 90) feedback = 'Exzellent! Du beherrschst die Mutations-Interpretation auf hohem Niveau.';
-  else if (pct >= 70) feedback = 'Gut gemacht! Solides Verstaendnis. Schau dir die falschen Antworten an, um deine Wissensluecken zu schliessen.';
+  else if (pct >= 70) feedback = 'Gut gemacht! Solides Verständnis. Schau dir die falschen Antworten an, um deine Wissenslücken zu schließen.';
   else if (pct >= 50) feedback = 'Ordentlich, aber noch Luft nach oben. Probier den Learn-Modus, um die Konzepte interaktiv zu vertiefen.';
   else feedback = 'Lass dich nicht entmutigen! Mutations-Interpretation ist komplex. Schau dir den Learn-Modus an und versuche es dann nochmal.';
   document.getElementById('quiz-final-feedback').textContent = feedback;
