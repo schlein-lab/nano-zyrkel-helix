@@ -390,9 +390,10 @@ function initStep1() {
 
     // Compute resulting coverage
     const regionLen = 500;
-    const avgCov = (numReads * readLen) / regionLen;
+    // Coverage = number of reads overlapping this region (depth of read-stack)
+    const avgCov = numReads;
     if (statsEl) {
-      statsEl.innerHTML = `<span style="font-size:0.7rem;color:var(--text-dim)">→ Resultierende Coverage: <strong style="color:var(--accent)">${avgCov.toFixed(1)}x</strong> (${numReads} Reads × ${readLen >= 1000 ? (readLen/1000).toFixed(1)+'kb' : readLen+'bp'} / ${regionLen}bp Region)</span>`;
+      statsEl.innerHTML = `<span style="font-size:0.7rem;color:var(--text-dim)">→ Resultierende Coverage: <strong style="color:var(--accent)">${avgCov}x</strong> (${numReads} Reads über ${regionLen}bp Region = ${numReads}x Tiefe)</span>`;
     }
 
     const isLong = readLen > 500;
